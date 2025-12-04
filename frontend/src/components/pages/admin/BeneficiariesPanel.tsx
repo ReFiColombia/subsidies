@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
+import { useBeneficiaries } from '@/hooks/useBeneficiaries';
 
 function BeneficiariesPanel() {
   type beneficiary_fields = 'id' | 'dateAdded' | 'dateRemoved' | 'isActive' | 'totalClaimed';
@@ -31,6 +32,15 @@ function BeneficiariesPanel() {
   const sdk = getBuiltGraphSDK();
   const result_beneficiaries = useQuery({ queryKey: ['Beneficiaries'], queryFn: () => sdk.Beneficiaries() });
   const { data: data_beneficiaries } = result_beneficiaries;
+
+  // Fetch beneficiary names from API
+  const { data: beneficiariesData } = useBeneficiaries();
+
+  // Create a lookup map for beneficiary data by address
+  const beneficiaryLookup = useMemo(() => {
+    if (!beneficiariesData) return new Map();
+    return new Map(beneficiariesData.map(b => [b.address.toLowerCase(), b]));
+  }, [beneficiariesData]);
 
   // Fetch all DailyClaims (up to 1000 for safety)
   const result_dailyClaims = useQuery({ queryKey: ['AllDailyClaims'], queryFn: () => sdk.DailyClaims() });
@@ -182,20 +192,23 @@ function BeneficiariesPanel() {
                       .slice()
                       .sort((a, b) => Number(BigInt(b.totalClaimed) - BigInt(a.totalClaimed)))
                       .slice(0, 5)
-                      .map((b, _) => (
-                        <li key={b.id} className="flex justify-between items-center text-gray-800">
-                          <span
-                            className="font-mono text-sm cursor-pointer hover:underline"
-                            onClick={() => {
-                              navigator.clipboard.writeText(b.id);
-                              toast({ title: 'Dirección copiada al portapapeles' });
-                            }}
-                          >
-                            {String(b.id).slice(0, 7)}...{String(b.id).slice(-5)}
-                          </span>
-                          <span className="font-bold text-sm">{new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(Number(formatUnits(b.totalClaimed, 18)))}</span>
-                        </li>
-                      ))}
+                      .map((b) => {
+                        const beneficiaryData = beneficiaryLookup.get(b.id.toLowerCase());
+                        return (
+                          <li key={b.id} className="flex justify-between items-center text-gray-800">
+                            <span
+                              className="text-sm cursor-pointer hover:underline"
+                              onClick={() => {
+                                navigator.clipboard.writeText(b.id);
+                                toast({ title: 'Dirección copiada al portapapeles' });
+                              }}
+                            >
+                              {beneficiaryData?.name || `${String(b.id).slice(0, 7)}...${String(b.id).slice(-5)}`}
+                            </span>
+                            <span className="font-bold text-sm">{new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(Number(formatUnits(b.totalClaimed, 18)))}</span>
+                          </li>
+                        );
+                      })}
                   </ol>
                 </div>
               </>
@@ -267,11 +280,20 @@ function BeneficiariesPanel() {
                   </div>
                 </div>
                 <div className="flex-1 w-full overflow-x-auto overflow-y-auto max-h-[65vh]">
-                  <Table className="w-full min-w-[700px]">
+                  <Table className="w-full min-w-[1000px]">
                     <TableHeader className='sticky top-0 bg-white rounded-t-xl'>
                       <TableRow>
+                        <TableHead className='font-bold min-w-[150px]'>
+                          Nombre
+                        </TableHead>
                         <TableHead onClick={() => requestSort('id')} className='font-bold cursor-pointer min-w-[100px]'>
                           Dirección { SortIcon() }
+                        </TableHead>
+                        <TableHead className='font-bold min-w-[120px]'>
+                          Teléfono
+                        </TableHead>
+                        <TableHead className='font-bold min-w-[120px]'>
+                          Responsable
                         </TableHead>
                         <TableHead onClick={() => requestSort('isActive')} className='font-bold cursor-pointer min-w-[80px]'>
                           Activo { SortIcon() }
@@ -288,25 +310,37 @@ function BeneficiariesPanel() {
                       </TableRow>
                     </TableHeader>
                     <TableBody className='text-left'>
-                      {filteredBeneficiaries.map((beneficiary) => (
-                        <TableRow key={beneficiary.id}>
-                          <TableCell className='cursor-pointer whitespace-nowrap' onClick={() => {
-                            navigator.clipboard.writeText(beneficiary.id);
-                            toast({ title: 'Dirección copiada al portapapeles'})
-                          }}>
-                            {String(beneficiary.id).slice(0, 7)}...{String(beneficiary.id).slice(-5)}
-                          </TableCell>
-                          <TableCell className='whitespace-nowrap'>{beneficiary.isActive ? "Sí" : "No"}</TableCell>
-                          <TableCell className='whitespace-nowrap'>{(new Date(beneficiary.dateAdded * 1000)).toLocaleDateString()}</TableCell>
-                          <TableCell className='whitespace-nowrap'>{beneficiary.dateRemoved ? 
-                            (new Date(beneficiary.dateRemoved*1000)).toLocaleDateString()
-                          : "-"}</TableCell>
-                          <TableCell className='text-right whitespace-nowrap'>{new Intl.NumberFormat('es-CO', {
-                            style: 'currency',
-                            currency: 'COP',
-                          }).format(Number(formatUnits(beneficiary.totalClaimed, 18)))}</TableCell>
-                        </TableRow>
-                      ))}
+                      {filteredBeneficiaries.map((beneficiary) => {
+                        const beneficiaryData = beneficiaryLookup.get(beneficiary.id.toLowerCase());
+                        return (
+                          <TableRow key={beneficiary.id}>
+                            <TableCell className='font-medium whitespace-nowrap'>
+                              {beneficiaryData?.name || '-'}
+                            </TableCell>
+                            <TableCell className='cursor-pointer whitespace-nowrap' onClick={() => {
+                              navigator.clipboard.writeText(beneficiary.id);
+                              toast({ title: 'Dirección copiada al portapapeles'})
+                            }}>
+                              {String(beneficiary.id).slice(0, 7)}...{String(beneficiary.id).slice(-5)}
+                            </TableCell>
+                            <TableCell className='whitespace-nowrap'>
+                              {beneficiaryData?.phoneNumber || '-'}
+                            </TableCell>
+                            <TableCell className='whitespace-nowrap'>
+                              {beneficiaryData?.responsable || '-'}
+                            </TableCell>
+                            <TableCell className='whitespace-nowrap'>{beneficiary.isActive ? "Sí" : "No"}</TableCell>
+                            <TableCell className='whitespace-nowrap'>{(new Date(beneficiary.dateAdded * 1000)).toLocaleDateString()}</TableCell>
+                            <TableCell className='whitespace-nowrap'>{beneficiary.dateRemoved ?
+                              (new Date(beneficiary.dateRemoved*1000)).toLocaleDateString()
+                            : "-"}</TableCell>
+                            <TableCell className='text-right whitespace-nowrap'>{new Intl.NumberFormat('es-CO', {
+                              style: 'currency',
+                              currency: 'COP',
+                            }).format(Number(formatUnits(beneficiary.totalClaimed, 18)))}</TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </div>

@@ -17,11 +17,12 @@
 
 ## Project Overview
 
-This is a **Subsidy Program** built on the **Celo blockchain** that enables eligible beneficiaries to claim periodic subsidies in cCOP (Celo Colombian Peso). The project consists of three main components:
+This is a **Subsidy Program** built on the **Celo blockchain** that enables eligible beneficiaries to claim periodic subsidies in cCOP (Celo Colombian Peso). The project consists of four main components:
 
 1. **Smart Contracts** - Solidity contracts managing the subsidy program logic
 2. **Frontend** - React/TypeScript web application for users and administrators
 3. **Subgraph** - The Graph protocol integration for indexing and querying blockchain events
+4. **Backend API** - Node.js/Express API with SQLite database for storing beneficiary names and contact information
 
 The system allows:
 - Beneficiaries to claim subsidies at regular intervals
@@ -40,13 +41,13 @@ The system allows:
 │                  │  └─ Admin Dashboard
 └────────┬─────────┘
          │
-         ├─────────────────┐
-         │                 │
-┌────────▼─────────┐  ┌────▼──────────┐
-│  Smart Contract  │  │   Subgraph   │
-│  (SubsidyProgram)│  │  (The Graph) │
-│  on Celo         │  │  └─ Indexing │
-└──────────────────┘  └──────────────┘
+         ├─────────────────┬──────────────────┐
+         │                 │                  │
+┌────────▼─────────┐  ┌────▼──────────┐ ┌────▼───────────┐
+│  Smart Contract  │  │   Subgraph    │ │  Backend API   │
+│  (SubsidyProgram)│  │  (The Graph)  │ │  (Node.js)     │
+│  on Celo         │  │  └─ Indexing  │ │  └─ SQLite DB  │
+└──────────────────┘  └───────────────┘ └────────────────┘
          │
          │
 ┌────────▼─────────┐
@@ -353,12 +354,22 @@ subsidies/
 │   │   ├── App.tsx             # Main user interface
 │   │   ├── pages/              # Page components
 │   │   ├── components/         # React components
-│   │   ├── hooks/              # Custom React hooks
+│   │   ├── hooks/              # Custom React hooks (includes useBeneficiaries)
 │   │   ├── queries/            # GraphQL queries
 │   │   ├── constants/          # Contract addresses, ABIs
 │   │   └── config/             # Wagmi/AppKit config
 │   ├── package.json
 │   └── vite.config.ts
+│
+├── backend/                     # Node.js API server
+│   ├── src/
+│   │   └── index.ts            # Express API server
+│   ├── prisma/
+│   │   ├── schema.prisma       # Database schema
+│   │   └── seed.ts             # Seed data (32 beneficiaries)
+│   ├── package.json
+│   ├── README.md               # Backend documentation
+│   └── QUICK_START.md          # Quick setup guide
 │
 ├── smart-cotracts/              # Solidity smart contracts
 │   ├── src/
@@ -369,12 +380,14 @@ subsidies/
 │   ├── test/                   # Foundry tests
 │   └── foundry.toml
 │
-└── subgraph/                    # The Graph subgraph
-    ├── schema.graphql          # GraphQL schema
-    ├── subgraph.yaml           # Subgraph manifest
-    ├── src/
-    │   └── subsidy-program.ts  # Event handlers
-    └── abis/                   # Contract ABIs
+├── subgraph/                    # The Graph subgraph
+│   ├── schema.graphql          # GraphQL schema
+│   ├── subgraph.yaml           # Subgraph manifest
+│   ├── src/
+│   │   └── subsidy-program.ts  # Event handlers
+│   └── abis/                   # Contract ABIs
+│
+└── INTEGRATION_GUIDE.md         # Guide for integrating backend with frontend
 ```
 
 ---
@@ -386,17 +399,36 @@ subsidies/
 - Foundry (for smart contracts)
 - The Graph CLI (for subgraph)
 
+### Backend Setup
+
+```bash
+cd backend
+npm install
+npm run prisma:generate
+npm run prisma:migrate
+npm run seed              # Seed with 32 beneficiaries
+npm run dev               # Runs on http://localhost:3001
+```
+
+**Environment Variables:**
+
+- `DATABASE_URL` - SQLite database path (default: `file:./dev.db`)
+- `PORT` - Server port (default: 3001)
+
+See [backend/README.md](backend/README.md) for API documentation.
+
 ### Frontend Setup
 
 ```bash
 cd frontend
 npm install
-cp .env.example .env  # Add VITE_PROJECT_ID
+cp .env.example .env  # Add VITE_PROJECT_ID and VITE_API_URL
 npm run dev
 ```
 
 **Environment Variables:**
 - `VITE_PROJECT_ID` - Reown/WalletConnect project ID
+- `VITE_API_URL` - Backend API URL (default: `http://localhost:3001`)
 
 ### Smart Contracts Setup
 
