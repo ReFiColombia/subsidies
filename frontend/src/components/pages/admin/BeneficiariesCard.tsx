@@ -144,7 +144,7 @@ function BeneficiariesCard() {
           </CardHeader>
           <CardContent className="text-left p-0 mb-4">
             <Label className="text-gray-700 mb-2">Address</Label>
-            <Input name="address" id="addressAdd" placeholder="0x123..." className="mt-1"/>
+            <Input name="address" id="addressAdd" placeholder="0x123..." className="mt-1 text-gray-900"/>
           </CardContent>
           <CardFooter className="p-0">
             <Button 
@@ -167,7 +167,7 @@ function BeneficiariesCard() {
           </CardHeader>
           <CardContent className="text-left p-0 mb-4">
             <Label className="text-gray-700 mb-2">Address</Label>
-            <Input name="address" id="addressDelete" placeholder="0x123..." className="mt-1"/>
+            <Input name="address" id="addressDelete" placeholder="0x123..." className="mt-1 text-gray-900"/>
           </CardContent>
           <CardFooter className="p-0">
             <Button 

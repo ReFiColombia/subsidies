@@ -181,7 +181,7 @@ function FundsCard() {
             </CardHeader>
             <CardContent className='text-left p-0 mb-4'>
               <Label className='text-gray-700 mb-2'>Cantidad</Label>
-              <Input name='amount' placeholder='$cCop' className='mt-1' />
+              <Input name='amount' placeholder='$cCop' className='mt-1 text-gray-900' />
             </CardContent>
             <CardFooter className='p-0'>
               <Button disabled={isPending || isLoading} className='w-full bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg'>

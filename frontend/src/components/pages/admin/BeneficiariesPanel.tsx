@@ -209,7 +209,7 @@ function BeneficiariesPanel() {
                       placeholder="Buscar por dirección..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-8"
+                      className="pl-8 text-gray-900"
                     />
                   </div>
                   <div className="w-full md:w-[120px]">
@@ -261,7 +261,7 @@ function BeneficiariesPanel() {
                         placeholder="Monto en COP"
                         value={amountThreshold}
                         onChange={e => setAmountThreshold(e.target.value)}
-                        className="w-full"
+                        className="w-full text-gray-900"
                       />
                     </div>
                   </div>
