@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { formatUnits, isAddress } from 'viem';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { ArrowUpDown, Search, Save, X, Edit, Settings2, Check } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -57,9 +57,58 @@ function BeneficiariesPanel() {
     acciones: true,
   });
 
+  // Column width state
+  const [columnWidths, setColumnWidths] = useState({
+    nombre: 150,
+    direccion: 130,
+    telefono: 120,
+    responsable: 120,
+    activo: 80,
+    fechaAnadido: 120,
+    fechaEliminado: 120,
+    totalReclamado: 150,
+    acciones: 40,
+  });
+
+  // Resize state
+  const [resizingColumn, setResizingColumn] = useState<string | null>(null);
+  const [resizeStartX, setResizeStartX] = useState(0);
+  const [resizeStartWidth, setResizeStartWidth] = useState(0);
+
   const toggleColumn = (column: keyof typeof visibleColumns) => {
     setVisibleColumns(prev => ({ ...prev, [column]: !prev[column] }));
   };
+
+  const handleResizeStart = (e: React.MouseEvent, column: keyof typeof columnWidths) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setResizingColumn(column);
+    setResizeStartX(e.clientX);
+    setResizeStartWidth(columnWidths[column]);
+  };
+
+  const handleResizeMove = (e: MouseEvent) => {
+    if (!resizingColumn) return;
+    const diff = e.clientX - resizeStartX;
+    const newWidth = Math.max(40, resizeStartWidth + diff);
+    setColumnWidths(prev => ({ ...prev, [resizingColumn]: newWidth }));
+  };
+
+  const handleResizeEnd = () => {
+    setResizingColumn(null);
+  };
+
+  // Add global event listeners for resize
+  useEffect(() => {
+    if (resizingColumn) {
+      document.addEventListener('mousemove', handleResizeMove as any);
+      document.addEventListener('mouseup', handleResizeEnd);
+      return () => {
+        document.removeEventListener('mousemove', handleResizeMove as any);
+        document.removeEventListener('mouseup', handleResizeEnd);
+      };
+    }
+  }, [resizingColumn]);
 
   const { data: selectedBeneficiary } = useBeneficiary(selectedAddress || '');
   const updateBeneficiary = useUpdateBeneficiary();
@@ -440,49 +489,59 @@ function BeneficiariesPanel() {
                 </div>
                 <div className="flex-1 w-full overflow-x-auto overflow-y-auto max-h-[65vh]">
                   <Table className="w-full min-w-[1000px]">
-                    <TableHeader className='sticky top-0 bg-white rounded-t-xl'>
-                      <TableRow>
+                    <TableHeader className='sticky top-0 bg-white rounded-t-xl z-10'>
+                      <TableRow className='border-b border-gray-200'>
                         {visibleColumns.acciones && (
-                          <TableHead className='w-[40px]'></TableHead>
+                          <TableHead className='relative' style={{ width: `${columnWidths.acciones}px` }}>
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'acciones')} />
+                          </TableHead>
                         )}
                         {visibleColumns.nombre && (
-                          <TableHead className='font-bold min-w-[150px] resize-x'>
+                          <TableHead className='font-bold relative' style={{ width: `${columnWidths.nombre}px` }}>
                             Nombre
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'nombre')} />
                           </TableHead>
                         )}
                         {visibleColumns.direccion && (
-                          <TableHead onClick={() => requestSort('id')} className='font-bold cursor-pointer min-w-[100px]'>
+                          <TableHead onClick={() => requestSort('id')} className='font-bold cursor-pointer relative' style={{ width: `${columnWidths.direccion}px` }}>
                             Dirección { SortIcon() }
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'direccion')} />
                           </TableHead>
                         )}
                         {visibleColumns.telefono && (
-                          <TableHead className='font-bold min-w-[120px]'>
+                          <TableHead className='font-bold relative' style={{ width: `${columnWidths.telefono}px` }}>
                             Teléfono
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'telefono')} />
                           </TableHead>
                         )}
                         {visibleColumns.responsable && (
-                          <TableHead className='font-bold min-w-[120px]'>
+                          <TableHead className='font-bold relative' style={{ width: `${columnWidths.responsable}px` }}>
                             Responsable
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'responsable')} />
                           </TableHead>
                         )}
                         {visibleColumns.activo && (
-                          <TableHead onClick={() => requestSort('isActive')} className='font-bold cursor-pointer min-w-[80px]'>
+                          <TableHead onClick={() => requestSort('isActive')} className='font-bold cursor-pointer relative' style={{ width: `${columnWidths.activo}px` }}>
                             Activo { SortIcon() }
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'activo')} />
                           </TableHead>
                         )}
                         {visibleColumns.fechaAnadido && (
-                          <TableHead onClick={() => requestSort('dateAdded')} className='font-bold cursor-pointer min-w-[120px]'>
+                          <TableHead onClick={() => requestSort('dateAdded')} className='font-bold cursor-pointer relative' style={{ width: `${columnWidths.fechaAnadido}px` }}>
                             Fecha añadido { SortIcon() }
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'fechaAnadido')} />
                           </TableHead>
                         )}
                         {visibleColumns.fechaEliminado && (
-                          <TableHead onClick={() => requestSort('dateRemoved')} className='font-bold cursor-pointer min-w-[120px]'>
+                          <TableHead onClick={() => requestSort('dateRemoved')} className='font-bold cursor-pointer relative' style={{ width: `${columnWidths.fechaEliminado}px` }}>
                             Fecha eliminado { SortIcon() }
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'fechaEliminado')} />
                           </TableHead>
                         )}
                         {visibleColumns.totalReclamado && (
-                          <TableHead onClick={() => requestSort('totalClaimed')} className='text-right font-bold cursor-pointer min-w-[150px]'>
+                          <TableHead onClick={() => requestSort('totalClaimed')} className='text-right font-bold cursor-pointer relative' style={{ width: `${columnWidths.totalReclamado}px` }}>
                             Total Reclamado { SortIcon() }
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'totalReclamado')} />
                           </TableHead>
                         )}
                       </TableRow>
@@ -493,7 +552,7 @@ function BeneficiariesPanel() {
                         return (
                           <TableRow key={beneficiary.id} className='hover:bg-gray-50 transition-colors'>
                             {visibleColumns.acciones && (
-                              <TableCell className='whitespace-nowrap p-1'>
+                              <TableCell className='whitespace-nowrap p-1' style={{ width: `${columnWidths.acciones}px` }}>
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -508,6 +567,7 @@ function BeneficiariesPanel() {
                               <TableCell
                                 className='font-medium whitespace-nowrap cursor-pointer hover:text-cyan-600 transition-colors'
                                 onClick={() => handleRowClick(beneficiary.id)}
+                                style={{ width: `${columnWidths.nombre}px` }}
                               >
                                 {beneficiaryData?.name || '-'}
                               </TableCell>
@@ -516,33 +576,33 @@ function BeneficiariesPanel() {
                               <TableCell className='cursor-pointer whitespace-nowrap hover:text-cyan-600 transition-colors' onClick={() => {
                                 navigator.clipboard.writeText(beneficiary.id);
                                 toast({ title: 'Dirección copiada al portapapeles'})
-                              }}>
+                              }} style={{ width: `${columnWidths.direccion}px` }}>
                                 {String(beneficiary.id).slice(0, 7)}...{String(beneficiary.id).slice(-5)}
                               </TableCell>
                             )}
                             {visibleColumns.telefono && (
-                              <TableCell className='whitespace-nowrap'>
+                              <TableCell className='whitespace-nowrap' style={{ width: `${columnWidths.telefono}px` }}>
                                 {beneficiaryData?.phoneNumber || '-'}
                               </TableCell>
                             )}
                             {visibleColumns.responsable && (
-                              <TableCell className='whitespace-nowrap'>
+                              <TableCell className='whitespace-nowrap' style={{ width: `${columnWidths.responsable}px` }}>
                                 {beneficiaryData?.responsable || '-'}
                               </TableCell>
                             )}
                             {visibleColumns.activo && (
-                              <TableCell className='whitespace-nowrap'>{beneficiary.isActive ? "Sí" : "No"}</TableCell>
+                              <TableCell className='whitespace-nowrap' style={{ width: `${columnWidths.activo}px` }}>{beneficiary.isActive ? "Sí" : "No"}</TableCell>
                             )}
                             {visibleColumns.fechaAnadido && (
-                              <TableCell className='whitespace-nowrap'>{(new Date(beneficiary.dateAdded * 1000)).toLocaleDateString()}</TableCell>
+                              <TableCell className='whitespace-nowrap' style={{ width: `${columnWidths.fechaAnadido}px` }}>{(new Date(beneficiary.dateAdded * 1000)).toLocaleDateString()}</TableCell>
                             )}
                             {visibleColumns.fechaEliminado && (
-                              <TableCell className='whitespace-nowrap'>{beneficiary.dateRemoved ?
+                              <TableCell className='whitespace-nowrap' style={{ width: `${columnWidths.fechaEliminado}px` }}>{beneficiary.dateRemoved ?
                                 (new Date(beneficiary.dateRemoved*1000)).toLocaleDateString()
                               : "-"}</TableCell>
                             )}
                             {visibleColumns.totalReclamado && (
-                              <TableCell className='text-right whitespace-nowrap'>{new Intl.NumberFormat('es-CO', {
+                              <TableCell className='text-right whitespace-nowrap' style={{ width: `${columnWidths.totalReclamado}px` }}>{new Intl.NumberFormat('es-CO', {
                                 style: 'currency',
                                 currency: 'COP',
                               }).format(Number(formatUnits(beneficiary.totalClaimed, 18)))}</TableCell>
