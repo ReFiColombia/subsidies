@@ -5,7 +5,7 @@ import { formatUnits, isAddress } from 'viem';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useMemo, useState } from 'react';
-import { ArrowUpDown, Search, Save, X, Edit } from 'lucide-react';
+import { ArrowUpDown, Search, Save, X, Edit, Settings2, Check } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -43,6 +43,23 @@ function BeneficiariesPanel() {
   const [searchError, setSearchError] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Column visibility state
+  const [visibleColumns, setVisibleColumns] = useState({
+    nombre: true,
+    direccion: true,
+    telefono: true,
+    responsable: true,
+    activo: true,
+    fechaAnadido: true,
+    fechaEliminado: true,
+    totalReclamado: true,
+    acciones: true,
+  });
+
+  const toggleColumn = (column: keyof typeof visibleColumns) => {
+    setVisibleColumns(prev => ({ ...prev, [column]: !prev[column] }));
+  };
+
   const { data: selectedBeneficiary } = useBeneficiary(selectedAddress || '');
   const updateBeneficiary = useUpdateBeneficiary();
 
@@ -55,14 +72,8 @@ function BeneficiariesPanel() {
 
   // Create a lookup map for beneficiary data by address
   const beneficiaryLookup = useMemo(() => {
-    if (!beneficiariesData) {
-      console.log('No beneficiariesData yet');
-      return new Map();
-    }
-    console.log('Creating beneficiaryLookup with', beneficiariesData.length, 'beneficiaries');
-    const map = new Map(beneficiariesData.map(b => [b.address.toLowerCase(), b]));
-    console.log('Map keys sample:', Array.from(map.keys()).slice(0, 3));
-    return map;
+    if (!beneficiariesData) return new Map();
+    return new Map(beneficiariesData.map(b => [b.address.toLowerCase(), b]));
   }, [beneficiariesData]);
 
   // Fetch all DailyClaims (up to 1000 for safety)
@@ -229,11 +240,7 @@ function BeneficiariesPanel() {
   };
 
   const handleRowClick = (address: string) => {
-    console.log('handleRowClick called with address:', address);
     const beneficiary = beneficiaryLookup.get(address.toLowerCase());
-    console.log('Found beneficiary:', beneficiary);
-    console.log('beneficiaryLookup size:', beneficiaryLookup.size);
-
     if (beneficiary) {
       setSelectedAddress(beneficiary.address);
       setFormData({
@@ -242,9 +249,6 @@ function BeneficiariesPanel() {
         responsable: beneficiary.responsable || '',
       });
       setIsDialogOpen(true);
-      console.log('Dialog should open now');
-    } else {
-      console.log('No beneficiary found for address:', address);
     }
   };
 
@@ -385,38 +389,85 @@ function BeneficiariesPanel() {
                       />
                     </div>
                   </div>
+                  {/* Column visibility toggle */}
+                  <Select value="columns" onValueChange={() => {}}>
+                    <SelectTrigger className="w-full md:w-[140px]">
+                      <Settings2 className="h-4 w-4 mr-2" />
+                      <SelectValue>Columnas</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <div className="p-2 space-y-2">
+                        {[
+                          { key: 'nombre' as const, label: 'Nombre' },
+                          { key: 'direccion' as const, label: 'Dirección' },
+                          { key: 'telefono' as const, label: 'Teléfono' },
+                          { key: 'responsable' as const, label: 'Responsable' },
+                          { key: 'activo' as const, label: 'Activo' },
+                          { key: 'fechaAnadido' as const, label: 'Fecha añadido' },
+                          { key: 'fechaEliminado' as const, label: 'Fecha eliminado' },
+                          { key: 'totalReclamado' as const, label: 'Total reclamado' },
+                          { key: 'acciones' as const, label: 'Acciones' },
+                        ].map(col => (
+                          <div key={col.key} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 p-1 rounded" onClick={() => toggleColumn(col.key)}>
+                            <div className="w-4 h-4 border border-gray-300 rounded flex items-center justify-center bg-white">
+                              {visibleColumns[col.key] && <Check className="h-3 w-3 text-cyan-600" />}
+                            </div>
+                            <span className="text-sm text-gray-700">{col.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex-1 w-full overflow-x-auto overflow-y-auto max-h-[65vh]">
                   <Table className="w-full min-w-[1000px]">
                     <TableHeader className='sticky top-0 bg-white rounded-t-xl'>
                       <TableRow>
-                        <TableHead className='font-bold min-w-[150px]'>
-                          Nombre
-                        </TableHead>
-                        <TableHead onClick={() => requestSort('id')} className='font-bold cursor-pointer min-w-[100px]'>
-                          Dirección { SortIcon() }
-                        </TableHead>
-                        <TableHead className='font-bold min-w-[120px]'>
-                          Teléfono
-                        </TableHead>
-                        <TableHead className='font-bold min-w-[120px]'>
-                          Responsable
-                        </TableHead>
-                        <TableHead onClick={() => requestSort('isActive')} className='font-bold cursor-pointer min-w-[80px]'>
-                          Activo { SortIcon() }
-                        </TableHead>
-                        <TableHead onClick={() => requestSort('dateAdded')} className='font-bold cursor-pointer min-w-[120px]'>
-                          Fecha añadido { SortIcon() }
-                        </TableHead>
-                        <TableHead onClick={() => requestSort('dateRemoved')} className='font-bold cursor-pointer min-w-[120px]'>
-                          Fecha eliminado { SortIcon() }
-                        </TableHead>
-                        <TableHead onClick={() => requestSort('totalClaimed')} className='text-right font-bold cursor-pointer min-w-[150px]'>
-                          Total Reclamado { SortIcon() }
-                        </TableHead>
-                        <TableHead className='font-bold min-w-[80px]'>
-                          Acciones
-                        </TableHead>
+                        {visibleColumns.nombre && (
+                          <TableHead className='font-bold min-w-[150px] resize-x'>
+                            Nombre
+                          </TableHead>
+                        )}
+                        {visibleColumns.direccion && (
+                          <TableHead onClick={() => requestSort('id')} className='font-bold cursor-pointer min-w-[100px]'>
+                            Dirección { SortIcon() }
+                          </TableHead>
+                        )}
+                        {visibleColumns.telefono && (
+                          <TableHead className='font-bold min-w-[120px]'>
+                            Teléfono
+                          </TableHead>
+                        )}
+                        {visibleColumns.responsable && (
+                          <TableHead className='font-bold min-w-[120px]'>
+                            Responsable
+                          </TableHead>
+                        )}
+                        {visibleColumns.activo && (
+                          <TableHead onClick={() => requestSort('isActive')} className='font-bold cursor-pointer min-w-[80px]'>
+                            Activo { SortIcon() }
+                          </TableHead>
+                        )}
+                        {visibleColumns.fechaAnadido && (
+                          <TableHead onClick={() => requestSort('dateAdded')} className='font-bold cursor-pointer min-w-[120px]'>
+                            Fecha añadido { SortIcon() }
+                          </TableHead>
+                        )}
+                        {visibleColumns.fechaEliminado && (
+                          <TableHead onClick={() => requestSort('dateRemoved')} className='font-bold cursor-pointer min-w-[120px]'>
+                            Fecha eliminado { SortIcon() }
+                          </TableHead>
+                        )}
+                        {visibleColumns.totalReclamado && (
+                          <TableHead onClick={() => requestSort('totalClaimed')} className='text-right font-bold cursor-pointer min-w-[150px]'>
+                            Total Reclamado { SortIcon() }
+                          </TableHead>
+                        )}
+                        {visibleColumns.acciones && (
+                          <TableHead className='font-bold min-w-[80px]'>
+                            Acciones
+                          </TableHead>
+                        )}
                       </TableRow>
                     </TableHeader>
                     <TableBody className='text-left'>
@@ -424,50 +475,61 @@ function BeneficiariesPanel() {
                         const beneficiaryData = beneficiaryLookup.get(beneficiary.id.toLowerCase());
                         return (
                           <TableRow key={beneficiary.id} className='hover:bg-gray-50 transition-colors'>
-                            <TableCell
-                              className='font-medium whitespace-nowrap cursor-pointer hover:text-cyan-600 transition-colors'
-                              onClick={() => {
-                                console.log('Name cell clicked for:', beneficiary.id);
-                                console.log('beneficiaryData exists?', !!beneficiaryData);
-                                handleRowClick(beneficiary.id);
-                              }}
-                            >
-                              {beneficiaryData?.name || '-'}
-                            </TableCell>
-                            <TableCell className='cursor-pointer whitespace-nowrap hover:text-cyan-600 transition-colors' onClick={() => {
-                              navigator.clipboard.writeText(beneficiary.id);
-                              toast({ title: 'Dirección copiada al portapapeles'})
-                            }}>
-                              {String(beneficiary.id).slice(0, 7)}...{String(beneficiary.id).slice(-5)}
-                            </TableCell>
-                            <TableCell className='whitespace-nowrap'>
-                              {beneficiaryData?.phoneNumber || '-'}
-                            </TableCell>
-                            <TableCell className='whitespace-nowrap'>
-                              {beneficiaryData?.responsable || '-'}
-                            </TableCell>
-                            <TableCell className='whitespace-nowrap'>{beneficiary.isActive ? "Sí" : "No"}</TableCell>
-                            <TableCell className='whitespace-nowrap'>{(new Date(beneficiary.dateAdded * 1000)).toLocaleDateString()}</TableCell>
-                            <TableCell className='whitespace-nowrap'>{beneficiary.dateRemoved ?
-                              (new Date(beneficiary.dateRemoved*1000)).toLocaleDateString()
-                            : "-"}</TableCell>
-                            <TableCell className='text-right whitespace-nowrap'>{new Intl.NumberFormat('es-CO', {
-                              style: 'currency',
-                              currency: 'COP',
-                            }).format(Number(formatUnits(beneficiary.totalClaimed, 18)))}</TableCell>
-                            <TableCell className='whitespace-nowrap'>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  console.log('Edit button clicked for:', beneficiary.id);
-                                  handleRowClick(beneficiary.id);
-                                }}
-                                className="h-8 w-8 p-0 hover:bg-cyan-100 transition-colors"
+                            {visibleColumns.nombre && (
+                              <TableCell
+                                className='font-medium whitespace-nowrap cursor-pointer hover:text-cyan-600 transition-colors'
+                                onClick={() => handleRowClick(beneficiary.id)}
                               >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
+                                {beneficiaryData?.name || '-'}
+                              </TableCell>
+                            )}
+                            {visibleColumns.direccion && (
+                              <TableCell className='cursor-pointer whitespace-nowrap hover:text-cyan-600 transition-colors' onClick={() => {
+                                navigator.clipboard.writeText(beneficiary.id);
+                                toast({ title: 'Dirección copiada al portapapeles'})
+                              }}>
+                                {String(beneficiary.id).slice(0, 7)}...{String(beneficiary.id).slice(-5)}
+                              </TableCell>
+                            )}
+                            {visibleColumns.telefono && (
+                              <TableCell className='whitespace-nowrap'>
+                                {beneficiaryData?.phoneNumber || '-'}
+                              </TableCell>
+                            )}
+                            {visibleColumns.responsable && (
+                              <TableCell className='whitespace-nowrap'>
+                                {beneficiaryData?.responsable || '-'}
+                              </TableCell>
+                            )}
+                            {visibleColumns.activo && (
+                              <TableCell className='whitespace-nowrap'>{beneficiary.isActive ? "Sí" : "No"}</TableCell>
+                            )}
+                            {visibleColumns.fechaAnadido && (
+                              <TableCell className='whitespace-nowrap'>{(new Date(beneficiary.dateAdded * 1000)).toLocaleDateString()}</TableCell>
+                            )}
+                            {visibleColumns.fechaEliminado && (
+                              <TableCell className='whitespace-nowrap'>{beneficiary.dateRemoved ?
+                                (new Date(beneficiary.dateRemoved*1000)).toLocaleDateString()
+                              : "-"}</TableCell>
+                            )}
+                            {visibleColumns.totalReclamado && (
+                              <TableCell className='text-right whitespace-nowrap'>{new Intl.NumberFormat('es-CO', {
+                                style: 'currency',
+                                currency: 'COP',
+                              }).format(Number(formatUnits(beneficiary.totalClaimed, 18)))}</TableCell>
+                            )}
+                            {visibleColumns.acciones && (
+                              <TableCell className='whitespace-nowrap'>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleRowClick(beneficiary.id)}
+                                  className="h-8 w-8 p-0 hover:bg-cyan-100 transition-colors"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            )}
                           </TableRow>
                         );
                       })}
