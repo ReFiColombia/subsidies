@@ -429,11 +429,7 @@ function BeneficiariesPanel() {
                               onClick={() => {
                                 console.log('Name cell clicked for:', beneficiary.id);
                                 console.log('beneficiaryData exists?', !!beneficiaryData);
-                                if (beneficiaryData) {
-                                  handleRowClick(beneficiary.id);
-                                } else {
-                                  console.log('Click blocked: no beneficiaryData');
-                                }
+                                handleRowClick(beneficiary.id);
                               }}
                             >
                               {beneficiaryData?.name || '-'}
