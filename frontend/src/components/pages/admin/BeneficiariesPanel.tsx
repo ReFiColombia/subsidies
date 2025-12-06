@@ -1,16 +1,18 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getBuiltGraphSDK } from '@/../.graphclient';
 import { useQuery } from '@tanstack/react-query';
-import { formatUnits } from 'viem';
+import { formatUnits, isAddress } from 'viem';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useMemo, useState } from 'react';
-import { ArrowUpDown, Search } from 'lucide-react';
+import { ArrowUpDown, Search, Save, X } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
-import { useBeneficiaries } from '@/hooks/useBeneficiaries';
+import { useBeneficiaries, useBeneficiary, useUpdateBeneficiary } from '@/hooks/useBeneficiaries';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 
 function BeneficiariesPanel() {
   type beneficiary_fields = 'id' | 'dateAdded' | 'dateRemoved' | 'isActive' | 'totalClaimed';
@@ -28,6 +30,19 @@ function BeneficiariesPanel() {
   // Nuevo filtro de umbral
   const [amountThreshold, setAmountThreshold] = useState<string>('');
   const [amountComparison, setAmountComparison] = useState<'gt' | 'lt'>('gt');
+
+  // Beneficiary management states
+  const [searchAddress, setSearchAddress] = useState('');
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+  const [formData, setFormData] = useState<{name: string; phoneNumber: string; responsable: string}>({
+    name: '',
+    phoneNumber: '',
+    responsable: '',
+  });
+  const [searchError, setSearchError] = useState('');
+
+  const { data: selectedBeneficiary } = useBeneficiary(selectedAddress || '');
+  const updateBeneficiary = useUpdateBeneficiary();
 
   const sdk = getBuiltGraphSDK();
   const result_beneficiaries = useQuery({ queryKey: ['Beneficiaries'], queryFn: () => sdk.Beneficiaries() });
@@ -139,6 +154,68 @@ function BeneficiariesPanel() {
 
   const SortIcon = () => {
     return <ArrowUpDown className='inline ml-1 w-4 h-4 relative top-[0.5px]'/>
+  };
+
+  const handleSearch = () => {
+    setSearchError('');
+
+    if (!searchAddress.trim()) {
+      setSearchError('Por favor ingresa una dirección');
+      return;
+    }
+
+    if (!isAddress(searchAddress)) {
+      setSearchError('Dirección inválida');
+      return;
+    }
+
+    const normalizedAddress = searchAddress.toLowerCase();
+    const beneficiary = beneficiariesData?.find(
+      (b) => b.address.toLowerCase() === normalizedAddress
+    );
+
+    if (!beneficiary) {
+      setSearchError('Beneficiario no encontrado');
+      setSelectedAddress(null);
+      return;
+    }
+
+    setSelectedAddress(beneficiary.address);
+    setFormData({
+      name: beneficiary.name,
+      phoneNumber: beneficiary.phoneNumber || '',
+      responsable: beneficiary.responsable || '',
+    });
+  };
+
+  const handleUpdate = async () => {
+    if (!selectedAddress) return;
+
+    try {
+      await updateBeneficiary.mutateAsync({
+        address: selectedAddress,
+        name: formData.name,
+        phoneNumber: formData.phoneNumber || null,
+        responsable: formData.responsable || null,
+      });
+
+      toast({ title: '✓ Beneficiario actualizado exitosamente' });
+
+      // Clear form after successful update
+      setSearchAddress('');
+      setSelectedAddress(null);
+      setFormData({ name: '', phoneNumber: '', responsable: '' });
+    } catch (error) {
+      console.error('Error updating beneficiary:', error);
+      toast({ title: 'Error al actualizar beneficiario', variant: 'destructive' });
+    }
+  };
+
+  const handleCancel = () => {
+    setSearchAddress('');
+    setSelectedAddress(null);
+    setFormData({ name: '', phoneNumber: '', responsable: '' });
+    setSearchError('');
   };
 
   return (
@@ -349,6 +426,117 @@ function BeneficiariesPanel() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Beneficiary Management Section */}
+      <div className="mt-6 w-full space-y-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-gray-900">Buscar Beneficiario</CardTitle>
+            <CardDescription className="text-gray-600">
+              Ingresa la dirección del beneficiario para buscar y actualizar su información
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <Input
+                  placeholder="0x..."
+                  value={searchAddress}
+                  onChange={(e) => {
+                    setSearchAddress(e.target.value);
+                    setSearchError('');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSearch();
+                    }
+                  }}
+                  className="text-gray-900"
+                />
+                {searchError && (
+                  <p className="text-sm text-red-500 mt-1">{searchError}</p>
+                )}
+              </div>
+              <Button onClick={handleSearch} disabled={!searchAddress.trim()}>
+                <Search className="w-4 h-4 mr-2" />
+                Buscar
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {selectedAddress && selectedBeneficiary && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-gray-900">Editar Beneficiario</CardTitle>
+              <CardDescription className="text-gray-600">
+                Dirección: {selectedAddress}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="name" className="text-gray-900">Nombre</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    placeholder="Nombre completo"
+                    className="text-gray-900"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="phoneNumber" className="text-gray-900">Teléfono</Label>
+                  <Input
+                    id="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phoneNumber: e.target.value })
+                    }
+                    placeholder="Número de teléfono"
+                    className="text-gray-900"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="responsable" className="text-gray-900">Responsable</Label>
+                  <Input
+                    id="responsable"
+                    value={formData.responsable}
+                    onChange={(e) =>
+                      setFormData({ ...formData, responsable: e.target.value })
+                    }
+                    placeholder="Nombre del responsable"
+                    className="text-gray-900"
+                  />
+                </div>
+
+                <div className="flex gap-2 pt-4">
+                  <Button
+                    onClick={handleUpdate}
+                    disabled={updateBeneficiary.isPending || !formData.name.trim()}
+                    className="flex-1"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {updateBeneficiary.isPending ? 'Guardando...' : 'Guardar'}
+                  </Button>
+                  <Button
+                    onClick={handleCancel}
+                    variant="outline"
+                    disabled={updateBeneficiary.isPending}
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
