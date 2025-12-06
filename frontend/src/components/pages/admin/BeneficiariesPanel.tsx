@@ -55,8 +55,14 @@ function BeneficiariesPanel() {
 
   // Create a lookup map for beneficiary data by address
   const beneficiaryLookup = useMemo(() => {
-    if (!beneficiariesData) return new Map();
-    return new Map(beneficiariesData.map(b => [b.address.toLowerCase(), b]));
+    if (!beneficiariesData) {
+      console.log('No beneficiariesData yet');
+      return new Map();
+    }
+    console.log('Creating beneficiaryLookup with', beneficiariesData.length, 'beneficiaries');
+    const map = new Map(beneficiariesData.map(b => [b.address.toLowerCase(), b]));
+    console.log('Map keys sample:', Array.from(map.keys()).slice(0, 3));
+    return map;
   }, [beneficiariesData]);
 
   // Fetch all DailyClaims (up to 1000 for safety)
@@ -203,10 +209,11 @@ function BeneficiariesPanel() {
 
       toast({ title: '✓ Beneficiario actualizado exitosamente' });
 
-      // Clear form after successful update
+      // Clear form and close dialog after successful update
       setSearchAddress('');
       setSelectedAddress(null);
       setFormData({ name: '', phoneNumber: '', responsable: '' });
+      setIsDialogOpen(false);
     } catch (error) {
       console.error('Error updating beneficiary:', error);
       toast({ title: 'Error al actualizar beneficiario', variant: 'destructive' });
@@ -222,7 +229,11 @@ function BeneficiariesPanel() {
   };
 
   const handleRowClick = (address: string) => {
+    console.log('handleRowClick called with address:', address);
     const beneficiary = beneficiaryLookup.get(address.toLowerCase());
+    console.log('Found beneficiary:', beneficiary);
+    console.log('beneficiaryLookup size:', beneficiaryLookup.size);
+
     if (beneficiary) {
       setSelectedAddress(beneficiary.address);
       setFormData({
@@ -231,6 +242,9 @@ function BeneficiariesPanel() {
         responsable: beneficiary.responsable || '',
       });
       setIsDialogOpen(true);
+      console.log('Dialog should open now');
+    } else {
+      console.log('No beneficiary found for address:', address);
     }
   };
 
@@ -413,8 +427,12 @@ function BeneficiariesPanel() {
                             <TableCell
                               className='font-medium whitespace-nowrap cursor-pointer hover:text-cyan-600 transition-colors'
                               onClick={() => {
+                                console.log('Name cell clicked for:', beneficiary.id);
+                                console.log('beneficiaryData exists?', !!beneficiaryData);
                                 if (beneficiaryData) {
                                   handleRowClick(beneficiary.id);
+                                } else {
+                                  console.log('Click blocked: no beneficiaryData');
                                 }
                               }}
                             >
@@ -442,16 +460,17 @@ function BeneficiariesPanel() {
                               currency: 'COP',
                             }).format(Number(formatUnits(beneficiary.totalClaimed, 18)))}</TableCell>
                             <TableCell className='whitespace-nowrap'>
-                              {beneficiaryData && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleRowClick(beneficiary.id)}
-                                  className="h-8 w-8 p-0 hover:bg-cyan-100 transition-colors"
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  console.log('Edit button clicked for:', beneficiary.id);
+                                  handleRowClick(beneficiary.id);
+                                }}
+                                className="h-8 w-8 p-0 hover:bg-cyan-100 transition-colors"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
                             </TableCell>
                           </TableRow>
                         );
