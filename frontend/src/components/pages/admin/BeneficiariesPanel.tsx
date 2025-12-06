@@ -5,7 +5,7 @@ import { formatUnits, isAddress } from 'viem';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useMemo, useState } from 'react';
-import { ArrowUpDown, Search, Save, X } from 'lucide-react';
+import { ArrowUpDown, Search, Save, X, Edit } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,6 +13,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { useBeneficiaries, useBeneficiary, useUpdateBeneficiary } from '@/hooks/useBeneficiaries';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 function BeneficiariesPanel() {
   type beneficiary_fields = 'id' | 'dateAdded' | 'dateRemoved' | 'isActive' | 'totalClaimed';
@@ -40,6 +41,7 @@ function BeneficiariesPanel() {
     responsable: '',
   });
   const [searchError, setSearchError] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { data: selectedBeneficiary } = useBeneficiary(selectedAddress || '');
   const updateBeneficiary = useUpdateBeneficiary();
@@ -216,6 +218,20 @@ function BeneficiariesPanel() {
     setSelectedAddress(null);
     setFormData({ name: '', phoneNumber: '', responsable: '' });
     setSearchError('');
+    setIsDialogOpen(false);
+  };
+
+  const handleRowClick = (address: string) => {
+    const beneficiary = beneficiaryLookup.get(address.toLowerCase());
+    if (beneficiary) {
+      setSelectedAddress(beneficiary.address);
+      setFormData({
+        name: beneficiary.name,
+        phoneNumber: beneficiary.phoneNumber || '',
+        responsable: beneficiary.responsable || '',
+      });
+      setIsDialogOpen(true);
+    }
   };
 
   return (
@@ -384,17 +400,27 @@ function BeneficiariesPanel() {
                         <TableHead onClick={() => requestSort('totalClaimed')} className='text-right font-bold cursor-pointer min-w-[150px]'>
                           Total Reclamado { SortIcon() }
                         </TableHead>
+                        <TableHead className='font-bold min-w-[80px]'>
+                          Acciones
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody className='text-left'>
                       {filteredBeneficiaries.map((beneficiary) => {
                         const beneficiaryData = beneficiaryLookup.get(beneficiary.id.toLowerCase());
                         return (
-                          <TableRow key={beneficiary.id}>
-                            <TableCell className='font-medium whitespace-nowrap'>
+                          <TableRow key={beneficiary.id} className='hover:bg-gray-50 transition-colors'>
+                            <TableCell
+                              className='font-medium whitespace-nowrap cursor-pointer hover:text-cyan-600 transition-colors'
+                              onClick={() => {
+                                if (beneficiaryData) {
+                                  handleRowClick(beneficiary.id);
+                                }
+                              }}
+                            >
                               {beneficiaryData?.name || '-'}
                             </TableCell>
-                            <TableCell className='cursor-pointer whitespace-nowrap' onClick={() => {
+                            <TableCell className='cursor-pointer whitespace-nowrap hover:text-cyan-600 transition-colors' onClick={() => {
                               navigator.clipboard.writeText(beneficiary.id);
                               toast({ title: 'Dirección copiada al portapapeles'})
                             }}>
@@ -415,6 +441,18 @@ function BeneficiariesPanel() {
                               style: 'currency',
                               currency: 'COP',
                             }).format(Number(formatUnits(beneficiary.totalClaimed, 18)))}</TableCell>
+                            <TableCell className='whitespace-nowrap'>
+                              {beneficiaryData && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleRowClick(beneficiary.id)}
+                                  className="h-8 w-8 p-0 hover:bg-cyan-100 transition-colors"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </TableCell>
                           </TableRow>
                         );
                       })}
@@ -538,6 +576,78 @@ function BeneficiariesPanel() {
           </Card>
         )}
       </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="text-gray-800">Editar Beneficiario</DialogTitle>
+            <DialogDescription className="text-gray-600">
+              {selectedAddress && `Dirección: ${selectedAddress}`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="dialog-name" className="text-sm font-medium text-gray-700">Nombre</Label>
+              <Input
+                id="dialog-name"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                placeholder="Nombre completo"
+                className="mt-1 text-gray-900 border-gray-300"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="dialog-phoneNumber" className="text-sm font-medium text-gray-700">Teléfono</Label>
+              <Input
+                id="dialog-phoneNumber"
+                value={formData.phoneNumber}
+                onChange={(e) =>
+                  setFormData({ ...formData, phoneNumber: e.target.value })
+                }
+                placeholder="Número de teléfono"
+                className="mt-1 text-gray-900 border-gray-300"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="dialog-responsable" className="text-sm font-medium text-gray-700">Responsable</Label>
+              <Input
+                id="dialog-responsable"
+                value={formData.responsable}
+                onChange={(e) =>
+                  setFormData({ ...formData, responsable: e.target.value })
+                }
+                placeholder="Nombre del responsable"
+                className="mt-1 text-gray-900 border-gray-300"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button
+                onClick={handleUpdate}
+                disabled={updateBeneficiary.isPending || !formData.name.trim()}
+                className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {updateBeneficiary.isPending ? 'Guardando...' : 'Guardar'}
+              </Button>
+              <Button
+                onClick={handleCancel}
+                variant="outline"
+                disabled={updateBeneficiary.isPending}
+                className="border-gray-300 text-gray-700 hover:bg-gray-50"
+              >
+                <X className="w-4 h-4 mr-2" />
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
