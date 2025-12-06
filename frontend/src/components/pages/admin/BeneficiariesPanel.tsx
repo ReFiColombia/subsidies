@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
-import { useBeneficiaries, useBeneficiary, useUpdateBeneficiary } from '@/hooks/useBeneficiaries';
+import { useBeneficiaries, useBeneficiary, useUpdateBeneficiary, useCreateBeneficiary } from '@/hooks/useBeneficiaries';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -35,6 +35,7 @@ function BeneficiariesPanel() {
   // Beneficiary management states
   const [searchAddress, setSearchAddress] = useState('');
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+  const [dialogAddress, setDialogAddress] = useState<string | null>(null);
   const [formData, setFormData] = useState<{name: string; phoneNumber: string; responsable: string}>({
     name: '',
     phoneNumber: '',
@@ -62,6 +63,7 @@ function BeneficiariesPanel() {
 
   const { data: selectedBeneficiary } = useBeneficiary(selectedAddress || '');
   const updateBeneficiary = useUpdateBeneficiary();
+  const createBeneficiary = useCreateBeneficiary();
 
   const sdk = getBuiltGraphSDK();
   const result_beneficiaries = useQuery({ queryKey: ['Beneficiaries'], queryFn: () => sdk.Beneficiaries() });
@@ -208,32 +210,49 @@ function BeneficiariesPanel() {
   };
 
   const handleUpdate = async () => {
-    if (!selectedAddress) return;
+    const addressToUpdate = dialogAddress || selectedAddress;
+    if (!addressToUpdate || !formData.name.trim()) return;
 
     try {
-      await updateBeneficiary.mutateAsync({
-        address: selectedAddress,
-        name: formData.name,
-        phoneNumber: formData.phoneNumber || null,
-        responsable: formData.responsable || null,
-      });
+      // Check if beneficiary exists in database
+      const beneficiaryExists = beneficiaryLookup.has(addressToUpdate.toLowerCase());
 
-      toast({ title: '✓ Beneficiario actualizado exitosamente' });
+      if (beneficiaryExists) {
+        // Update existing beneficiary
+        await updateBeneficiary.mutateAsync({
+          address: addressToUpdate,
+          name: formData.name,
+          phoneNumber: formData.phoneNumber || null,
+          responsable: formData.responsable || null,
+        });
+        toast({ title: '✓ Beneficiario actualizado exitosamente' });
+      } else {
+        // Create new beneficiary record
+        await createBeneficiary.mutateAsync({
+          address: addressToUpdate,
+          name: formData.name,
+          phoneNumber: formData.phoneNumber || undefined,
+          responsable: formData.responsable || undefined,
+        });
+        toast({ title: '✓ Información del beneficiario agregada exitosamente' });
+      }
 
-      // Clear form and close dialog after successful update
+      // Clear form and close dialog after successful update/create
       setSearchAddress('');
       setSelectedAddress(null);
+      setDialogAddress(null);
       setFormData({ name: '', phoneNumber: '', responsable: '' });
       setIsDialogOpen(false);
     } catch (error) {
       console.error('Error updating beneficiary:', error);
-      toast({ title: 'Error al actualizar beneficiario', variant: 'destructive' });
+      toast({ title: 'Error al guardar la información del beneficiario', variant: 'destructive' });
     }
   };
 
   const handleCancel = () => {
     setSearchAddress('');
     setSelectedAddress(null);
+    setDialogAddress(null);
     setFormData({ name: '', phoneNumber: '', responsable: '' });
     setSearchError('');
     setIsDialogOpen(false);
@@ -241,15 +260,15 @@ function BeneficiariesPanel() {
 
   const handleRowClick = (address: string) => {
     const beneficiary = beneficiaryLookup.get(address.toLowerCase());
-    if (beneficiary) {
-      setSelectedAddress(beneficiary.address);
-      setFormData({
-        name: beneficiary.name,
-        phoneNumber: beneficiary.phoneNumber || '',
-        responsable: beneficiary.responsable || '',
-      });
-      setIsDialogOpen(true);
-    }
+
+    // Always open dialog, even if no database info exists
+    setDialogAddress(address);
+    setFormData({
+      name: beneficiary?.name || '',
+      phoneNumber: beneficiary?.phoneNumber || '',
+      responsable: beneficiary?.responsable || '',
+    });
+    setIsDialogOpen(true);
   };
 
   return (
@@ -423,6 +442,9 @@ function BeneficiariesPanel() {
                   <Table className="w-full min-w-[1000px]">
                     <TableHeader className='sticky top-0 bg-white rounded-t-xl'>
                       <TableRow>
+                        {visibleColumns.acciones && (
+                          <TableHead className='w-[40px]'></TableHead>
+                        )}
                         {visibleColumns.nombre && (
                           <TableHead className='font-bold min-w-[150px] resize-x'>
                             Nombre
@@ -463,11 +485,6 @@ function BeneficiariesPanel() {
                             Total Reclamado { SortIcon() }
                           </TableHead>
                         )}
-                        {visibleColumns.acciones && (
-                          <TableHead className='font-bold min-w-[80px]'>
-                            Acciones
-                          </TableHead>
-                        )}
                       </TableRow>
                     </TableHeader>
                     <TableBody className='text-left'>
@@ -475,6 +492,18 @@ function BeneficiariesPanel() {
                         const beneficiaryData = beneficiaryLookup.get(beneficiary.id.toLowerCase());
                         return (
                           <TableRow key={beneficiary.id} className='hover:bg-gray-50 transition-colors'>
+                            {visibleColumns.acciones && (
+                              <TableCell className='whitespace-nowrap p-1'>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleRowClick(beneficiary.id)}
+                                  className="h-6 w-6 p-0 hover:bg-cyan-100 transition-colors"
+                                >
+                                  <Edit className="h-3 w-3 text-gray-600" />
+                                </Button>
+                              </TableCell>
+                            )}
                             {visibleColumns.nombre && (
                               <TableCell
                                 className='font-medium whitespace-nowrap cursor-pointer hover:text-cyan-600 transition-colors'
@@ -517,18 +546,6 @@ function BeneficiariesPanel() {
                                 style: 'currency',
                                 currency: 'COP',
                               }).format(Number(formatUnits(beneficiary.totalClaimed, 18)))}</TableCell>
-                            )}
-                            {visibleColumns.acciones && (
-                              <TableCell className='whitespace-nowrap'>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleRowClick(beneficiary.id)}
-                                  className="h-8 w-8 p-0 hover:bg-cyan-100 transition-colors"
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                              </TableCell>
                             )}
                           </TableRow>
                         );
@@ -660,7 +677,7 @@ function BeneficiariesPanel() {
           <DialogHeader>
             <DialogTitle className="text-gray-800">Editar Beneficiario</DialogTitle>
             <DialogDescription className="text-gray-600">
-              {selectedAddress && `Dirección: ${selectedAddress}`}
+              {dialogAddress && `Dirección: ${dialogAddress}`}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
