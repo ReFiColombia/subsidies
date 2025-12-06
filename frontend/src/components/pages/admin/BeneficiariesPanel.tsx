@@ -429,14 +429,14 @@ function BeneficiariesPanel() {
 
       {/* Beneficiary Management Section */}
       <div className="mt-6 w-full space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-gray-900">Buscar Beneficiario</CardTitle>
-            <CardDescription className="text-gray-600">
+        <Card className="w-full bg-white shadow-md rounded-xl border border-gray-200">
+          <CardHeader className="border-b p-6">
+            <CardTitle className="text-lg md:text-xl font-bold text-gray-800">Buscar Beneficiario</CardTitle>
+            <CardDescription className="text-sm text-gray-500">
               Ingresa la dirección del beneficiario para buscar y actualizar su información
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             <div className="flex gap-2">
               <div className="flex-1">
                 <Input
@@ -451,13 +451,13 @@ function BeneficiariesPanel() {
                       handleSearch();
                     }
                   }}
-                  className="text-gray-900"
+                  className="text-gray-900 border-gray-300"
                 />
                 {searchError && (
                   <p className="text-sm text-red-500 mt-1">{searchError}</p>
                 )}
               </div>
-              <Button onClick={handleSearch} disabled={!searchAddress.trim()}>
+              <Button onClick={handleSearch} disabled={!searchAddress.trim()} className="bg-cyan-600 hover:bg-cyan-700 text-white">
                 <Search className="w-4 h-4 mr-2" />
                 Buscar
               </Button>
@@ -466,17 +466,17 @@ function BeneficiariesPanel() {
         </Card>
 
         {selectedAddress && selectedBeneficiary && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-gray-900">Editar Beneficiario</CardTitle>
-              <CardDescription className="text-gray-600">
+          <Card className="w-full bg-white shadow-md rounded-xl border border-gray-200">
+            <CardHeader className="border-b p-6">
+              <CardTitle className="text-lg md:text-xl font-bold text-gray-800">Editar Beneficiario</CardTitle>
+              <CardDescription className="text-sm text-gray-500">
                 Dirección: {selectedAddress}
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="name" className="text-gray-900">Nombre</Label>
+                  <Label htmlFor="name" className="text-sm font-medium text-gray-700">Nombre</Label>
                   <Input
                     id="name"
                     value={formData.name}
@@ -484,12 +484,12 @@ function BeneficiariesPanel() {
                       setFormData({ ...formData, name: e.target.value })
                     }
                     placeholder="Nombre completo"
-                    className="text-gray-900"
+                    className="mt-1 text-gray-900 border-gray-300"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="phoneNumber" className="text-gray-900">Teléfono</Label>
+                  <Label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Teléfono</Label>
                   <Input
                     id="phoneNumber"
                     value={formData.phoneNumber}
@@ -497,12 +497,12 @@ function BeneficiariesPanel() {
                       setFormData({ ...formData, phoneNumber: e.target.value })
                     }
                     placeholder="Número de teléfono"
-                    className="text-gray-900"
+                    className="mt-1 text-gray-900 border-gray-300"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="responsable" className="text-gray-900">Responsable</Label>
+                  <Label htmlFor="responsable" className="text-sm font-medium text-gray-700">Responsable</Label>
                   <Input
                     id="responsable"
                     value={formData.responsable}
@@ -510,7 +510,7 @@ function BeneficiariesPanel() {
                       setFormData({ ...formData, responsable: e.target.value })
                     }
                     placeholder="Nombre del responsable"
-                    className="text-gray-900"
+                    className="mt-1 text-gray-900 border-gray-300"
                   />
                 </div>
 
@@ -518,7 +518,7 @@ function BeneficiariesPanel() {
                   <Button
                     onClick={handleUpdate}
                     disabled={updateBeneficiary.isPending || !formData.name.trim()}
-                    className="flex-1"
+                    className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white"
                   >
                     <Save className="w-4 h-4 mr-2" />
                     {updateBeneficiary.isPending ? 'Guardando...' : 'Guardar'}
@@ -527,6 +527,7 @@ function BeneficiariesPanel() {
                     onClick={handleCancel}
                     variant="outline"
                     disabled={updateBeneficiary.isPending}
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
                   >
                     <X className="w-4 h-4 mr-2" />
                     Cancelar
