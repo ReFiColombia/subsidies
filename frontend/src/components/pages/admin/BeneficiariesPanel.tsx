@@ -432,7 +432,7 @@ function BeneficiariesPanel() {
               <div className="w-full">
                 {/* Primera línea de filtros */}
                 <div className="flex flex-col md:flex-row gap-3 mb-3 w-full">
-                  <div className="relative flex-1 md:max-w-[320px]">
+                  <div className="relative flex-1">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-cyan-600" />
                     <Input
                       placeholder="Buscar por dirección..."
@@ -441,8 +441,27 @@ function BeneficiariesPanel() {
                       className="pl-10 h-10 text-cyan-700 font-medium border-2 border-cyan-600 bg-white placeholder:text-gray-400 focus:border-cyan-600 focus:ring-cyan-600"
                     />
                   </div>
+                  <DatePicker
+                    date={dateRange.from}
+                    onSelect={(date: Date | undefined) => setDateRange(prev => ({ ...prev, from: date }))}
+                    placeholder="Desde"
+                    disabled={{ after: new Date() }}
+                    className="w-full md:w-[180px] h-10"
+                  />
+                  <DatePicker
+                    date={dateRange.to}
+                    onSelect={(date: Date | undefined) => setDateRange(prev => ({ ...prev, to: date }))}
+                    placeholder="Hasta"
+                    disabled={{ after: new Date() }}
+                    className="w-full md:w-[180px] h-10"
+                  />
+                </div>
+
+                {/* Segunda línea de filtros */}
+                <div className="flex flex-col md:flex-row gap-3 mb-4 w-full">
+                  {/* Filtro de Estado */}
                   <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as 'all' | 'active' | 'inactive')}>
-                    <SelectTrigger className="w-full md:w-[150px] h-10 border-2 border-cyan-600 text-cyan-700 font-medium bg-white hover:bg-cyan-50 focus:ring-cyan-600">
+                    <SelectTrigger className="w-full md:w-[140px] h-10 border-2 border-cyan-600 text-cyan-700 font-medium bg-white hover:bg-cyan-50 focus:ring-cyan-600">
                       <SelectValue placeholder="Estado" />
                     </SelectTrigger>
                     <SelectContent>
@@ -451,29 +470,12 @@ function BeneficiariesPanel() {
                       <SelectItem value="inactive">Inactivos</SelectItem>
                     </SelectContent>
                   </Select>
-                  <DatePicker
-                    date={dateRange.from}
-                    onSelect={(date: Date | undefined) => setDateRange(prev => ({ ...prev, from: date }))}
-                    placeholder="Desde"
-                    disabled={{ after: new Date() }}
-                    className="w-full md:w-[170px] h-10"
-                  />
-                  <DatePicker
-                    date={dateRange.to}
-                    onSelect={(date: Date | undefined) => setDateRange(prev => ({ ...prev, to: date }))}
-                    placeholder="Hasta"
-                    disabled={{ after: new Date() }}
-                    className="w-full md:w-[170px] h-10"
-                  />
-                </div>
 
-                {/* Segunda línea de filtros */}
-                <div className="flex flex-col md:flex-row gap-3 mb-4 w-full items-center">
                   {/* Filtro de umbral de monto reclamado */}
-                  <div className="flex w-full md:w-auto gap-2 items-center">
+                  <div className="flex flex-1 gap-2 items-center">
                     <span className="text-sm text-cyan-700 font-medium whitespace-nowrap">Monto:</span>
                     <Select value={amountComparison} onValueChange={v => setAmountComparison(v as 'gt' | 'lt')}>
-                      <SelectTrigger className="w-full md:w-[130px] h-10 border-2 border-cyan-600 text-cyan-700 font-medium bg-white hover:bg-cyan-50 focus:ring-cyan-600">
+                      <SelectTrigger className="w-[140px] h-10 border-2 border-cyan-600 text-cyan-700 font-medium bg-white hover:bg-cyan-50 focus:ring-cyan-600">
                         <SelectValue>{amountComparison === 'gt' ? 'Más de' : 'Menos de'}</SelectValue>
                       </SelectTrigger>
                       <SelectContent>
@@ -488,13 +490,13 @@ function BeneficiariesPanel() {
                       placeholder="Cantidad en COP"
                       value={amountThreshold}
                       onChange={e => setAmountThreshold(e.target.value)}
-                      className="w-full md:w-[180px] h-10 text-cyan-700 font-medium border-2 border-cyan-600 bg-white placeholder:text-gray-400 focus:border-cyan-600 focus:ring-cyan-600"
+                      className="flex-1 h-10 text-cyan-700 font-medium border-2 border-cyan-600 bg-white placeholder:text-gray-400 focus:border-cyan-600 focus:ring-cyan-600"
                     />
                   </div>
 
                   {/* Column visibility toggle */}
                   <Select value="columns" onValueChange={() => {}}>
-                    <SelectTrigger className="w-full md:w-[170px] h-10 border-2 border-cyan-600 text-cyan-700 font-medium hover:bg-cyan-50 focus:ring-cyan-600">
+                    <SelectTrigger className="w-full md:w-[160px] h-10 border-2 border-cyan-600 text-cyan-700 font-medium hover:bg-cyan-50 focus:ring-cyan-600">
                       <Settings2 className="h-4 w-4 mr-2" />
                       <SelectValue>Columnas</SelectValue>
                     </SelectTrigger>
@@ -530,10 +532,10 @@ function BeneficiariesPanel() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="flex-1 w-full overflow-x-auto overflow-y-auto max-h-[65vh]">
+                <div className="flex-1 w-full overflow-x-auto overflow-y-auto max-h-[65vh] relative">
                   <Table className="w-full min-w-[1000px]">
-                    <TableHeader className='sticky top-0 bg-white rounded-t-xl z-10'>
-                      <TableRow className='border-b border-gray-200'>
+                    <TableHeader className='sticky top-0 bg-white rounded-t-xl z-10 shadow-sm'>
+                      <TableRow className='border-b-2 border-gray-300'>
                         {visibleColumns.acciones && (
                           <TableHead className='relative' style={{ width: `${columnWidths.acciones}px` }}>
                             <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-600 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'acciones')} />
