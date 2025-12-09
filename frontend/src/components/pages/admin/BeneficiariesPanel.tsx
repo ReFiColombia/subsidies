@@ -4,8 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { formatUnits, isAddress } from 'viem';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { useMemo, useState, useEffect } from 'react';
-import { ArrowUpDown, Search, Save, X, Edit, Settings2, Check } from 'lucide-react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
+import { Search, Save, X, Edit, Settings2, Check } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -17,8 +17,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 
 function BeneficiariesPanel() {
   type beneficiary_fields = 'id' | 'dateAdded' | 'dateRemoved' | 'isActive' | 'totalClaimed';
+  type sortable_fields = beneficiary_fields | 'name' | 'phoneNumber' | 'responsable';
   const { toast } = useToast();
-  const [sortConfig, setSortConfig] = useState<{key: beneficiary_fields; direction: 'asc' | 'desc' } | null>(null);
+  const [sortConfig, setSortConfig] = useState<{key: sortable_fields; direction: 'asc' | 'desc' } | null>(null);
   const [activeTab, setActiveTab] = useState<'resumen' | 'tabla'>('resumen');
   
   // Filter states
@@ -75,9 +76,28 @@ function BeneficiariesPanel() {
   const [resizeStartX, setResizeStartX] = useState(0);
   const [resizeStartWidth, setResizeStartWidth] = useState(0);
 
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; column: keyof typeof visibleColumns } | null>(null);
+
   const toggleColumn = (column: keyof typeof visibleColumns) => {
     setVisibleColumns(prev => ({ ...prev, [column]: !prev[column] }));
+    setContextMenu(null);
   };
+
+  const handleContextMenu = (e: React.MouseEvent, column: keyof typeof visibleColumns) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setContextMenu({ x: e.clientX, y: e.clientY, column });
+  };
+
+  // Close context menu when clicking outside
+  useEffect(() => {
+    const handleClick = () => setContextMenu(null);
+    if (contextMenu) {
+      document.addEventListener('click', handleClick);
+      return () => document.removeEventListener('click', handleClick);
+    }
+  }, [contextMenu]);
 
   const handleResizeStart = (e: React.MouseEvent, column: keyof typeof columnWidths) => {
     e.preventDefault();
@@ -87,28 +107,28 @@ function BeneficiariesPanel() {
     setResizeStartWidth(columnWidths[column]);
   };
 
-  const handleResizeMove = (e: MouseEvent) => {
+  const handleResizeMove = useCallback((e: MouseEvent) => {
     if (!resizingColumn) return;
     const diff = e.clientX - resizeStartX;
     const newWidth = Math.max(40, resizeStartWidth + diff);
     setColumnWidths(prev => ({ ...prev, [resizingColumn]: newWidth }));
-  };
+  }, [resizingColumn, resizeStartX, resizeStartWidth]);
 
-  const handleResizeEnd = () => {
+  const handleResizeEnd = useCallback(() => {
     setResizingColumn(null);
-  };
+  }, []);
 
   // Add global event listeners for resize
   useEffect(() => {
     if (resizingColumn) {
-      document.addEventListener('mousemove', handleResizeMove as any);
+      document.addEventListener('mousemove', handleResizeMove);
       document.addEventListener('mouseup', handleResizeEnd);
       return () => {
-        document.removeEventListener('mousemove', handleResizeMove as any);
+        document.removeEventListener('mousemove', handleResizeMove);
         document.removeEventListener('mouseup', handleResizeEnd);
       };
     }
-  }, [resizingColumn]);
+  }, [resizingColumn, handleResizeMove, handleResizeEnd]);
 
   const { data: selectedBeneficiary } = useBeneficiary(selectedAddress || '');
   const updateBeneficiary = useUpdateBeneficiary();
@@ -162,12 +182,32 @@ function BeneficiariesPanel() {
     const sorted = [...data_beneficiaries.beneficiaries];
     if (sortConfig !== null) {
       sorted.sort((a, b) => {
-        let aVal = a[sortConfig.key];
-        let bVal = b[sortConfig.key];
+        let aVal: any;
+        let bVal: any;
+
+        // Handle database fields (name, phoneNumber, responsable)
+        if (sortConfig.key === 'name' || sortConfig.key === 'phoneNumber' || sortConfig.key === 'responsable') {
+          const aData = beneficiaryLookup.get(a.id.toLowerCase());
+          const bData = beneficiaryLookup.get(b.id.toLowerCase());
+          aVal = aData?.[sortConfig.key] || '';
+          bVal = bData?.[sortConfig.key] || '';
+        } else {
+          // Handle blockchain fields
+          aVal = a[sortConfig.key as beneficiary_fields];
+          bVal = b[sortConfig.key as beneficiary_fields];
+        }
+
         if (sortConfig.key === 'totalClaimed') {
           aVal = BigInt(aVal || 0);
           bVal = BigInt(bVal || 0);
         }
+
+        // Handle string comparison case-insensitively
+        if (typeof aVal === 'string' && typeof bVal === 'string') {
+          aVal = aVal.toLowerCase();
+          bVal = bVal.toLowerCase();
+        }
+
         if (aVal === bVal) return 0;
         if (sortConfig.direction === 'asc') {
           return aVal > bVal ? 1 : -1;
@@ -177,7 +217,7 @@ function BeneficiariesPanel() {
       });
     }
     return sorted;
-  }, [data_beneficiaries?.beneficiaries, sortConfig]);
+  }, [data_beneficiaries?.beneficiaries, sortConfig, beneficiaryLookup]);
 
   const filteredBeneficiaries = useMemo(() => {
     if (!sortedBeneficiaries) return [];
@@ -214,17 +254,13 @@ function BeneficiariesPanel() {
     });
   }, [sortedBeneficiaries, searchQuery, statusFilter, dateRange, amountThreshold, amountComparison]);
 
-  const requestSort = (key: beneficiary_fields) => {
+  const requestSort = (key: sortable_fields) => {
     let direction: 'asc' | 'desc' = 'desc';
     if (sortConfig?.key === key && sortConfig.direction === 'desc') {
       direction = 'asc';
     }
     setSortConfig({ key, direction });
   }
-
-  const SortIcon = () => {
-    return <ArrowUpDown className='inline ml-1 w-4 h-4 relative top-[0.5px]'/>
-  };
 
   const handleSearch = () => {
     setSearchError('');
@@ -394,50 +430,50 @@ function BeneficiariesPanel() {
             )}
             {activeTab === 'tabla' && (
               <div className="w-full">
-                <div className="flex flex-col md:flex-row gap-2 mb-4 w-full">
-                  <div className="relative w-full md:w-[240px]">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+                {/* Primera línea de filtros */}
+                <div className="flex flex-col md:flex-row gap-3 mb-3 w-full">
+                  <div className="relative flex-1 md:max-w-[320px]">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-cyan-600" />
                     <Input
                       placeholder="Buscar por dirección..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-8 text-gray-900"
+                      className="pl-10 h-10 text-cyan-700 font-medium border-2 border-cyan-600 bg-white placeholder:text-gray-400 focus:border-cyan-600 focus:ring-cyan-600"
                     />
                   </div>
-                  <div className="w-full md:w-[120px]">
-                    <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as 'all' | 'active' | 'inactive')}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Filtrar por estado" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Todos</SelectItem>
-                        <SelectItem value="active">Activos</SelectItem>
-                        <SelectItem value="inactive">Inactivos</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="w-full md:w-auto">
-                    <DatePicker
-                      date={dateRange.from}
-                      onSelect={(date: Date | undefined) => setDateRange(prev => ({ ...prev, from: date }))}
-                      placeholder="Desde"
-                      disabled={{ after: new Date() }}
-                      className="w-full"
-                    />
-                  </div>
-                  <div className="w-full md:w-auto">
-                    <DatePicker
-                      date={dateRange.to}
-                      onSelect={(date: Date | undefined) => setDateRange(prev => ({ ...prev, to: date }))}
-                      placeholder="Hasta"
-                      disabled={{ after: new Date() }}
-                      className="w-full"
-                    />
-                  </div>
+                  <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as 'all' | 'active' | 'inactive')}>
+                    <SelectTrigger className="w-full md:w-[150px] h-10 border-2 border-cyan-600 text-cyan-700 font-medium bg-white hover:bg-cyan-50 focus:ring-cyan-600">
+                      <SelectValue placeholder="Estado" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="active">Activos</SelectItem>
+                      <SelectItem value="inactive">Inactivos</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <DatePicker
+                    date={dateRange.from}
+                    onSelect={(date: Date | undefined) => setDateRange(prev => ({ ...prev, from: date }))}
+                    placeholder="Desde"
+                    disabled={{ after: new Date() }}
+                    className="w-full md:w-[170px] h-10"
+                  />
+                  <DatePicker
+                    date={dateRange.to}
+                    onSelect={(date: Date | undefined) => setDateRange(prev => ({ ...prev, to: date }))}
+                    placeholder="Hasta"
+                    disabled={{ after: new Date() }}
+                    className="w-full md:w-[170px] h-10"
+                  />
+                </div>
+
+                {/* Segunda línea de filtros */}
+                <div className="flex flex-col md:flex-row gap-3 mb-4 w-full items-center">
                   {/* Filtro de umbral de monto reclamado */}
                   <div className="flex w-full md:w-auto gap-2 items-center">
+                    <span className="text-sm text-cyan-700 font-medium whitespace-nowrap">Monto:</span>
                     <Select value={amountComparison} onValueChange={v => setAmountComparison(v as 'gt' | 'lt')}>
-                      <SelectTrigger className="w-full md:w-[110px]">
+                      <SelectTrigger className="w-full md:w-[130px] h-10 border-2 border-cyan-600 text-cyan-700 font-medium bg-white hover:bg-cyan-50 focus:ring-cyan-600">
                         <SelectValue>{amountComparison === 'gt' ? 'Más de' : 'Menos de'}</SelectValue>
                       </SelectTrigger>
                       <SelectContent>
@@ -445,26 +481,25 @@ function BeneficiariesPanel() {
                         <SelectItem value="lt">Menos de</SelectItem>
                       </SelectContent>
                     </Select>
-                    <div className="relative w-full md:w-[140px]">
-                      <Input
-                        type="number"
-                        min="0"
-                        step="10000"
-                        placeholder="Monto en COP"
-                        value={amountThreshold}
-                        onChange={e => setAmountThreshold(e.target.value)}
-                        className="w-full text-gray-900"
-                      />
-                    </div>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="10000"
+                      placeholder="Cantidad en COP"
+                      value={amountThreshold}
+                      onChange={e => setAmountThreshold(e.target.value)}
+                      className="w-full md:w-[180px] h-10 text-cyan-700 font-medium border-2 border-cyan-600 bg-white placeholder:text-gray-400 focus:border-cyan-600 focus:ring-cyan-600"
+                    />
                   </div>
+
                   {/* Column visibility toggle */}
                   <Select value="columns" onValueChange={() => {}}>
-                    <SelectTrigger className="w-full md:w-[140px]">
+                    <SelectTrigger className="w-full md:w-[170px] h-10 border-2 border-cyan-600 text-cyan-700 font-medium hover:bg-cyan-50 focus:ring-cyan-600">
                       <Settings2 className="h-4 w-4 mr-2" />
                       <SelectValue>Columnas</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      <div className="p-2 space-y-2">
+                      <div className="p-2 space-y-1">
                         {[
                           { key: 'nombre' as const, label: 'Nombre' },
                           { key: 'direccion' as const, label: 'Dirección' },
@@ -476,11 +511,19 @@ function BeneficiariesPanel() {
                           { key: 'totalReclamado' as const, label: 'Total reclamado' },
                           { key: 'acciones' as const, label: 'Acciones' },
                         ].map(col => (
-                          <div key={col.key} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 p-1 rounded" onClick={() => toggleColumn(col.key)}>
-                            <div className="w-4 h-4 border border-gray-300 rounded flex items-center justify-center bg-white">
-                              {visibleColumns[col.key] && <Check className="h-3 w-3 text-cyan-600" />}
+                          <div
+                            key={col.key}
+                            className="flex items-center space-x-2 cursor-pointer hover:bg-cyan-50 p-2 rounded transition-colors"
+                            onClick={() => toggleColumn(col.key)}
+                          >
+                            <div className={`w-5 h-5 border-2 rounded flex items-center justify-center transition-all ${
+                              visibleColumns[col.key]
+                                ? 'bg-cyan-600 border-cyan-600'
+                                : 'bg-white border-gray-300'
+                            }`}>
+                              {visibleColumns[col.key] && <Check className="h-3 w-3 text-white font-bold" />}
                             </div>
-                            <span className="text-sm text-gray-700">{col.label}</span>
+                            <span className="text-sm text-gray-700 font-medium">{col.label}</span>
                           </div>
                         ))}
                       </div>
@@ -493,55 +536,55 @@ function BeneficiariesPanel() {
                       <TableRow className='border-b border-gray-200'>
                         {visibleColumns.acciones && (
                           <TableHead className='relative' style={{ width: `${columnWidths.acciones}px` }}>
-                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'acciones')} />
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-600 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'acciones')} />
                           </TableHead>
                         )}
                         {visibleColumns.nombre && (
-                          <TableHead className='font-bold relative' style={{ width: `${columnWidths.nombre}px` }}>
+                          <TableHead onClick={() => requestSort('name')} onContextMenu={(e) => handleContextMenu(e, 'nombre')} className='font-bold cursor-pointer relative' style={{ width: `${columnWidths.nombre}px` }}>
                             Nombre
-                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'nombre')} />
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-600 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'nombre')} />
                           </TableHead>
                         )}
                         {visibleColumns.direccion && (
-                          <TableHead onClick={() => requestSort('id')} className='font-bold cursor-pointer relative' style={{ width: `${columnWidths.direccion}px` }}>
-                            Dirección { SortIcon() }
-                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'direccion')} />
+                          <TableHead onClick={() => requestSort('id')} onContextMenu={(e) => handleContextMenu(e, 'direccion')} className='font-bold cursor-pointer relative' style={{ width: `${columnWidths.direccion}px` }}>
+                            Dir
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-600 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'direccion')} />
                           </TableHead>
                         )}
                         {visibleColumns.telefono && (
-                          <TableHead className='font-bold relative' style={{ width: `${columnWidths.telefono}px` }}>
-                            Teléfono
-                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'telefono')} />
+                          <TableHead onClick={() => requestSort('phoneNumber')} onContextMenu={(e) => handleContextMenu(e, 'telefono')} className='font-bold cursor-pointer relative' style={{ width: `${columnWidths.telefono}px` }}>
+                            Tel
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-600 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'telefono')} />
                           </TableHead>
                         )}
                         {visibleColumns.responsable && (
-                          <TableHead className='font-bold relative' style={{ width: `${columnWidths.responsable}px` }}>
-                            Responsable
-                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'responsable')} />
+                          <TableHead onClick={() => requestSort('responsable')} onContextMenu={(e) => handleContextMenu(e, 'responsable')} className='font-bold cursor-pointer relative' style={{ width: `${columnWidths.responsable}px` }}>
+                            Resp
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-600 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'responsable')} />
                           </TableHead>
                         )}
                         {visibleColumns.activo && (
-                          <TableHead onClick={() => requestSort('isActive')} className='font-bold cursor-pointer relative' style={{ width: `${columnWidths.activo}px` }}>
-                            Activo { SortIcon() }
-                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'activo')} />
+                          <TableHead onClick={() => requestSort('isActive')} onContextMenu={(e) => handleContextMenu(e, 'activo')} className='font-bold cursor-pointer relative' style={{ width: `${columnWidths.activo}px` }}>
+                            Activo
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-600 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'activo')} />
                           </TableHead>
                         )}
                         {visibleColumns.fechaAnadido && (
-                          <TableHead onClick={() => requestSort('dateAdded')} className='font-bold cursor-pointer relative' style={{ width: `${columnWidths.fechaAnadido}px` }}>
-                            Fecha añadido { SortIcon() }
-                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'fechaAnadido')} />
+                          <TableHead onClick={() => requestSort('dateAdded')} onContextMenu={(e) => handleContextMenu(e, 'fechaAnadido')} className='font-bold cursor-pointer relative' style={{ width: `${columnWidths.fechaAnadido}px` }}>
+                            Fec. Añad.
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-600 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'fechaAnadido')} />
                           </TableHead>
                         )}
                         {visibleColumns.fechaEliminado && (
-                          <TableHead onClick={() => requestSort('dateRemoved')} className='font-bold cursor-pointer relative' style={{ width: `${columnWidths.fechaEliminado}px` }}>
-                            Fecha eliminado { SortIcon() }
-                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'fechaEliminado')} />
+                          <TableHead onClick={() => requestSort('dateRemoved')} onContextMenu={(e) => handleContextMenu(e, 'fechaEliminado')} className='font-bold cursor-pointer relative' style={{ width: `${columnWidths.fechaEliminado}px` }}>
+                            Fec. Elim.
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-600 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'fechaEliminado')} />
                           </TableHead>
                         )}
                         {visibleColumns.totalReclamado && (
-                          <TableHead onClick={() => requestSort('totalClaimed')} className='text-right font-bold cursor-pointer relative' style={{ width: `${columnWidths.totalReclamado}px` }}>
-                            Total Reclamado { SortIcon() }
-                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-400 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'totalReclamado')} />
+                          <TableHead onClick={() => requestSort('totalClaimed')} onContextMenu={(e) => handleContextMenu(e, 'totalReclamado')} className='text-right font-bold cursor-pointer relative' style={{ width: `${columnWidths.totalReclamado}px` }}>
+                            Total Reclamado
+                            <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-600 transition-colors" onMouseDown={(e) => handleResizeStart(e, 'totalReclamado')} />
                           </TableHead>
                         )}
                       </TableRow>
@@ -565,29 +608,48 @@ function BeneficiariesPanel() {
                             )}
                             {visibleColumns.nombre && (
                               <TableCell
-                                className='font-medium whitespace-nowrap cursor-pointer hover:text-cyan-600 transition-colors'
+                                className='font-medium cursor-pointer hover:text-cyan-600 transition-colors overflow-hidden text-ellipsis'
                                 onClick={() => handleRowClick(beneficiary.id)}
-                                style={{ width: `${columnWidths.nombre}px` }}
+                                style={{ width: `${columnWidths.nombre}px`, maxWidth: `${columnWidths.nombre}px` }}
+                                title={beneficiaryData?.name || '-'}
                               >
-                                {beneficiaryData?.name || '-'}
+                                <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                                  {beneficiaryData?.name || '-'}
+                                </div>
                               </TableCell>
                             )}
                             {visibleColumns.direccion && (
-                              <TableCell className='cursor-pointer whitespace-nowrap hover:text-cyan-600 transition-colors' onClick={() => {
+                              <TableCell className='cursor-pointer hover:text-cyan-600 transition-colors overflow-hidden' onClick={() => {
                                 navigator.clipboard.writeText(beneficiary.id);
                                 toast({ title: 'Dirección copiada al portapapeles'})
-                              }} style={{ width: `${columnWidths.direccion}px` }}>
-                                {String(beneficiary.id).slice(0, 7)}...{String(beneficiary.id).slice(-5)}
+                              }} style={{ width: `${columnWidths.direccion}px`, maxWidth: `${columnWidths.direccion}px` }}
+                              title={beneficiary.id}>
+                                <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                                  {columnWidths.direccion < 100
+                                    ? `${String(beneficiary.id).slice(0, 6)}...${String(beneficiary.id).slice(-4)}`
+                                    : columnWidths.direccion < 150
+                                    ? `${String(beneficiary.id).slice(0, 10)}...${String(beneficiary.id).slice(-8)}`
+                                    : columnWidths.direccion < 200
+                                    ? `${String(beneficiary.id).slice(0, 15)}...${String(beneficiary.id).slice(-10)}`
+                                    : beneficiary.id
+                                  }
+                                </div>
                               </TableCell>
                             )}
                             {visibleColumns.telefono && (
-                              <TableCell className='whitespace-nowrap' style={{ width: `${columnWidths.telefono}px` }}>
-                                {beneficiaryData?.phoneNumber || '-'}
+                              <TableCell className='overflow-hidden text-ellipsis' style={{ width: `${columnWidths.telefono}px`, maxWidth: `${columnWidths.telefono}px` }}
+                              title={beneficiaryData?.phoneNumber || '-'}>
+                                <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                                  {beneficiaryData?.phoneNumber || '-'}
+                                </div>
                               </TableCell>
                             )}
                             {visibleColumns.responsable && (
-                              <TableCell className='whitespace-nowrap' style={{ width: `${columnWidths.responsable}px` }}>
-                                {beneficiaryData?.responsable || '-'}
+                              <TableCell className='overflow-hidden text-ellipsis' style={{ width: `${columnWidths.responsable}px`, maxWidth: `${columnWidths.responsable}px` }}
+                              title={beneficiaryData?.responsable || '-'}>
+                                <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                                  {beneficiaryData?.responsable || '-'}
+                                </div>
                               </TableCell>
                             )}
                             {visibleColumns.activo && (
@@ -802,6 +864,23 @@ function BeneficiariesPanel() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Context Menu */}
+      {contextMenu && (
+        <div
+          className="fixed bg-white border border-gray-300 rounded-lg shadow-lg py-1 z-50"
+          style={{ left: `${contextMenu.x}px`, top: `${contextMenu.y}px` }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
+            onClick={() => toggleColumn(contextMenu.column)}
+          >
+            <X className="h-4 w-4" />
+            Ocultar columna
+          </button>
+        </div>
+      )}
     </div>
   );
 }
