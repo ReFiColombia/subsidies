@@ -385,7 +385,7 @@ function BeneficiariesPanel() {
                   <div className="p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 h-full flex flex-col justify-center items-center">
                     <p className="text-gray-500">Promedio reclamado por beneficiario</p>
                     <p className="font-bold text-lg text-gray-800">
-                      {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(
+                      {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(
                         sortedBeneficiaries.length > 0
                           ? sortedBeneficiaries.reduce((acc, b) => acc + Number(formatUnits(b.totalClaimed, 18)), 0) / sortedBeneficiaries.length
                           : 0
@@ -420,7 +420,7 @@ function BeneficiariesPanel() {
                             >
                               {beneficiaryData?.name || `${String(b.id).slice(0, 7)}...${String(b.id).slice(-5)}`}
                             </span>
-                            <span className="font-bold text-sm">{new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(Number(formatUnits(b.totalClaimed, 18)))}</span>
+                            <span className="font-bold text-sm">{new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Number(formatUnits(b.totalClaimed, 18)))}</span>
                           </li>
                         );
                       })}
@@ -669,6 +669,8 @@ function BeneficiariesPanel() {
                               <TableCell className='text-right whitespace-nowrap' style={{ width: `${columnWidths.totalReclamado}px` }}>{new Intl.NumberFormat('es-CO', {
                                 style: 'currency',
                                 currency: 'COP',
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0
                               }).format(Number(formatUnits(beneficiary.totalClaimed, 18)))}</TableCell>
                             )}
                           </TableRow>
