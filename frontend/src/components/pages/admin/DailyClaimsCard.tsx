@@ -106,36 +106,36 @@ function DailyClaimsCard() {
             </ChartContainer>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 overflow-x-auto">
-            <Card className="p-4 border border-gray-200 shadow-sm bg-gray-50 rounded-lg min-w-[180px]">
-              <p className="text-gray-500 text-sm font-medium">Total aportado</p>
-              <p className="font-bold text-base md:text-lg mt-1 text-gray-800">
+            <Card className="p-6 border border-gray-200 shadow-sm bg-gray-50 rounded-lg min-w-[180px] flex flex-col items-center justify-center text-center">
+              <p className="text-gray-500 text-sm font-medium mb-2">Total aportado</p>
+              <p className="font-bold text-lg md:text-xl text-gray-800">
                 {new Intl.NumberFormat(
-                  "es-CO", { style: "currency", currency: "COP" }
-                ).format(Number(formatUnits(funds ? funds.totalSupplied : 0, 18)))}
+                  "es-CO", { minimumFractionDigits: 0, maximumFractionDigits: 0 }
+                ).format(Number(formatUnits(funds ? funds.totalSupplied : 0, 18)))} cCOP
               </p>
             </Card>
-            <Card className="p-4 border border-gray-200 shadow-sm bg-gray-50 rounded-lg min-w-[180px]">
-              <p className="text-gray-500 text-sm font-medium">Total retirado</p>
-              <p className="font-bold text-base md:text-lg mt-1 text-gray-800">
+            <Card className="p-6 border border-gray-200 shadow-sm bg-gray-50 rounded-lg min-w-[180px] flex flex-col items-center justify-center text-center">
+              <p className="text-gray-500 text-sm font-medium mb-2">Total retirado</p>
+              <p className="font-bold text-lg md:text-xl text-gray-800">
                 {new Intl.NumberFormat(
-                  "es-CO", { style: "currency", currency: "COP" }
-                ).format(Number(formatUnits(funds ? funds.totalWithdrawn : 0, 18)))}
+                  "es-CO", { minimumFractionDigits: 0, maximumFractionDigits: 0 }
+                ).format(Number(formatUnits(funds ? funds.totalWithdrawn : 0, 18)))} cCOP
               </p>
             </Card>
-            <Card className="p-4 border border-gray-200 shadow-sm bg-gray-50 rounded-lg min-w-[180px]">
-              <p className="text-gray-500 text-sm font-medium">Total reclamado</p>
-              <p className="font-bold text-base md:text-lg mt-1 text-gray-800">
+            <Card className="p-6 border border-gray-200 shadow-sm bg-gray-50 rounded-lg min-w-[180px] flex flex-col items-center justify-center text-center">
+              <p className="text-gray-500 text-sm font-medium mb-2">Total reclamado</p>
+              <p className="font-bold text-lg md:text-xl text-gray-800">
                 {new Intl.NumberFormat(
-                  "es-CO", { style: "currency", currency: "COP" }
-                ).format(Number(formatUnits(funds ? funds.totalClaimed : 0, 18)))}
+                  "es-CO", { minimumFractionDigits: 0, maximumFractionDigits: 0 }
+                ).format(Number(formatUnits(funds ? funds.totalClaimed : 0, 18)))} cCOP
               </p>
             </Card>
-            <Card className="p-4 border border-gray-200 shadow-sm bg-gray-50 rounded-lg min-w-[180px]">
-              <p className="text-gray-500 text-sm font-medium">Balance actual</p>
-              <p className="font-bold text-base md:text-lg mt-1 text-gray-800">
+            <Card className="p-6 border border-gray-200 shadow-sm bg-gray-50 rounded-lg min-w-[180px] flex flex-col items-center justify-center text-center">
+              <p className="text-gray-500 text-sm font-medium mb-2">Balance actual</p>
+              <p className="font-bold text-lg md:text-xl text-gray-800">
                 {new Intl.NumberFormat(
-                  "es-CO", { style: "currency", currency: "COP" }
-                ).format(Number(formatUnits(funds ? funds.contractBalance : 0, 18)))}
+                  "es-CO", { minimumFractionDigits: 0, maximumFractionDigits: 0 }
+                ).format(Number(formatUnits(funds ? funds.contractBalance : 0, 18)))} cCOP
               </p>
             </Card>
           </div>

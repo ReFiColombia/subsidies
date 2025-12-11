@@ -45,9 +45,9 @@ function Header({
       return (
         <div className="text-xl font-semibold text-white text-center">
           Monto disponible para reclamar: {new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-          }).format(Number(formatUnits(valueToClaim, 18)))} cCop
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          }).format(Number(formatUnits(valueToClaim, 18)))} cCOP
         </div>
       );
     } else {

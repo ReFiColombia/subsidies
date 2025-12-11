@@ -16,7 +16,7 @@ import {
 } from '@/constants';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import { erc20Abi, parseUnits } from 'viem';
+import { erc20Abi, parseUnits, formatUnits } from 'viem';
 import { getReferralTag, submitReferral } from '@divvi/referral-sdk';
 import {
   useAccount,
@@ -57,6 +57,13 @@ function UserFundsCard() {
     address: CCOP_CONTRACT_ADDRESS,
     functionName: 'allowance',
     args: [address!, SUBSIDY_CONTRACT_ADDRESS],
+  });
+
+  const { data: balance, refetch: refetchBalance } = useReadContract({
+    abi: erc20Abi,
+    address: CCOP_CONTRACT_ADDRESS,
+    functionName: 'balanceOf',
+    args: [address!],
   });
 
   const { isLoading } = useWaitForTransactionReceipt({ hash });
@@ -186,6 +193,17 @@ function UserFundsCard() {
           <CardTitle className='text-white text-lg font-semibold'>Donar fondos</CardTitle>
         </CardHeader>
         <CardContent className='px-6 pb-4 pt-0'>
+          {isConnected && balance !== undefined && (
+            <div className='mb-4 p-3 bg-white/10 rounded-lg border border-white/20'>
+              <p className='text-gray-300 text-xs mb-1 text-center'>Tu balance</p>
+              <p className='text-white text-lg font-bold text-center'>
+                {new Intl.NumberFormat('es-CO', {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
+                }).format(Number(formatUnits(balance, 18)))} cCOP
+              </p>
+            </div>
+          )}
           <Label className='text-gray-200 mb-3 block text-center'>Cantidad</Label>
           <Input name='amount' placeholder='$cCop' className='bg-background text-white border-border text-center' />
         </CardContent>

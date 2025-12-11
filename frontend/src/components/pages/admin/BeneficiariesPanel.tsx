@@ -376,25 +376,25 @@ function BeneficiariesPanel() {
             {activeTab === 'resumen' && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-0 w-full mb-4 py-6">
-                  <div className="p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 h-full flex flex-col justify-center items-center">
-                    <p className="text-gray-500">Beneficiarios activos</p>
-                    <p className="font-bold text-lg text-gray-800">
+                  <div className="p-6 border border-gray-200 rounded-lg shadow-sm bg-gray-50 h-full flex flex-col justify-center items-center text-center">
+                    <p className="text-gray-500 text-sm font-medium mb-2">Beneficiarios activos</p>
+                    <p className="font-bold text-xl text-gray-800">
                       {sortedBeneficiaries.filter(b => b.isActive).length}
                     </p>
                   </div>
-                  <div className="p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 h-full flex flex-col justify-center items-center">
-                    <p className="text-gray-500">Promedio reclamado por beneficiario</p>
-                    <p className="font-bold text-lg text-gray-800">
-                      {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(
+                  <div className="p-6 border border-gray-200 rounded-lg shadow-sm bg-gray-50 h-full flex flex-col justify-center items-center text-center">
+                    <p className="text-gray-500 text-sm font-medium mb-2">Promedio reclamado por beneficiario</p>
+                    <p className="font-bold text-xl text-gray-800">
+                      {new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(
                         sortedBeneficiaries.length > 0
                           ? sortedBeneficiaries.reduce((acc, b) => acc + Number(formatUnits(b.totalClaimed, 18)), 0) / sortedBeneficiaries.length
                           : 0
-                      )}
+                      )} cCOP
                     </p>
                   </div>
-                  <div className="p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 h-full flex flex-col justify-center items-center">
-                    <p className="text-gray-500 mb-1 font-medium">Intervalo de reclamo más común</p>
-                    <p className="font-bold text-lg text-gray-800">
+                  <div className="p-6 border border-gray-200 rounded-lg shadow-sm bg-gray-50 h-full flex flex-col justify-center items-center text-center">
+                    <p className="text-gray-500 text-sm font-medium mb-2">Intervalo de reclamo más común</p>
+                    <p className="font-bold text-xl text-gray-800">
                       {mostCommonInterval !== null ? `${mostCommonInterval} días` : 'Cargando...'}
                     </p>
                   </div>
@@ -420,7 +420,7 @@ function BeneficiariesPanel() {
                             >
                               {beneficiaryData?.name || `${String(b.id).slice(0, 7)}...${String(b.id).slice(-5)}`}
                             </span>
-                            <span className="font-bold text-sm">{new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Number(formatUnits(b.totalClaimed, 18)))}</span>
+                            <span className="font-bold text-sm">{new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Number(formatUnits(b.totalClaimed, 18)))} cCOP</span>
                           </li>
                         );
                       })}
@@ -667,11 +667,9 @@ function BeneficiariesPanel() {
                             )}
                             {visibleColumns.totalReclamado && (
                               <TableCell className='text-right whitespace-nowrap' style={{ width: `${columnWidths.totalReclamado}px` }}>{new Intl.NumberFormat('es-CO', {
-                                style: 'currency',
-                                currency: 'COP',
                                 minimumFractionDigits: 0,
                                 maximumFractionDigits: 0
-                              }).format(Number(formatUnits(beneficiary.totalClaimed, 18)))}</TableCell>
+                              }).format(Number(formatUnits(beneficiary.totalClaimed, 18)))} cCOP</TableCell>
                             )}
                           </TableRow>
                         );

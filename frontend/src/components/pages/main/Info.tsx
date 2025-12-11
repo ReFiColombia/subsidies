@@ -16,9 +16,9 @@ function Info({ isWhiteListed, lastClaimed, totalClaimed}: InfoProps) {
       </p>
       <p className="text-gray-200">
         <span className="font-medium">Total reclamado:</span> { isWhiteListed ?  new Intl.NumberFormat('es-CO', {
-        style: 'currency',
-        currency: 'COP',
-      }).format(Number(formatUnits(totalClaimed, 18))) : "$ 0" } cCop
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(Number(formatUnits(totalClaimed, 18))) : "0" } cCOP
       </p>
     </CardContent>
   )
