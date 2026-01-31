@@ -2,7 +2,7 @@
   "name": "refimedubi-celo",
   "license": "UNLICENSED",
   "engines": {
-    "node": ">=22.0.0"
+    "node": "22.x"
   },
   "scripts": {
     "codegen": "graph codegen",
