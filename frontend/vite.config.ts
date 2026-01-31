@@ -15,8 +15,12 @@ export default defineConfig({
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+            // Keep React and its dependencies together to avoid scheduler issues
+            if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
               return 'react-vendor';
+            }
+            if (id.includes('react-router')) {
+              return 'router-vendor';
             }
             if (id.includes('@reown/appkit')) {
               return 'appkit-vendor';

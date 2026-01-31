@@ -16,7 +16,14 @@ createRoot(document.getElementById('root')!).render(
         <main className='w-full h-full min-h-screen flex flex-col flex-1'>
           <NavBar />
           <div className='flex-1 flex items-center justify-center'>
-            <Suspense fallback={<div className="flex items-center justify-center">Loading...</div>}>
+            <Suspense fallback={
+              <div className="flex items-center justify-center min-h-[60vh]">
+                <div className="text-center">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mb-4"></div>
+                  <p className="text-gray-400">Cargando...</p>
+                </div>
+              </div>
+            }>
               <Routes>
                 <Route index element={<App />} />
                 <Route path='/admin' element={<AdminPanel />} />
