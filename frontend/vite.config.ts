@@ -11,43 +11,6 @@ export default defineConfig({
     },
   },
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            // Keep React and its dependencies together to avoid scheduler issues
-            if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
-              return 'react-vendor';
-            }
-            if (id.includes('react-router')) {
-              return 'router-vendor';
-            }
-            if (id.includes('@reown/appkit')) {
-              return 'appkit-vendor';
-            }
-            if (id.includes('wagmi') || id.includes('viem')) {
-              return 'wagmi-vendor';
-            }
-            if (id.includes('@radix-ui')) {
-              return 'ui-vendor';
-            }
-            if (id.includes('recharts') || id.includes('d3-')) {
-              return 'chart-vendor';
-            }
-            if (id.includes('@tanstack/react-query')) {
-              return 'query-vendor';
-            }
-            if (id.includes('framer-motion')) {
-              return 'animation-vendor';
-            }
-            if (id.includes('graphql') || id.includes('@graphprotocol')) {
-              return 'graphql-vendor';
-            }
-            return 'vendor';
-          }
-        }
-      }
-    },
-    chunkSizeWarningLimit: 1600
+    chunkSizeWarningLimit: 2000
   }
 })
