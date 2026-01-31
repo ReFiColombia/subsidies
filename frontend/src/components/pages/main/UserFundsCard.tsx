@@ -59,7 +59,7 @@ function UserFundsCard() {
     args: [address!, SUBSIDY_CONTRACT_ADDRESS],
   });
 
-  const { data: balance, refetch: refetchBalance } = useReadContract({
+  const { data: balance } = useReadContract({
     abi: erc20Abi,
     address: CCOP_CONTRACT_ADDRESS,
     functionName: 'balanceOf',

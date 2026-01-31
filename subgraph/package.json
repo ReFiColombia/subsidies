@@ -1,6 +1,9 @@
 {
   "name": "refimedubi-celo",
   "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",

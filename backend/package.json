@@ -4,6 +4,9 @@
   "description": "Backend API for managing beneficiary names",
   "main": "dist/index.js",
   "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
