@@ -13,23 +13,53 @@ This program allows registered beneficiaries to claim a fixed amount of cCOP at 
 ```
 subsidies/
 ├── backend/                           ← Express + Prisma + Dune Analytics
-│   ├── README.md                      ← API endpoints, database, Vercel deployment
-│   └── .env.example
+│   ├── prisma/
+│   │   └── schema.prisma              ← Beneficiary model (PostgreSQL)
+│   ├── src/
+│   │   └── index.ts                   ← API routes, Dune client, CORS
+│   ├── .env.example
+│   └── README.md
 │
 ├── docs/
 │   ├── BRANDKIT.md                    ← Typography & design tokens
 │   └── superpowers/                   ← Design specs & implementation plans
 │
 ├── frontend/                          ← Vite + React + wagmi (Celo)
-│   ├── README.md                      ← Components, env vars, Vercel deployment
-│   └── .env.example
+│   ├── src/
+│   │   ├── components/                ← layout/, pages/, ui/
+│   │   ├── config/                    ← Contract addresses, chain config
+│   │   ├── constants/                 ← ABIs, addresses
+│   │   ├── hooks/                     ← Custom React hooks
+│   │   ├── i18n/                      ← Internationalization (en/es)
+│   │   ├── lib/                       ← Utility functions
+│   │   ├── pages/                     ← Admin.tsx
+│   │   ├── queries/                   ← Subgraph & API queries
+│   │   ├── App.tsx                    ← Root component
+│   │   ├── main.tsx                   ← Entry point
+│   │   └── providers.tsx              ← Wagmi, Reown, React Query
+│   ├── .env.example
+│   └── README.md
 │
 ├── smart-contracts/                   ← Foundry (Solidity ^0.8.28)
-│   ├── README.md                      ← Contract registry, V1/V2 docs, auto-swap
-│   └── .env.example
+│   ├── script/
+│   │   └── DeploySubsidyProgram.s.sol
+│   ├── src/
+│   │   ├── SubsidyProgram.sol         ← V2 (UUPS + Uniswap V3 auto-swap)
+│   │   └── ISwapRouter.sol            ← Uniswap V3 interface
+│   ├── test/
+│   │   ├── unit/
+│   │   ├── mock/
+│   │   └── helpers/
+│   ├── .env.example
+│   └── README.md
 │
 ├── subgraph/                          ← The Graph (Celo Mainnet)
-│   └── README.md                      ← Indexed events, schema, grafting
+│   ├── abis/                          ← Contract ABIs
+│   ├── src/
+│   │   └── subsidy-program.ts         ← Event handlers
+│   ├── schema.graphql                 ← Entity definitions
+│   ├── subgraph.yaml                  ← Data sources & mappings
+│   └── README.md
 │
 ├── CONTRIBUTING.md                    ← Setup, branch conventions, PR process
 ├── LICENSE                            ← MIT
