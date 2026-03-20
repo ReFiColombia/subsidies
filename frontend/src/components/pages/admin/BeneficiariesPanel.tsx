@@ -1,9 +1,9 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { getBuiltGraphSDK } from '@/../.graphclient';
+import { getBuiltGraphSDK } from '@graphclient';
 import { useQuery } from '@tanstack/react-query';
 import { formatUnits, isAddress } from 'viem';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/useToast';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { Search, Save, X, Edit, Settings2, Check } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-function BeneficiariesPanel() {
+export function BeneficiariesPanel() {
   type beneficiary_fields = 'id' | 'dateAdded' | 'dateRemoved' | 'isActive' | 'totalClaimed';
   type sortable_fields = beneficiary_fields | 'name' | 'phoneNumber' | 'responsable';
   const { toast } = useToast();
@@ -887,4 +887,4 @@ function BeneficiariesPanel() {
   );
 }
 
-export default BeneficiariesPanel; 
+ 

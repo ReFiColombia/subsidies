@@ -2,22 +2,22 @@ import './App.css';
 import { useAppKitAccount } from '@reown/appkit/react';
 
 import { Card, CardFooter } from '@/components/ui/card';
-import Header from '@/components/pages/main/Header';
+import { Header } from '@/components/pages/main/Header';
 import { Button } from '@/components/ui/button';
-import Description from './components/pages/main/Description';
-import Info from './components/pages/main/Info';
+import { Description } from './components/pages/main/Description';
+import { Info } from './components/pages/main/Info';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { getReferralTag, submitReferral } from '@divvi/referral-sdk';
 import { SUBSIDY_CONTRACT_ADDRESS, SUBSIDY_CONTRACT_ABI, DIVVI_CONSUMER_ADDRESS } from './constants';
-import useSubsidyContract from './hooks/useSubsidyContract';
-import { useToast } from './hooks/use-toast';
+import { useSubsidyContract } from './hooks/useSubsidyContract';
+import { useToast } from './hooks/useToast';
 import { ToastAction } from '@radix-ui/react-toast';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import UserFundsCard from './components/pages/main/UserFundsCard';
-import ProgramStats from './components/pages/main/ProgramStats';
+import { UserFundsCard } from './components/pages/main/UserFundsCard';
+import { ProgramStats } from './components/pages/main/ProgramStats';
 
-function App() {
+export function App() {
   const { toast } = useToast();
   const { address } = useAppKitAccount();
   
@@ -194,4 +194,3 @@ function App() {
   );
 }
 
-export default App;

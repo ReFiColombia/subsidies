@@ -13,7 +13,7 @@ import {
   SUBSIDY_CONTRACT_ADDRESS,
   DIVVI_CONSUMER_ADDRESS,
 } from '@/constants';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/useToast';
 import { Loader2, ArrowLeftRight } from 'lucide-react';
 import { erc20Abi, parseUnits, formatUnits } from 'viem';
 import { getReferralTag, submitReferral } from '@divvi/referral-sdk';
@@ -23,14 +23,14 @@ import {
   useReadContract,
   useWriteContract,
 } from 'wagmi';
-import QuickAmountPicker from './QuickAmountPicker';
-import DonationProgress, { type DonationStep } from './DonationProgress';
-import DonationReceipt from './DonationReceipt';
-import DonationStats from './DonationStats';
+import { QuickAmountPicker } from './QuickAmountPicker';
+import { DonationProgress, type DonationStep } from './DonationProgress';
+import { DonationReceipt } from './DonationReceipt';
+import { DonationStats } from './DonationStats';
 
-const SwapWidget = lazy(() => import('./SwapWidget'));
+const SwapWidget = lazy(() => import('./SwapWidget').then((m) => ({ default: m.SwapWidget })));
 
-function UserFundsCard() {
+export function UserFundsCard() {
   const { toast } = useToast();
   const { address, isConnected } = useAccount();
   const client = usePublicClient();
@@ -310,4 +310,3 @@ function UserFundsCard() {
   );
 }
 
-export default UserFundsCard;

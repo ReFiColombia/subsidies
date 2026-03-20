@@ -14,7 +14,7 @@ import {
   SUBSIDY_CONTRACT_ADDRESS,
   DIVVI_CONSUMER_ADDRESS,
 } from '@/constants';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/useToast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs';
 import { Loader2 } from 'lucide-react';
 import { erc20Abi, parseUnits } from 'viem';
@@ -27,7 +27,7 @@ import {
   useWriteContract,
 } from 'wagmi';
 
-function FundsCard() {
+export function FundsCard() {
   const { toast } = useToast();
   const { address } = useAccount();
   const client = usePublicClient();
@@ -208,4 +208,3 @@ function FundsCard() {
   );
 }
 
-export default FundsCard;

@@ -7,12 +7,12 @@ import { isAddress } from "viem"
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from "wagmi"
 import { getReferralTag, submitReferral } from '@divvi/referral-sdk'
 import { SUBSIDY_CONTRACT_ABI, SUBSIDY_CONTRACT_ADDRESS, DIVVI_CONSUMER_ADDRESS } from "@/constants"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/useToast"
 import { useEffect, useState } from "react"
 import { Loader2 } from "lucide-react"
 import { useCreateBeneficiary } from "@/hooks/useBeneficiaries"
 
-function BeneficiariesCard() {
+export function BeneficiariesCard() {
   const { toast } = useToast()
   const { address: userAddress } = useAccount()
   const createBeneficiary = useCreateBeneficiary()
@@ -333,4 +333,3 @@ function BeneficiariesCard() {
   )
 }
 
-export default BeneficiariesCard
