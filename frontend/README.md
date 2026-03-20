@@ -41,9 +41,9 @@ The app registers with [Divvi Protocol](https://divvi.xyz) using consumer addres
 
 ## Tech Stack
 
-- **Build:** Vite + SWC
+- **Build:** Vite + React (Babel)
 - **UI:** React 18, TailwindCSS, shadcn/ui, Lucide icons, Recharts
 - **Web3:** wagmi, viem, Reown AppKit (WalletConnect)
 - **Swap:** Squid Router widget (`@0xsquid/widget`)
 - **Data:** TanStack React Query
-- **Linting:** Biome
+- **Linting:** ESLint + Prettier
