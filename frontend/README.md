@@ -20,11 +20,10 @@ npm run dev             # http://localhost:5173
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `VITE_PROJECT_ID` | Yes | Reown (WalletConnect) project ID |
-| `VITE_API_URL` | No | Backend API URL (default: `http://localhost:3001`) |
-| `VITE_SQUID_INTEGRATOR_ID` | No | Squid Router integrator ID (default: `squid-swap-widget`) |
+| Variable          | Required | Description                                       |
+|-------------------|----------|---------------------------------------------------|
+| `VITE_PROJECT_ID` | Yes      | Reown (WalletConnect) project ID                  |
+| `VITE_API_URL`    | No       | Backend API URL (default: `http://localhost:3001`) |
 
 **Important:** `VITE_*` variables are baked into the bundle at build time. Changing them in Vercel requires a redeploy to take effect.
 
