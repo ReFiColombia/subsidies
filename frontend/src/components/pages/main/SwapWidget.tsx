@@ -139,11 +139,11 @@ function SwapWidgetInner(_props: SwapWidgetProps) {
 
 function SwapWidgetFallback() {
   return (
-    <div className="rounded-lg border border-white/20 bg-white/5 p-6 text-center">
-      <p className="mb-3 text-gray-300">
+    <div className="rounded-lg border border-border bg-muted p-6 text-center">
+      <p className="mb-3 text-foreground">
         No se pudo cargar el widget de intercambio.
       </p>
-      <p className="text-sm text-gray-400">
+      <p className="text-sm text-muted-foreground">
         Puedes obtener COPm directamente en{' '}
         <a
           href="https://app.squidrouter.com"
