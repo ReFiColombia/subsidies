@@ -13,7 +13,7 @@ Add English/Spanish language support to the user-facing frontend using `react-i1
 |----------|--------|-----------|
 | i18n library | react-i18next | Industry standard, hook-based API fits existing patterns, built-in browser detection & localStorage |
 | Language switch UX | Browser auto-detect + Navbar toggle | Automatic for most users, manual override always available |
-| Fallback language | English | International visitors get English by default |
+| Fallback language | English | User's explicit choice. Detection order (localStorage → navigator) means Spanish browser users still get Spanish automatically. English is the fallback for unrecognized locales. |
 | Persistence | localStorage | Survives sessions without backend changes |
 | Scope | User-facing pages only | Admin panel stays Spanish, reduces work and keeps admin simple |
 
@@ -43,7 +43,7 @@ frontend/src/
 ### Namespaces
 
 - **`common`** — Navbar labels, shared buttons, toast messages, wallet-related text
-- **`main`** — All strings on the `/` route: Header, Description, Info, UserFundsCard, ProgramStats
+- **`main`** — All strings on the `/` route: Header, Description, Info, UserFundsCard, ProgramStats, and their child components
 
 ### i18next Configuration
 
@@ -82,9 +82,13 @@ i18n
 export default i18n;
 ```
 
+### HTML lang attribute
+
+On language change, update `document.documentElement.lang` to match the active language (`en` or `es`). This can be done via an `i18n.on('languageChanged')` listener in the i18n init file.
+
 ## Language Toggle Component
 
-**Placement:** Navbar, right side, before the wallet connect button.
+**Placement:** Navbar, right side, next to the `<appkit-button />` wallet component. The Navbar is a flex container with `justify-between` — the toggle goes in the right section alongside the wallet button.
 
 **Design:** Simple `EN | ES` text toggle. Active language is visually highlighted (bold or brand color). Matches existing dark theme styling.
 
@@ -98,26 +102,14 @@ export default i18n;
 
 Flat keys, grouped by component context. Descriptive and concise.
 
-**Example `en/main.json`:**
-```json
-{
-  "headerTitle": "ReFi Colombia Subsidies Program",
-  "claimButton": "Claim",
-  "notBeneficiary": "Sorry, you are not a beneficiary yet",
-  "donateFunds": "Donate funds",
-  "yourBalance": "Your balance",
-  "transparencyTitle": "Transparency",
-  "totalDistributed": "Total Distributed",
-  "totalBeneficiaries": "Total Beneficiaries"
-}
-```
-
 **Dynamic values** use i18next interpolation:
 ```json
 "balanceAmount": "Your balance: {{amount}} COPm"
 ```
 
 **Spanish files** contain the existing hardcoded strings — zero visible change for current users.
+
+**Note:** The full set of translation keys will be extracted during implementation by reading every component listed below. The JSON files will contain all strings — approximately 40+ keys across both namespaces.
 
 ## Component Usage Pattern
 
@@ -130,28 +122,52 @@ const { t } = useTranslation('main');
 <h1>{t('claimButton')}</h1>
 ```
 
+For module-level constants outside component scope (e.g., chart config objects), use `i18next.t()` directly or move the config inside the component.
+
 ## Components To Modify
 
-### User-facing (translate):
-- `src/components/layout/Navbar.tsx` — "User Panel" / "Admin Panel" labels, add language toggle
-- `src/components/pages/main/Header.tsx` — heading and description text
+### User-facing (translate)
+
+**Layout:**
+
+- `src/components/layout/Navbar.tsx` — "User Panel" / "Admin Panel" labels, add language toggle component
+
+**Main page (`App.tsx`):**
+
+- `src/App.tsx` — "Reclamar" button text, donation disclaimer, all claim-related toast messages (error, pending, success)
+
+**Main page child components:**
+
+- `src/components/pages/main/Header.tsx` — heading text (multiple conditional branches)
 - `src/components/pages/main/Description.tsx` — claim instructions
-- `src/components/pages/main/Info.tsx` — claim history labels
-- `src/components/pages/main/UserFundsCard.tsx` — donation form labels, balance text
-- `src/components/pages/main/ProgramStats.tsx` — transparency section labels
+- `src/components/pages/main/Info.tsx` — claim history labels, date formatting locale (`toLocaleDateString`)
+- `src/components/pages/main/UserFundsCard.tsx` — donation form labels, balance text, donation-related toast messages
+- `src/components/pages/main/ProgramStats.tsx` — transparency section labels, chart config label ("COPm Distribuidos")
+- `src/components/pages/main/DonationStats.tsx` — "Total donado", "Beneficiarios" labels
+- `src/components/pages/main/DonationProgress.tsx` — step labels: "Aprobar", "Donar", "Listo"
+- `src/components/pages/main/DonationReceipt.tsx` — success message, share text (Twitter), action buttons
+- `src/components/pages/main/SwapWidget.tsx` — error boundary fallback text
+- `src/components/pages/main/BeneficiaryName.tsx` — "Loading..." text
 
-### Hooks with user-facing toasts:
-- Toast messages in `useSubsidyContract` or similar hooks — use `i18next.t()` global accessor for non-component contexts
+### Untouched
 
-### Untouched:
 - `src/components/pages/admin/*` — all admin components stay hardcoded Spanish
 - `src/pages/Admin.tsx` — no changes
 
-## Number/Currency Formatting
+## Number/Date/Currency Formatting
 
-Existing `Intl.NumberFormat` calls switch locale based on current i18next language:
-- English → `en-US`
-- Spanish → `es-CO`
+Existing formatting calls switch locale based on current i18next language:
+
+- `Intl.NumberFormat` — `en-US` vs `es-CO`
+- `Date.toLocaleDateString` (in `Info.tsx`) — `en-US` vs `es-CO`
+
+## Social Sharing
+
+`DonationReceipt.tsx` constructs a Twitter share URL with dynamic text. The share text string gets translated via i18next interpolation:
+
+```json
+"shareText": "I just donated {{amount}} cCOP to the ReFi Colombia subsidies program!"
+```
 
 ## Error Handling
 
