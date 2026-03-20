@@ -37,7 +37,7 @@ export function Header({
           <div className="rounded-lg bg-gradient-to-r from-brand-600 to-brand-800 p-4 text-lg font-bold text-foreground">
             Lo sentimos, aún no eres beneficiario
           </div>
-          <Button variant="link" asChild className="text-sm">
+          <Button asChild className="w-full text-sm">
             <a target="_blank" href="https://tinyurl.com/ReFiMedUBIRequest">
               Registrate aquí
             </a>
