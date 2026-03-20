@@ -1,24 +1,26 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Routes, Route } from 'react-router';
-import '@/index.css';
-import { NavBar } from '@/components/layout/navbar.tsx';
-import App from '@/App.tsx';
-import AdminPanel from '@/pages/Admin.tsx';
-import { Toaster } from './components/ui/toaster';
-import { Providers } from './providers';
+import '@/index.css'
 
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Route,Routes } from 'react-router'
+
+import { App } from '@/App'
+import { NavBar } from '@/components/layout/Navbar'
+import { AdminPanel } from '@/pages/Admin'
+
+import { Toaster } from './components/ui/toaster'
+import { Providers } from './providers'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Providers>
       <BrowserRouter>
-        <main className='w-full h-full min-h-screen flex flex-col flex-1'>
+        <main className="flex h-full min-h-screen w-full flex-1 flex-col">
           <NavBar />
-          <div className='flex-1 flex items-center justify-center'>
+          <div className="flex flex-1 items-center justify-center">
             <Routes>
               <Route index element={<App />} />
-              <Route path='/admin' element={<AdminPanel />} />
+              <Route path="/admin" element={<AdminPanel />} />
             </Routes>
           </div>
         </main>
@@ -26,4 +28,4 @@ createRoot(document.getElementById('root')!).render(
       <Toaster />
     </Providers>
   </StrictMode>
-);
+)

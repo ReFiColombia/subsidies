@@ -1,8 +1,9 @@
-import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { SquidWidget } from '@0xsquid/widget';
-import { CCOP_CONTRACT_ADDRESS } from '@/constants';
+import { SquidWidget } from '@0xsquid/widget'
+import { Component, type ErrorInfo, type ReactNode } from 'react'
 
-const CELO_CHAIN_ID = '42220';
+import { CCOP_CONTRACT_ADDRESS } from '@/constants'
+
+const CELO_CHAIN_ID = '42220'
 
 const SQUID_THEME = {
   borderRadius: {
@@ -43,7 +44,8 @@ const SQUID_THEME = {
     'squid-main': 'GeistVariable, sans-serif',
   },
   boxShadow: {
-    container: '0px 2px 4px 0px rgba(0, 0, 0, 0.20), 0px 5px 50px -1px rgba(0, 0, 0, 0.33)',
+    container:
+      '0px 2px 4px 0px rgba(0, 0, 0, 0.20), 0px 5px 50px -1px rgba(0, 0, 0, 0.33)',
   },
   color: {
     'grey-100': '#FBFBFD',
@@ -93,10 +95,10 @@ const SQUID_THEME = {
     'menu-backdrop': '#FBFBFD1A',
     'modal-backdrop': '#17191C54',
   },
-};
+}
 
 interface SwapWidgetProps {
-  onTransactionComplete?: () => void;
+  onTransactionComplete?: () => void
 }
 
 function SwapWidgetInner(_props: SwapWidgetProps) {
@@ -133,67 +135,72 @@ function SwapWidgetInner(_props: SwapWidgetProps) {
         loadPreviousStateFromLocalStorage: true,
       }}
     />
-  );
+  )
 }
 
 function SwapWidgetFallback() {
   return (
-    <div className="p-6 text-center rounded-lg border border-white/20 bg-white/5">
-      <p className="text-gray-300 mb-3">No se pudo cargar el widget de intercambio.</p>
+    <div className="rounded-lg border border-white/20 bg-white/5 p-6 text-center">
+      <p className="mb-3 text-gray-300">
+        No se pudo cargar el widget de intercambio.
+      </p>
       <p className="text-sm text-gray-400">
         Puedes obtener COPm directamente en{' '}
         <a
           href="https://app.squidrouter.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-400 hover:text-blue-300 underline"
+          className="text-blue-400 underline hover:text-blue-300"
         >
           Squid Router
-        </a>
-        {' '}o{' '}
+        </a>{' '}
+        o{' '}
         <a
           href="https://app.uniswap.org"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-400 hover:text-blue-300 underline"
+          className="text-blue-400 underline hover:text-blue-300"
         >
           Uniswap
         </a>
       </p>
     </div>
-  );
+  )
 }
 
 interface ErrorBoundaryState {
-  hasError: boolean;
+  hasError: boolean
 }
 
-class SwapWidgetErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryState> {
+class SwapWidgetErrorBoundary extends Component<
+  { children: ReactNode },
+  ErrorBoundaryState
+> {
   constructor(props: { children: ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
+    super(props)
+    this.state = { hasError: false }
   }
 
   static getDerivedStateFromError(): ErrorBoundaryState {
-    return { hasError: true };
+    return { hasError: true }
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('SwapWidget error:', error, info);
+    console.error('SwapWidget error:', error, info)
   }
 
   render() {
     if (this.state.hasError) {
-      return <SwapWidgetFallback />;
+      return <SwapWidgetFallback />
     }
-    return this.props.children;
+    return this.props.children
   }
 }
 
-export default function SwapWidget(props: SwapWidgetProps) {
+export function SwapWidget(props: SwapWidgetProps) {
   return (
     <SwapWidgetErrorBoundary>
       <SwapWidgetInner {...props} />
     </SwapWidgetErrorBoundary>
-  );
+  )
 }

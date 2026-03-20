@@ -1,16 +1,17 @@
-import React from 'react';
-import { WagmiProvider } from 'wagmi';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { projectId, metadata, networks, wagmiAdapter } from '@/config';
-import { createAppKit } from '@reown/appkit';
+import { createAppKit } from '@reown/appkit'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import React from 'react'
+import { WagmiProvider } from 'wagmi'
 
-const queryClient = new QueryClient();
+import { metadata, networks, projectId, wagmiAdapter } from '@/config'
+
+const queryClient = new QueryClient()
 
 const generalConfig = {
   projectId,
   metadata,
   networks,
-};
+}
 
 createAppKit({
   adapters: [wagmiAdapter],
@@ -18,12 +19,12 @@ createAppKit({
     analytics: true,
   },
   ...generalConfig,
-});
+})
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </WagmiProvider>
-  );
+  )
 }

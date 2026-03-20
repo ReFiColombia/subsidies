@@ -18,6 +18,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@graphclient": path.resolve(__dirname, "./.graphclient"),
     },
   },
   build: {
