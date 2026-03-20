@@ -3,7 +3,7 @@ import type { Address } from 'viem'
 // Active contract address on Celo
 export const SUBSIDY_CONTRACT_ADDRESS =
   '0x947C6dB1569edc9fd37B017B791cA0F008AB4946'
-// Future contract: 0x1A6FBc7b51E55C6D4F15c8D5CE7e97daEA699ecf (deployed, not yet active)
+// Alfajores testnet deployment: 0x1A6FBc7b51E55C6D4F15c8D5CE7e97daEA699ecf (chain 44787, test only)
 export const CCOP_CONTRACT_ADDRESS =
   '0x8A567e2aE79CA692Bd748aB832081C45de4041eA' as Address
 export const DIVVI_CONSUMER_ADDRESS =
