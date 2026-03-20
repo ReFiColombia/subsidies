@@ -216,7 +216,7 @@ export function UserFundsCard() {
   return (
     <Card className="w-full">
       <CardHeader className="pb-2 text-center">
-        <CardTitle className="text-lg font-semibold text-white">
+        <CardTitle className="text-lg font-semibold text-card-foreground">
           Donar fondos
         </CardTitle>
       </CardHeader>
@@ -227,9 +227,9 @@ export function UserFundsCard() {
 
         {/* Balance Display */}
         {isConnected && balance !== undefined && (
-          <div className="rounded-lg border border-white/20 bg-white/10 p-3 text-center">
-            <p className="mb-1 text-xs text-gray-300">Tu balance</p>
-            <p className="text-lg font-bold text-white">
+          <div className="rounded-lg border border-border bg-muted p-3 text-center">
+            <p className="mb-1 text-xs text-muted-foreground">Tu balance</p>
+            <p className="text-lg font-bold text-foreground">
               {new Intl.NumberFormat('es-CO', {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,
@@ -242,16 +242,16 @@ export function UserFundsCard() {
         {/* Swap Widget Section */}
         {isConnected && isBalanceLoading ? (
           <div className="py-4 text-center">
-            <Loader2 className="mx-auto h-6 w-6 animate-spin text-gray-400" />
+            <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : isConnected && balanceLoaded && !hasBalance ? (
           <div className="space-y-3">
-            <p className="text-center text-sm text-gray-300">
+            <p className="text-center text-sm text-muted-foreground">
               No tienes COPm. Intercambia cualquier token para obtener COPm:
             </p>
             <Button
               variant="outline"
-              className="w-full border-white/20 bg-white/10 text-white hover:bg-white/20"
+              className="w-full border-border bg-muted text-foreground hover:bg-brand-800"
               onClick={() => setShowSwapWidget(true)}
             >
               <ArrowLeftRight className="mr-2 h-4 w-4" />
@@ -261,7 +261,7 @@ export function UserFundsCard() {
         ) : isConnected && hasBalance ? (
           <button
             type="button"
-            className="flex w-full items-center justify-center gap-2 text-sm text-gray-400 transition-colors hover:text-gray-200"
+            className="flex w-full items-center justify-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
             onClick={() => setShowSwapWidget(true)}
           >
             <ArrowLeftRight className="h-4 w-4" />
@@ -278,7 +278,7 @@ export function UserFundsCard() {
             <div onClick={(e) => e.stopPropagation()}>
               <Suspense
                 fallback={
-                  <div className="py-8 text-center text-gray-400">
+                  <div className="py-8 text-center text-muted-foreground">
                     <Loader2 className="mx-auto h-6 w-6 animate-spin" />
                   </div>
                 }
@@ -302,7 +302,7 @@ export function UserFundsCard() {
               placeholder="Cantidad personalizada"
               value={customAmount}
               onChange={(e) => handleCustomAmountChange(e.target.value)}
-              className="border-border bg-background text-center text-white"
+              className="border-border bg-background text-center text-foreground"
             />
 
             {/* Progress Indicator */}
@@ -311,7 +311,7 @@ export function UserFundsCard() {
             {/* Donate Button */}
             <Button
               disabled={!activeAmount || isPending || donationStep !== 'idle'}
-              className="w-full rounded-lg text-white"
+              className="w-full rounded-lg text-primary-foreground"
               onClick={handleDonate}
             >
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
