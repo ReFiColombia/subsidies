@@ -5,7 +5,7 @@ import { formatUnits } from 'viem'
 
 const sdk = getBuiltGraphSDK()
 
-export default function DonationStats() {
+export function DonationStats() {
   const { data: fundsData } = useQuery({
     queryKey: ['Funds'],
     queryFn: () => sdk.Funds(),
