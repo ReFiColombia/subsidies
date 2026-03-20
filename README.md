@@ -12,13 +12,13 @@ This program allows registered beneficiaries to claim a fixed amount of cCOP at 
 
 ```
 subsidies/
-├── backend/                           ← Express + Prisma + Dune Analytics
+├── backend/
 │   ├── prisma/
 │   │   ├── migrations/
-│   │   ├── schema.prisma              ← Beneficiary model (PostgreSQL)
+│   │   ├── schema.prisma
 │   │   └── seed.ts
 │   ├── src/
-│   │   └── index.ts                   ← API routes, Dune client, CORS
+│   │   └── index.ts
 │   ├── .env.example
 │   ├── package.json
 │   ├── tsconfig.json
@@ -26,33 +26,33 @@ subsidies/
 │   └── README.md
 │
 ├── docs/
-│   └── BRANDKIT.md                    ← Typography & design tokens
+│   └── BRANDKIT.md
 │
-├── frontend/                          ← Vite + React + wagmi (Celo)
+├── frontend/
 │   ├── public/
 │   ├── src/
 │   │   ├── assets/
 │   │   ├── components/
-│   │   │   ├── layout/                ← Navbar, LanguageToggle
+│   │   │   ├── layout/
 │   │   │   ├── pages/
-│   │   │   │   ├── admin/             ← Dashboard, Beneficiaries, Funds
-│   │   │   │   └── main/              ← Header, ProgramStats, SwapWidget, UserFundsCard
-│   │   │   └── ui/                    ← shadcn/ui components
-│   │   ├── config/                    ← Contract addresses, chain config
-│   │   ├── constants/                 ← ABIs, addresses
-│   │   ├── hooks/                     ← useBeneficiaries, useSubsidyContract
+│   │   │   │   ├── admin/
+│   │   │   │   └── main/
+│   │   │   └── ui/
+│   │   ├── config/
+│   │   ├── constants/
+│   │   ├── hooks/
 │   │   ├── i18n/
-│   │   │   └── locales/               ← en/, es/
-│   │   ├── lib/                       ← Utility functions
-│   │   ├── pages/                     ← Admin.tsx
-│   │   ├── queries/                   ← GraphQL queries (beneficiaries, funds, claims)
+│   │   │   └── locales/
+│   │   ├── lib/
+│   │   ├── pages/
+│   │   ├── queries/
 │   │   ├── App.tsx
-│   │   ├── client.ts                  ← GraphQL client
-│   │   ├── main.tsx                   ← Entry point
-│   │   └── providers.tsx              ← Wagmi, Reown, React Query
+│   │   ├── client.ts
+│   │   ├── main.tsx
+│   │   └── providers.tsx
 │   ├── .env.example
 │   ├── .graphclientrc.yml
-│   ├── components.json                ← shadcn/ui config
+│   ├── components.json
 │   ├── index.html
 │   ├── package.json
 │   ├── tailwind.config.js
@@ -62,42 +62,42 @@ subsidies/
 │   ├── wagmi.config.ts
 │   └── README.md
 │
-├── smart-contracts/                   ← Foundry (Solidity ^0.8.28)
-│   ├── lib/                           ← forge-std, openzeppelin (submodules)
+├── smart-contracts/
+│   ├── lib/
 │   ├── script/
 │   │   └── DeploySubsidyProgram.s.sol
 │   ├── src/
-│   │   ├── SubsidyProgram.sol         ← V2 (UUPS + Uniswap V3 auto-swap)
-│   │   └── ISwapRouter.sol            ← Uniswap V3 interface
+│   │   ├── SubsidyProgram.sol
+│   │   └── ISwapRouter.sol
 │   ├── test/
 │   │   ├── helpers/
 │   │   ├── mock/
-│   │   └── unit/                      ← Fork tests, swap tests, unit tests
+│   │   └── unit/
 │   ├── .env.example
 │   ├── foundry.toml
 │   ├── remappings.txt
 │   └── README.md
 │
-├── subgraph/                          ← The Graph (Celo Mainnet)
+├── subgraph/
 │   ├── abis/
 │   │   └── SubsidyProgram.json
 │   ├── src/
-│   │   └── subsidy-program.ts         ← Event handlers
+│   │   └── subsidy-program.ts
 │   ├── tests/
 │   │   ├── subsidy-program.test.ts
 │   │   └── subsidy-program-utils.ts
 │   ├── docker-compose.yml
 │   ├── networks.json
 │   ├── package.json
-│   ├── schema.graphql                 ← Entity definitions
-│   ├── subgraph.yaml                  ← Data sources & mappings
+│   ├── schema.graphql
+│   ├── subgraph.yaml
 │   └── README.md
 │
 ├── .gitmodules
 ├── .nvmrc
-├── CONTRIBUTING.md                    ← Setup, branch conventions, PR process
-├── LICENSE                            ← MIT
-├── README.md                          ← Project entry point
+├── CONTRIBUTING.md
+├── LICENSE
+├── README.md
 └── vercel.json
 ```
 
