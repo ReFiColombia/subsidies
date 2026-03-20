@@ -170,40 +170,40 @@ export function FundsCard() {
 
   return (
     <Tabs defaultValue="add" className="h-full w-full">
-      <TabsList className="mb-4 grid w-full grid-cols-2 gap-x-2 rounded-xl bg-gray-100 p-1">
+      <TabsList className="mb-4 grid w-full grid-cols-2 gap-x-2 rounded-xl bg-muted p-1">
         <TabsTrigger
           value="add"
-          className="tab-button rounded-lg transition-colors data-[state=active]:bg-cyan-600 data-[state=inactive]:bg-gray-200 data-[state=active]:text-white data-[state=inactive]:text-gray-700"
+          className="tab-button rounded-lg transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-white data-[state=inactive]:text-muted-foreground"
         >
           Fondear
         </TabsTrigger>
         <TabsTrigger
           value="delete"
-          className="tab-button rounded-lg transition-colors data-[state=active]:bg-cyan-600 data-[state=inactive]:bg-gray-200 data-[state=active]:text-white data-[state=inactive]:text-gray-700"
+          className="tab-button rounded-lg transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-white data-[state=inactive]:text-muted-foreground"
         >
           Retirar
         </TabsTrigger>
       </TabsList>
       <TabsContent value="add">
-        <Card className="mx-auto mb-6 w-full max-w-[400px] rounded-xl border border-gray-200 bg-white p-6 shadow-md">
+        <Card className="mx-auto mb-6 w-full max-w-[400px] rounded-xl border border-border bg-card p-6 shadow-md">
           <form onSubmit={handleAddSubmit}>
             <CardHeader>
-              <CardTitle className="text-lg font-semibold text-gray-800">
+              <CardTitle className="text-lg font-semibold text-card-foreground">
                 Añadir fondos
               </CardTitle>
             </CardHeader>
             <CardContent className="mb-4 p-0 text-left">
-              <Label className="mb-2 text-gray-700">Cantidad</Label>
+              <Label className="mb-2 text-muted-foreground">Cantidad</Label>
               <Input
                 name="amount"
                 placeholder="$cCop"
-                className="mt-1 text-gray-900"
+                className="mt-1 text-foreground"
               />
             </CardContent>
             <CardFooter className="p-0">
               <Button
                 disabled={isPending || isLoading}
-                className="w-full rounded-lg bg-cyan-600 text-white hover:bg-cyan-700"
+                className="w-full rounded-lg bg-primary text-white hover:bg-brand-700"
               >
                 {(isPending || isLoading) && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -216,14 +216,14 @@ export function FundsCard() {
       </TabsContent>
       <TabsContent value="delete">
         <form onSubmit={handleWithdrawSubmit}>
-          <Card className="mx-auto mb-6 w-full max-w-[400px] rounded-xl border border-gray-200 bg-white p-6 shadow-md">
+          <Card className="mx-auto mb-6 w-full max-w-[400px] rounded-xl border border-border bg-card p-6 shadow-md">
             <CardHeader>
-              <CardTitle className="text-lg font-semibold text-gray-800">
+              <CardTitle className="text-lg font-semibold text-card-foreground">
                 Retirar fondos
               </CardTitle>
             </CardHeader>
             <CardFooter className="p-0">
-              <Button className="w-full rounded-lg bg-cyan-600 text-white hover:bg-cyan-700">
+              <Button className="w-full rounded-lg bg-primary text-white hover:bg-brand-700">
                 Retirar
               </Button>
             </CardFooter>

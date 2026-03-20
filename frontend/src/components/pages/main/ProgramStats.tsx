@@ -37,7 +37,7 @@ const formatCOP = (value: number) =>
 const chartConfig = {
   distributed: {
     label: 'COPm Distribuidos',
-    color: '#8b5cf6',
+    color: 'hsl(271, 81%, 56%)',
   },
 }
 
@@ -158,7 +158,7 @@ export function ProgramStats() {
                 />
               }
             />
-            <Bar dataKey="distributed" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="distributed" fill="hsl(271, 81%, 56%)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ChartContainer>
       </div>
