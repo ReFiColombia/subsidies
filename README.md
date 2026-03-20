@@ -148,7 +148,7 @@ Then follow the README in each package:
 |-------|-----------|
 | Blockchain | Celo Mainnet |
 | Smart Contracts | Solidity ^0.8.28, Foundry, OpenZeppelin (UUPS) |
-| Frontend | Vite, React 18, TailwindCSS, wagmi, Reown |
+| Frontend | Vite, React 18, TailwindCSS, wagmi, Reown, i18next |
 | Backend | Express, Prisma, Dune Analytics SDK |
 | Subgraph | The Graph (AssemblyScript) |
 | Swap | Uniswap V3 (on-chain), Squid Router (frontend widget) |
