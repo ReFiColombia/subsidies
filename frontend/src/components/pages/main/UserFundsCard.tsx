@@ -1,147 +1,152 @@
-import { lazy, Suspense, useState } from 'react';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  CCOP_CONTRACT_ADDRESS,
-  SUBSIDY_CONTRACT_ABI,
-  SUBSIDY_CONTRACT_ADDRESS,
-  DIVVI_CONSUMER_ADDRESS,
-} from '@/constants';
-import { useToast } from '@/hooks/useToast';
-import { Loader2, ArrowLeftRight } from 'lucide-react';
-import { erc20Abi, parseUnits, formatUnits } from 'viem';
-import { getReferralTag, submitReferral } from '@divvi/referral-sdk';
+import { getReferralTag, submitReferral } from '@divvi/referral-sdk'
+import { ArrowLeftRight,Loader2 } from 'lucide-react'
+import { lazy, Suspense, useState } from 'react'
+import { erc20Abi, formatUnits,parseUnits } from 'viem'
 import {
   useAccount,
   usePublicClient,
   useReadContract,
   useWriteContract,
-} from 'wagmi';
-import { QuickAmountPicker } from './QuickAmountPicker';
-import { DonationProgress, type DonationStep } from './DonationProgress';
-import { DonationReceipt } from './DonationReceipt';
-import { DonationStats } from './DonationStats';
+} from 'wagmi'
 
-const SwapWidget = lazy(() => import('./SwapWidget').then((m) => ({ default: m.SwapWidget })));
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import {
+  CCOP_CONTRACT_ADDRESS,
+  DIVVI_CONSUMER_ADDRESS,
+  SUBSIDY_CONTRACT_ABI,
+  SUBSIDY_CONTRACT_ADDRESS,
+} from '@/constants'
+import { useToast } from '@/hooks/useToast'
+
+import { DonationProgress, type DonationStep } from './DonationProgress'
+import { DonationReceipt } from './DonationReceipt'
+import { DonationStats } from './DonationStats'
+import { QuickAmountPicker } from './QuickAmountPicker'
+
+const SwapWidget = lazy(() =>
+  import('./SwapWidget').then((m) => ({ default: m.SwapWidget }))
+)
 
 export function UserFundsCard() {
-  const { toast } = useToast();
-  const { address, isConnected } = useAccount();
-  const client = usePublicClient();
+  const { toast } = useToast()
+  const { address, isConnected } = useAccount()
+  const client = usePublicClient()
 
-  const [selectedAmount, setSelectedAmount] = useState('');
-  const [customAmount, setCustomAmount] = useState('');
-  const [donationStep, setDonationStep] = useState<DonationStep>('idle');
-  const [showSwapWidget, setShowSwapWidget] = useState(false);
-  const [receiptData, setReceiptData] = useState<{ amount: bigint; txHash: string } | null>(null);
+  const [selectedAmount, setSelectedAmount] = useState('')
+  const [customAmount, setCustomAmount] = useState('')
+  const [donationStep, setDonationStep] = useState<DonationStep>('idle')
+  const [showSwapWidget, setShowSwapWidget] = useState(false)
+  const [receiptData, setReceiptData] = useState<{
+    amount: bigint
+    txHash: string
+  } | null>(null)
 
-  const {
-    writeContractAsync,
-    isPending,
-  } = useWriteContract({
+  const { writeContractAsync, isPending } = useWriteContract({
     mutation: {
       onError: (error) => {
-        console.error(error);
-        setDonationStep('idle');
+        console.error(error)
+        setDonationStep('idle')
         toast({
           title: 'Error en la transaccion',
           description: error.message,
           variant: 'destructive',
-        });
+        })
       },
     },
-  });
+  })
 
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
     abi: erc20Abi,
     address: CCOP_CONTRACT_ADDRESS,
     functionName: 'allowance',
     args: [address!, SUBSIDY_CONTRACT_ADDRESS],
-  });
+  })
 
-  const { data: balance, refetch: refetchBalance, isLoading: isBalanceLoading } = useReadContract({
+  const {
+    data: balance,
+    refetch: refetchBalance,
+    isLoading: isBalanceLoading,
+  } = useReadContract({
     abi: erc20Abi,
     address: CCOP_CONTRACT_ADDRESS,
     functionName: 'balanceOf',
     args: [address!],
-  });
+  })
 
-  const balanceLoaded = balance !== undefined;
-  const hasBalance = balanceLoaded && balance > 0n;
-  const activeAmount = selectedAmount || customAmount;
+  const balanceLoaded = balance !== undefined
+  const hasBalance = balanceLoaded && balance > 0n
+  const activeAmount = selectedAmount || customAmount
 
   const handleQuickSelect = (amount: string) => {
-    setSelectedAmount(amount);
-    setCustomAmount('');
-  };
+    setSelectedAmount(amount)
+    setCustomAmount('')
+  }
 
   const handleCustomAmountChange = (value: string) => {
-    setCustomAmount(value);
-    setSelectedAmount('');
-  };
+    setCustomAmount(value)
+    setSelectedAmount('')
+  }
 
   const handleSwapComplete = () => {
-    refetchBalance();
-  };
+    refetchBalance()
+  }
 
   const handleDonate = async () => {
-    if (!activeAmount) return;
+    if (!activeAmount) return
 
     try {
-      const amount = parseUnits(activeAmount, 18);
-      refetchAllowance();
+      const amount = parseUnits(activeAmount, 18)
+      refetchAllowance()
 
-      if (typeof allowance !== 'bigint') return;
+      if (typeof allowance !== 'bigint') return
 
       // Step 1: Approve if needed
       if (allowance < amount) {
-        setDonationStep('approving');
+        setDonationStep('approving')
 
         const approveTx = await writeContractAsync({
           abi: erc20Abi,
           address: CCOP_CONTRACT_ADDRESS,
           functionName: 'approve',
           args: [SUBSIDY_CONTRACT_ADDRESS, amount],
-        });
+        })
 
         toast({
           title: 'Aprobacion enviada',
           description: 'Esperando confirmacion...',
-        });
+        })
 
         const receipt = await client!.waitForTransactionReceipt({
           hash: approveTx,
           confirmations: 1,
           pollingInterval: 1000,
           timeout: 60000,
-        });
+        })
 
         if (receipt.status === 'reverted') {
-          setDonationStep('idle');
+          setDonationStep('idle')
           toast({
             title: 'Error en la aprobacion',
             description: 'La transaccion de aprobacion fallo.',
             variant: 'destructive',
-          });
-          return;
+          })
+          return
         }
 
-        await refetchAllowance();
+        await refetchAllowance()
       }
 
       // Step 2: Donate
-      setDonationStep('donating');
+      setDonationStep('donating')
 
       const referralTag = getReferralTag({
-        user: (address as `0x${string}`) ?? '0x0000000000000000000000000000000000000000',
+        user:
+          (address as `0x${string}`) ??
+          '0x0000000000000000000000000000000000000000',
         consumer: DIVVI_CONSUMER_ADDRESS,
-      });
+      })
 
       const addFundsTx = await writeContractAsync({
         abi: SUBSIDY_CONTRACT_ABI,
@@ -149,51 +154,51 @@ export function UserFundsCard() {
         functionName: 'addFunds',
         args: [amount],
         dataSuffix: `0x${referralTag}`,
-      });
+      })
 
       const donateReceipt = await client!.waitForTransactionReceipt({
         hash: addFundsTx,
         confirmations: 1,
         pollingInterval: 1000,
         timeout: 60000,
-      });
+      })
 
       if (donateReceipt.status === 'reverted') {
-        setDonationStep('idle');
+        setDonationStep('idle')
         toast({
           title: 'Error al donar',
           description: 'La transaccion de donacion fallo.',
           variant: 'destructive',
-        });
-        return;
+        })
+        return
       }
 
       // Step 3: Done
-      setDonationStep('done');
-      setReceiptData({ amount, txHash: addFundsTx });
-      refetchBalance();
+      setDonationStep('done')
+      setReceiptData({ amount, txHash: addFundsTx })
+      refetchBalance()
 
       submitReferral({ txHash: addFundsTx, chainId: 42220 }).catch((e) =>
         console.warn('Divvi submitReferral failed', e)
-      );
+      )
     } catch (error: any) {
-      console.error(error);
-      setDonationStep('idle');
+      console.error(error)
+      setDonationStep('idle')
       toast({
         title: 'Error al donar fondos',
         description: error.message,
         variant: 'destructive',
-      });
+      })
     }
-  };
+  }
 
   const handleReset = () => {
-    setDonationStep('idle');
-    setReceiptData(null);
-    setSelectedAmount('');
-    setCustomAmount('');
-    refetchBalance();
-  };
+    setDonationStep('idle')
+    setReceiptData(null)
+    setSelectedAmount('')
+    setCustomAmount('')
+    refetchBalance()
+  }
 
   // Show receipt screen after successful donation
   if (receiptData) {
@@ -205,58 +210,61 @@ export function UserFundsCard() {
           onReset={handleReset}
         />
       </Card>
-    );
+    )
   }
 
   return (
     <Card className="w-full">
-      <CardHeader className="text-center pb-2">
-        <CardTitle className="text-white text-lg font-semibold">Donar fondos</CardTitle>
+      <CardHeader className="pb-2 text-center">
+        <CardTitle className="text-lg font-semibold text-white">
+          Donar fondos
+        </CardTitle>
       </CardHeader>
 
-      <CardContent className="px-6 pb-6 pt-0 space-y-4">
+      <CardContent className="space-y-4 px-6 pb-6 pt-0">
         {/* Donation Stats */}
         <DonationStats />
 
         {/* Balance Display */}
         {isConnected && balance !== undefined && (
-          <div className="p-3 bg-white/10 rounded-lg border border-white/20 text-center">
-            <p className="text-gray-300 text-xs mb-1">Tu balance</p>
-            <p className="text-white text-lg font-bold">
+          <div className="rounded-lg border border-white/20 bg-white/10 p-3 text-center">
+            <p className="mb-1 text-xs text-gray-300">Tu balance</p>
+            <p className="text-lg font-bold text-white">
               {new Intl.NumberFormat('es-CO', {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,
-              }).format(Number(formatUnits(balance, 18)))} cCOP
+              }).format(Number(formatUnits(balance, 18)))}{' '}
+              cCOP
             </p>
           </div>
         )}
 
         {/* Swap Widget Section */}
         {isConnected && isBalanceLoading ? (
-          <div className="text-center py-4">
-            <Loader2 className="w-6 h-6 animate-spin mx-auto text-gray-400" />
+          <div className="py-4 text-center">
+            <Loader2 className="mx-auto h-6 w-6 animate-spin text-gray-400" />
           </div>
         ) : isConnected && balanceLoaded && !hasBalance ? (
           <div className="space-y-3">
-            <p className="text-sm text-gray-300 text-center">
+            <p className="text-center text-sm text-gray-300">
               No tienes COPm. Intercambia cualquier token para obtener COPm:
             </p>
             <Button
               variant="outline"
-              className="w-full bg-white/10 text-white border-white/20 hover:bg-white/20"
+              className="w-full border-white/20 bg-white/10 text-white hover:bg-white/20"
               onClick={() => setShowSwapWidget(true)}
             >
-              <ArrowLeftRight className="w-4 h-4 mr-2" />
+              <ArrowLeftRight className="mr-2 h-4 w-4" />
               Obtener COPm
             </Button>
           </div>
         ) : isConnected && hasBalance ? (
           <button
             type="button"
-            className="flex items-center justify-center gap-2 w-full text-sm text-gray-400 hover:text-gray-200 transition-colors"
+            className="flex w-full items-center justify-center gap-2 text-sm text-gray-400 transition-colors hover:text-gray-200"
             onClick={() => setShowSwapWidget(true)}
           >
-            <ArrowLeftRight className="w-4 h-4" />
+            <ArrowLeftRight className="h-4 w-4" />
             Necesitas mas COPm?
           </button>
         ) : null}
@@ -268,7 +276,13 @@ export function UserFundsCard() {
             onClick={() => setShowSwapWidget(false)}
           >
             <div onClick={(e) => e.stopPropagation()}>
-              <Suspense fallback={<div className="text-center text-gray-400 py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto" /></div>}>
+              <Suspense
+                fallback={
+                  <div className="py-8 text-center text-gray-400">
+                    <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+                  </div>
+                }
+              >
                 <SwapWidget onTransactionComplete={handleSwapComplete} />
               </Suspense>
             </div>
@@ -288,7 +302,7 @@ export function UserFundsCard() {
               placeholder="Cantidad personalizada"
               value={customAmount}
               onChange={(e) => handleCustomAmountChange(e.target.value)}
-              className="bg-background text-white border-border text-center"
+              className="border-border bg-background text-center text-white"
             />
 
             {/* Progress Indicator */}
@@ -297,16 +311,18 @@ export function UserFundsCard() {
             {/* Donate Button */}
             <Button
               disabled={!activeAmount || isPending || donationStep !== 'idle'}
-              className="w-full text-white rounded-lg"
+              className="w-full rounded-lg text-white"
               onClick={handleDonate}
             >
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Donar{activeAmount ? ` ${Number(activeAmount).toLocaleString('es-CO')} cCOP` : ''}
+              Donar
+              {activeAmount
+                ? ` ${Number(activeAmount).toLocaleString('es-CO')} cCOP`
+                : ''}
             </Button>
           </>
         )}
       </CardContent>
     </Card>
-  );
+  )
 }
-

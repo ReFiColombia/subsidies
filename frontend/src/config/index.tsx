@@ -1,6 +1,6 @@
-import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
-import { celo  } from '@reown/appkit/networks'
 import type { AppKitNetwork } from '@reown/appkit/networks'
+import { celo } from '@reown/appkit/networks'
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 
 export const projectId = import.meta.env.VITE_PROJECT_ID
 
@@ -12,7 +12,7 @@ export const metadata = {
   name: 'Subsidios ReFi Colombia',
   description: 'Subsidios ReFi Colombia module',
   url: 'https://subsidios.refimcolombia.org',
-  icons: ['https://avatars.githubusercontent.com/u/179229932']
+  icons: ['https://avatars.githubusercontent.com/u/179229932'],
 }
 
 export const networks = [celo] as [AppKitNetwork, ...AppKitNetwork[]]

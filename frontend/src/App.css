@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   background: hsl(270, 30%, 10%);
   min-height: 100%;
   height: auto;
@@ -63,7 +64,7 @@ html, body {
   padding-bottom: 0.25rem;
 }
 
-.tab-button[data-state="inactive"] {
+.tab-button[data-state='inactive'] {
   background-color: #5b21b6;
   color: #ddd6fe;
 }

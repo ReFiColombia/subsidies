@@ -1,12 +1,12 @@
-import { CardHeader, CardTitle } from '@/components/ui/card';
-import { secondsToDays } from '@/lib/utils';
+import { CardHeader, CardTitle } from '@/components/ui/card'
+import { secondsToDays } from '@/lib/utils'
 
 type DescriptionProps = {
-  isWhiteListed: boolean;
-  isAbleToClaim: boolean;
-  lastClaimed: bigint;
-  claimInterval: bigint;
-};
+  isWhiteListed: boolean
+  isAbleToClaim: boolean
+  lastClaimed: bigint
+  claimInterval: bigint
+}
 
 export function Description({
   isWhiteListed,
@@ -14,41 +14,39 @@ export function Description({
   lastClaimed,
   claimInterval,
 }: DescriptionProps) {
-  const secondsSinceLastClaimed = Date.now() / 1000 - Number(lastClaimed);
+  const secondsSinceLastClaimed = Date.now() / 1000 - Number(lastClaimed)
   const daysLeft = secondsToDays(
     Number(claimInterval) - secondsSinceLastClaimed
-  );
+  )
   const getClaimMessage = () => {
-    if (!isWhiteListed)
-      return null;
+    if (!isWhiteListed) return null
     else if (isAbleToClaim)
       return (
-        <span className="text-gray-200 text-center block">
+        <span className="block text-center text-gray-200">
           Puedes reclamar tu subsidio cada {claimIntervalInDays} días.
         </span>
-      );
+      )
     else
       return (
         <div className="text-center">
           <div className="text-lg font-semibold text-white">
             Ya reclamaste el subsidio de esta semana.
           </div>
-          <div className="text-sm text-gray-300 mt-1">
+          <div className="mt-1 text-sm text-gray-300">
             Regresa en {daysLeft} días para reclamar de nuevo.
           </div>
         </div>
-      );
-  };
+      )
+  }
 
-  const claimIntervalInDays = secondsToDays(Number(claimInterval));
-  const message = getClaimMessage();
+  const claimIntervalInDays = secondsToDays(Number(claimInterval))
+  const message = getClaimMessage()
 
-  if (!message) return null;
+  if (!message) return null
 
   return (
     <CardHeader>
       <CardTitle>{message}</CardTitle>
     </CardHeader>
-  );
+  )
 }
-
