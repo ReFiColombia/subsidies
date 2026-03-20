@@ -1,12 +1,12 @@
 [submodule "smart-cotracts/lib/v3-core"]
-	path = smart-cotracts/lib/v3-core
+	path = smart-contracts/lib/v3-core
 	url = https://github.com/uniswap/v3-core
 [submodule "smart-cotracts/lib/v2-core"]
-	path = smart-cotracts/lib/v2-core
+	path = smart-contracts/lib/v2-core
 	url = https://github.com/uniswap/v2-core
 [submodule "smart-cotracts/lib/v3-periphery"]
-	path = smart-cotracts/lib/v3-periphery
+	path = smart-contracts/lib/v3-periphery
 	url = https://github.com/uniswap/v3-periphery
 [submodule "smart-cotracts/lib/openzeppelin-contracts-upgradeable"]
-	path = smart-cotracts/lib/openzeppelin-contracts-upgradeable
+	path = smart-contracts/lib/openzeppelin-contracts-upgradeable
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable
