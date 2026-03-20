@@ -1,16 +1,11 @@
 import { Check, Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 type DonationStep = 'idle' | 'approving' | 'donating' | 'done'
 
 interface DonationProgressProps {
   currentStep: DonationStep
 }
-
-const steps = [
-  { key: 'approving' as const, label: 'Aprobar' },
-  { key: 'donating' as const, label: 'Donar' },
-  { key: 'done' as const, label: 'Listo' },
-]
 
 const stepOrder: Record<DonationStep, number> = {
   idle: -1,
@@ -20,7 +15,15 @@ const stepOrder: Record<DonationStep, number> = {
 }
 
 export function DonationProgress({ currentStep }: DonationProgressProps) {
+  const { t } = useTranslation('main')
+
   if (currentStep === 'idle') return null
+
+  const steps = [
+    { key: 'approving' as const, label: t('stepApprove') },
+    { key: 'donating' as const, label: t('stepDonate') },
+    { key: 'done' as const, label: t('stepDone') },
+  ]
 
   const currentIndex = stepOrder[currentStep]
 
@@ -51,7 +54,9 @@ export function DonationProgress({ currentStep }: DonationProgressProps) {
             </div>
             <span
               className={`text-xs ${
-                isComplete || isActive ? 'text-foreground' : 'text-muted-foreground'
+                isComplete || isActive
+                  ? 'text-foreground'
+                  : 'text-muted-foreground'
               }`}
             >
               {step.label}
