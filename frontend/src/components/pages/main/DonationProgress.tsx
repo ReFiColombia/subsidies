@@ -53,7 +53,7 @@ export function DonationProgress({ currentStep }: DonationProgressProps) {
               )}
             </div>
             <span
-              className={`text-xs ${
+              className={`hidden text-xs sm:inline ${
                 isComplete || isActive
                   ? 'text-foreground'
                   : 'text-muted-foreground'
@@ -63,7 +63,7 @@ export function DonationProgress({ currentStep }: DonationProgressProps) {
             </span>
             {index < steps.length - 1 && (
               <div
-                className={`h-0.5 w-8 ${
+                className={`h-0.5 w-4 sm:w-8 ${
                   isComplete ? 'bg-success' : 'bg-muted'
                 }`}
               />
