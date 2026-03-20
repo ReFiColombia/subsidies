@@ -194,17 +194,17 @@ export function App() {
             </CardFooter>
           </Card>
 
-          {/* Program Stats from Dune */}
-          <div className="w-full">
-            <ProgramStats />
-          </div>
-
           {/* Donate Funds Card */}
           <div className="w-full">
             <UserFundsCard />
             <p className="mt-6 text-center text-sm leading-relaxed text-muted-foreground">
               Recuerda que esta donación es voluntaria y no se puede retirar.
             </p>
+          </div>
+
+          {/* Program Stats from Dune */}
+          <div className="w-full">
+            <ProgramStats />
           </div>
         </div>
       </div>
