@@ -1,0 +1,21 @@
+{
+  "userPanel": "Panel de Usuario",
+  "adminPanel": "Panel de Admin",
+  "loading": "Cargando...",
+  "hashLabel": "Hash:",
+  "tryAgain": "Intentar de nuevo",
+  "claimErrorTitle": "❌ Error al reclamar el subsidio",
+  "claimErrorDescription": "Verifica que tengas suficiente gas y que tu wallet esté conectada.",
+  "txSentTitle": "⏳ Transacción enviada",
+  "txSentDescription": "Tu transacción está siendo procesada en la blockchain.",
+  "claimSuccessTitle": "¡Subsidio reclamado exitosamente! 🎉",
+  "claimSuccessDescription": "Tu subsidio ha sido reclamado correctamente.",
+  "txErrorTitle": "Error en la transaccion",
+  "approvalSentTitle": "Aprobacion enviada",
+  "waitingConfirmation": "Esperando confirmacion...",
+  "approvalErrorTitle": "Error en la aprobacion",
+  "approvalErrorDescription": "La transaccion de aprobacion fallo.",
+  "donationErrorTitle": "Error al donar",
+  "donationErrorDescription": "La transaccion de donacion fallo.",
+  "donationFundsErrorTitle": "Error al donar fondos"
+}

@@ -1,0 +1,21 @@
+{
+  "userPanel": "User Panel",
+  "adminPanel": "Admin Panel",
+  "loading": "Loading...",
+  "hashLabel": "Hash:",
+  "tryAgain": "Try again",
+  "claimErrorTitle": "❌ Error claiming subsidy",
+  "claimErrorDescription": "Verify you have enough gas and your wallet is connected.",
+  "txSentTitle": "⏳ Transaction sent",
+  "txSentDescription": "Your transaction is being processed on the blockchain.",
+  "claimSuccessTitle": "Subsidy claimed successfully! 🎉",
+  "claimSuccessDescription": "Your subsidy has been claimed correctly.",
+  "txErrorTitle": "Transaction error",
+  "approvalSentTitle": "Approval sent",
+  "waitingConfirmation": "Waiting for confirmation...",
+  "approvalErrorTitle": "Approval error",
+  "approvalErrorDescription": "The approval transaction failed.",
+  "donationErrorTitle": "Donation error",
+  "donationErrorDescription": "The donation transaction failed.",
+  "donationFundsErrorTitle": "Error donating funds"
+}
