@@ -1,6 +1,6 @@
 html,
 body {
-  background: hsl(270, 30%, 10%);
+  background: hsl(var(--background));
   min-height: 100%;
   height: auto;
   margin: 0;
@@ -14,20 +14,14 @@ body {
   height: 100%;
 }
 
-.tabline {
-  border-radius: 10px;
-  padding: 0.3em;
-  background-color: hsl(274, 66%, 32%);
-}
-
 .tab-button {
   font-size: 0.875em;
-  color: hsl(0, 0%, 100%);
+  color: hsl(var(--foreground));
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
 }
 
 .tab-button[data-state='inactive'] {
-  background-color: hsl(273, 67%, 39%);
-  color: hsl(269, 100%, 92%);
+  background-color: hsl(var(--brand-800));
+  color: hsl(var(--brand-200));
 }
