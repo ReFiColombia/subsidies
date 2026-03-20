@@ -50,17 +50,17 @@ Copy `.env.example` to `.env` in each package and fill in the required values.
 
 ## Code Style
 
-- **Frontend / Backend:** Formatted with [Biome](https://biomejs.dev/)
+- **Frontend:** ESLint + Prettier
 - **Smart Contracts:** Formatted with `forge fmt`
 
 Run formatters before committing:
 
 ```bash
-# Frontend or backend
-npx @biomejs/biome check --write .
+# Frontend
+cd frontend && npx prettier --write . && npx eslint .
 
 # Smart contracts
-forge fmt
+cd smart-contracts && forge fmt
 ```
 
 ## Project Structure
