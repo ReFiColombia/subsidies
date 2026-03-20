@@ -268,12 +268,14 @@ export function UserFundsCard() {
             Necesitas mas COPm? Intercambia aquí
           </button>
         ) : !isConnected ? (
-          <div className="flex flex-col items-center gap-3">
-            <p className="text-center text-sm text-muted-foreground">
-              Conecta tu wallet para donar
-            </p>
-            <appkit-button />
-          </div>
+          <Button
+            className="w-full"
+            onClick={() =>
+              (document.querySelector('appkit-button') as HTMLElement)?.click()
+            }
+          >
+            Donar
+          </Button>
         ) : null}
 
         {/* Swap Widget Popup */}
