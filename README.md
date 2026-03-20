@@ -8,14 +8,26 @@ Live at [subsidios.reficolombia.org](https://subsidios.reficolombia.org)
 
 This program allows registered beneficiaries to claim a fixed amount of cCOP at regular intervals. An admin manages beneficiaries, funds, and program parameters. The V2 smart contract supports multi-token donations with automatic Uniswap V3 swaps to cCOP at claim time.
 
-## Architecture
+## Repository Structure
 
 ```
 subsidies/
-├── frontend/        — Vite + React + wagmi (Celo)
-├── backend/         — Express + Prisma + Dune Analytics
-├── smart-contracts/ — Foundry (Solidity ^0.8.28)
-└── subgraph/        — The Graph (Celo Mainnet)
+├── frontend/                — Vite + React + wagmi (Celo)
+│   ├── README.md            — Components, env vars, Vercel deployment
+│   └── .env.example
+├── backend/                 — Express + Prisma + Dune Analytics
+│   ├── README.md            — API endpoints, database, Vercel deployment
+│   └── .env.example
+├── smart-contracts/         — Foundry (Solidity ^0.8.28)
+│   ├── README.md            — Contract registry, V1/V2 docs, auto-swap
+│   └── .env.example
+├── subgraph/                — The Graph (Celo Mainnet)
+│   └── README.md            — Indexed events, schema, grafting
+├── docs/
+│   ├── BRANDKIT.md          — Typography & design tokens
+│   └── superpowers/         — Design specs & implementation plans
+├── CONTRIBUTING.md          — Setup, branches, PR process, code style
+└── LICENSE                  — MIT
 ```
 
 Each package has its own README with setup instructions and detailed documentation.
