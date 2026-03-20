@@ -1,13 +1,12 @@
-import { Button } from '@/components/ui/button';
+import { lazy, Suspense, useState } from 'react';
 import {
   Card,
   CardContent,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   CCOP_CONTRACT_ADDRESS,
   SUBSIDY_CONTRACT_ABI,
@@ -15,36 +14,43 @@ import {
   DIVVI_CONSUMER_ADDRESS,
 } from '@/constants';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeftRight } from 'lucide-react';
 import { erc20Abi, parseUnits, formatUnits } from 'viem';
 import { getReferralTag, submitReferral } from '@divvi/referral-sdk';
 import {
   useAccount,
   usePublicClient,
   useReadContract,
-  useWaitForTransactionReceipt,
   useWriteContract,
 } from 'wagmi';
+import QuickAmountPicker from './QuickAmountPicker';
+import DonationProgress, { type DonationStep } from './DonationProgress';
+import DonationReceipt from './DonationReceipt';
+import DonationStats from './DonationStats';
+
+const SwapWidget = lazy(() => import('./SwapWidget'));
 
 function UserFundsCard() {
   const { toast } = useToast();
   const { address, isConnected } = useAccount();
   const client = usePublicClient();
-  
-  // Función para generar enlace de Celoscan
-  const getCeloscanUrl = (hash: string) => {
-    return `https://celoscan.io/tx/${hash}`;
-  };
+
+  const [selectedAmount, setSelectedAmount] = useState('');
+  const [customAmount, setCustomAmount] = useState('');
+  const [donationStep, setDonationStep] = useState<DonationStep>('idle');
+  const [showSwapWidget, setShowSwapWidget] = useState(false);
+  const [receiptData, setReceiptData] = useState<{ amount: bigint; txHash: string } | null>(null);
+
   const {
     writeContractAsync,
     isPending,
-    data: hash,
   } = useWriteContract({
     mutation: {
       onError: (error) => {
         console.error(error);
+        setDonationStep('idle');
         toast({
-          title: 'Error en la transacción',
+          title: 'Error en la transaccion',
           description: error.message,
           variant: 'destructive',
         });
@@ -59,24 +65,44 @@ function UserFundsCard() {
     args: [address!, SUBSIDY_CONTRACT_ADDRESS],
   });
 
-  const { data: balance } = useReadContract({
+  const { data: balance, refetch: refetchBalance, isLoading: isBalanceLoading } = useReadContract({
     abi: erc20Abi,
     address: CCOP_CONTRACT_ADDRESS,
     functionName: 'balanceOf',
     args: [address!],
   });
 
-  const { isLoading } = useWaitForTransactionReceipt({ hash });
+  const balanceLoaded = balance !== undefined;
+  const hasBalance = balanceLoaded && balance > 0n;
+  const activeAmount = selectedAmount || customAmount;
 
-  const handleAddSubmit = async (evt: React.FormEvent<HTMLFormElement>) => {
-    evt.preventDefault();
+  const handleQuickSelect = (amount: string) => {
+    setSelectedAmount(amount);
+    setCustomAmount('');
+  };
+
+  const handleCustomAmountChange = (value: string) => {
+    setCustomAmount(value);
+    setSelectedAmount('');
+  };
+
+  const handleSwapComplete = () => {
+    refetchBalance();
+  };
+
+  const handleDonate = async () => {
+    if (!activeAmount) return;
+
     try {
+      const amount = parseUnits(activeAmount, 18);
       refetchAllowance();
 
-      const formData = new FormData(evt.currentTarget);
-      const amount = parseUnits(formData.get('amount') as string, 18);
       if (typeof allowance !== 'bigint') return;
+
+      // Step 1: Approve if needed
       if (allowance < amount) {
+        setDonationStep('approving');
+
         const approveTx = await writeContractAsync({
           abi: erc20Abi,
           address: CCOP_CONTRACT_ADDRESS,
@@ -85,27 +111,9 @@ function UserFundsCard() {
         });
 
         toast({
-          title: '⏳ Aprobación enviada',
-          description: (
-            <div className="space-y-2">
-              <p>Esperando confirmación de la aprobación...</p>
-                          <div className="flex items-center space-x-2">
-              <span className="text-xs text-gray-500">Hash:</span>
-              <a 
-                href={getCeloscanUrl(approveTx)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-blue-600 hover:text-blue-800 hover:bg-gray-200 transition-colors"
-              >
-                {approveTx.slice(0, 10)}...{approveTx.slice(-8)}
-              </a>
-            </div>
-            </div>
-          ),
-          duration: 5000,
+          title: 'Aprobacion enviada',
+          description: 'Esperando confirmacion...',
         });
-
-        await refetchAllowance();
 
         const receipt = await client!.waitForTransactionReceipt({
           hash: approveTx,
@@ -113,23 +121,23 @@ function UserFundsCard() {
           pollingInterval: 1000,
           timeout: 60000,
         });
+
         if (receipt.status === 'reverted') {
+          setDonationStep('idle');
           toast({
-            title: '❌ Error en la aprobación',
-            description: (
-              <div className="space-y-2">
-                <p>La transacción de aprobación falló.</p>
-                <p className="text-xs text-gray-500">
-                  Verifica que tengas suficiente gas y que tu wallet esté conectada.
-                </p>
-              </div>
-            ),
+            title: 'Error en la aprobacion',
+            description: 'La transaccion de aprobacion fallo.',
             variant: 'destructive',
-            duration: 10000,
           });
           return;
         }
+
+        await refetchAllowance();
       }
+
+      // Step 2: Donate
+      setDonationStep('donating');
+
       const referralTag = getReferralTag({
         user: (address as `0x${string}`) ?? '0x0000000000000000000000000000000000000000',
         consumer: DIVVI_CONSUMER_ADDRESS,
@@ -143,79 +151,163 @@ function UserFundsCard() {
         dataSuffix: `0x${referralTag}`,
       });
 
-      toast({
-        title: '🎉 ¡Fondos donados exitosamente!',
-        description: (
-          <div className="space-y-2">
-            <p>Tu donación ha sido procesada correctamente.</p>
-            <div className="flex items-center space-x-2">
-              <span className="text-xs text-gray-500">Hash:</span>
-              <a 
-                href={getCeloscanUrl(addFundsTx)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-blue-600 hover:text-blue-800 hover:bg-gray-200 transition-colors"
-              >
-                {addFundsTx.slice(0, 10)}...{addFundsTx.slice(-8)}
-              </a>
-            </div>
-          </div>
-        ),
-        duration: 8000,
+      const donateReceipt = await client!.waitForTransactionReceipt({
+        hash: addFundsTx,
+        confirmations: 1,
+        pollingInterval: 1000,
+        timeout: 60000,
       });
 
-      // Report to Divvi
+      if (donateReceipt.status === 'reverted') {
+        setDonationStep('idle');
+        toast({
+          title: 'Error al donar',
+          description: 'La transaccion de donacion fallo.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Step 3: Done
+      setDonationStep('done');
+      setReceiptData({ amount, txHash: addFundsTx });
+      refetchBalance();
+
       submitReferral({ txHash: addFundsTx, chainId: 42220 }).catch((e) =>
         console.warn('Divvi submitReferral failed', e)
       );
     } catch (error: any) {
       console.error(error);
+      setDonationStep('idle');
       toast({
-        title: '❌ Error al donar fondos',
-        description: (
-          <div className="space-y-2">
-            <p className="text-sm">{error.message}</p>
-            <p className="text-xs text-gray-500">
-              Verifica que tengas suficiente gas y tokens para donar.
-            </p>
-          </div>
-        ),
+        title: 'Error al donar fondos',
+        description: error.message,
         variant: 'destructive',
-        duration: 10000,
       });
     }
   };
 
+  const handleReset = () => {
+    setDonationStep('idle');
+    setReceiptData(null);
+    setSelectedAmount('');
+    setCustomAmount('');
+    refetchBalance();
+  };
+
+  // Show receipt screen after successful donation
+  if (receiptData) {
+    return (
+      <Card className="w-full">
+        <DonationReceipt
+          amount={receiptData.amount}
+          txHash={receiptData.txHash}
+          onReset={handleReset}
+        />
+      </Card>
+    );
+  }
+
   return (
-    <Card className='w-full'>
-      <form onSubmit={handleAddSubmit}>
-        <CardHeader className='text-center pb-4'>
-          <CardTitle className='text-white text-lg font-semibold'>Donar fondos</CardTitle>
-        </CardHeader>
-        <CardContent className='px-6 pb-4 pt-0'>
-          {isConnected && balance !== undefined && (
-            <div className='mb-4 p-3 bg-white/10 rounded-lg border border-white/20'>
-              <p className='text-gray-300 text-xs mb-1 text-center'>Tu balance</p>
-              <p className='text-white text-lg font-bold text-center'>
-                {new Intl.NumberFormat('es-CO', {
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
-                }).format(Number(formatUnits(balance, 18)))} cCOP
-              </p>
+    <Card className="w-full">
+      <CardHeader className="text-center pb-2">
+        <CardTitle className="text-white text-lg font-semibold">Donar fondos</CardTitle>
+      </CardHeader>
+
+      <CardContent className="px-6 pb-6 pt-0 space-y-4">
+        {/* Donation Stats */}
+        <DonationStats />
+
+        {/* Balance Display */}
+        {isConnected && balance !== undefined && (
+          <div className="p-3 bg-white/10 rounded-lg border border-white/20 text-center">
+            <p className="text-gray-300 text-xs mb-1">Tu balance</p>
+            <p className="text-white text-lg font-bold">
+              {new Intl.NumberFormat('es-CO', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(Number(formatUnits(balance, 18)))} cCOP
+            </p>
+          </div>
+        )}
+
+        {/* Swap Widget Section */}
+        {isConnected && isBalanceLoading ? (
+          <div className="text-center py-4">
+            <Loader2 className="w-6 h-6 animate-spin mx-auto text-gray-400" />
+          </div>
+        ) : isConnected && balanceLoaded && !hasBalance ? (
+          <div className="space-y-3">
+            <p className="text-sm text-gray-300 text-center">
+              No tienes COPm. Intercambia cualquier token para obtener COPm:
+            </p>
+            <Button
+              variant="outline"
+              className="w-full bg-white/10 text-white border-white/20 hover:bg-white/20"
+              onClick={() => setShowSwapWidget(true)}
+            >
+              <ArrowLeftRight className="w-4 h-4 mr-2" />
+              Obtener COPm
+            </Button>
+          </div>
+        ) : isConnected && hasBalance ? (
+          <button
+            type="button"
+            className="flex items-center justify-center gap-2 w-full text-sm text-gray-400 hover:text-gray-200 transition-colors"
+            onClick={() => setShowSwapWidget(true)}
+          >
+            <ArrowLeftRight className="w-4 h-4" />
+            Necesitas mas COPm?
+          </button>
+        ) : null}
+
+        {/* Swap Widget Popup */}
+        {showSwapWidget && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            onClick={() => setShowSwapWidget(false)}
+          >
+            <div onClick={(e) => e.stopPropagation()}>
+              <Suspense fallback={<div className="text-center text-gray-400 py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto" /></div>}>
+                <SwapWidget onTransactionComplete={handleSwapComplete} />
+              </Suspense>
             </div>
-          )}
-          <Label className='text-gray-200 mb-3 block text-center'>Cantidad</Label>
-          <Input name='amount' placeholder='$cCop' className='bg-background text-white border-border text-center' />
-        </CardContent>
-        <CardFooter className='px-6 pb-6 pt-2'>
-          <Button disabled={isPending || isLoading || !isConnected} className='w-full text-white rounded-lg'>
-            {(isPending || isLoading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Donar
-          </Button>
-        </CardFooter>
-      </form>
+          </div>
+        )}
+
+        {/* Quick Amount Picker */}
+        {isConnected && hasBalance && (
+          <>
+            <QuickAmountPicker
+              selectedAmount={selectedAmount}
+              onSelect={handleQuickSelect}
+            />
+
+            {/* Custom Amount Input */}
+            <Input
+              placeholder="Cantidad personalizada"
+              value={customAmount}
+              onChange={(e) => handleCustomAmountChange(e.target.value)}
+              className="bg-background text-white border-border text-center"
+            />
+
+            {/* Progress Indicator */}
+            <DonationProgress currentStep={donationStep} />
+
+            {/* Donate Button */}
+            <Button
+              disabled={!activeAmount || isPending || donationStep !== 'idle'}
+              className="w-full text-white rounded-lg"
+              onClick={handleDonate}
+            >
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Donar{activeAmount ? ` ${Number(activeAmount).toLocaleString('es-CO')} cCOP` : ''}
+            </Button>
+          </>
+        )}
+      </CardContent>
     </Card>
   );
 }
 
-export default UserFundsCard; 
+export default UserFundsCard;

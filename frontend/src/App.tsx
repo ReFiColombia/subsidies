@@ -15,6 +15,7 @@ import { ToastAction } from '@radix-ui/react-toast';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import UserFundsCard from './components/pages/main/UserFundsCard';
+import ProgramStats from './components/pages/main/ProgramStats';
 
 function App() {
   const { toast } = useToast();
@@ -174,6 +175,11 @@ function App() {
               </Button>
             </CardFooter>
           </Card>
+
+          {/* Program Stats from Dune */}
+          <div className='w-full'>
+            <ProgramStats />
+          </div>
 
           {/* Donate Funds Card */}
           <div className='w-full'>

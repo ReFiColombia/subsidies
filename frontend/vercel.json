@@ -4,5 +4,16 @@
       "source": "/(.*)",
       "destination": "/"
     }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "x-vercel-disable-toolbar",
+          "value": "1"
+        }
+      ]
+    }
   ]
 } 
