@@ -35,10 +35,10 @@ export function DonationProgress({ currentStep }: DonationProgressProps) {
             <div
               className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-colors ${
                 isComplete
-                  ? 'bg-green-500 text-white'
+                  ? 'bg-success text-success-foreground'
                   : isActive
-                    ? 'bg-primary text-white'
-                    : 'bg-white/10 text-gray-500'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground'
               }`}
             >
               {isComplete ? (
@@ -51,7 +51,7 @@ export function DonationProgress({ currentStep }: DonationProgressProps) {
             </div>
             <span
               className={`text-xs ${
-                isComplete || isActive ? 'text-white' : 'text-gray-500'
+                isComplete || isActive ? 'text-foreground' : 'text-muted-foreground'
               }`}
             >
               {step.label}
@@ -59,7 +59,7 @@ export function DonationProgress({ currentStep }: DonationProgressProps) {
             {index < steps.length - 1 && (
               <div
                 className={`h-0.5 w-8 ${
-                  isComplete ? 'bg-green-500' : 'bg-white/10'
+                  isComplete ? 'bg-success' : 'bg-muted'
                 }`}
               />
             )}
