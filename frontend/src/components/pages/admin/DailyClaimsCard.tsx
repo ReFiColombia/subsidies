@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { getBuiltGraphSDK } from '@/../.graphclient';
+import { getBuiltGraphSDK } from '@graphclient';
 import { useQuery } from '@tanstack/react-query';
 import { formatUnits } from 'viem';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
@@ -9,7 +9,7 @@ import * as React from "react";
 
 const sdk = getBuiltGraphSDK();
 
-function DailyClaimsCard() {
+export function DailyClaimsCard() {
   const { data: data_claims } = useQuery({ 
     queryKey: ['DailyClaims'], 
     queryFn: () => sdk.DailyClaims() 
@@ -145,4 +145,4 @@ function DailyClaimsCard() {
   )
 }
 
-export default DailyClaimsCard 
+ 

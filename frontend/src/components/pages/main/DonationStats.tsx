@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getBuiltGraphSDK } from '@/../.graphclient';
+import { getBuiltGraphSDK } from '@graphclient';
 import { formatUnits } from 'viem';
 import { Users, Heart } from 'lucide-react';
 
