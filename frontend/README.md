@@ -17,6 +17,7 @@ npm run dev             # http://localhost:5173
 - **ProgramStats** — Displays on-chain program stats (funds added/distributed, beneficiaries, balance) fetched from the backend's Dune Analytics endpoints. Includes a monthly distribution bar chart.
 - **SwapWidget** — Squid Router cross-chain swap widget, pre-configured to output cCOP on Celo. Wrapped in an error boundary with a fallback UI.
 - **UserFundsCard** — Main user interface for beneficiaries to view their status and claim subsidies.
+- **DonationStats** — Donation statistics display.
 - **DonationProgress** — Donation progress bar with responsive layout.
 - **DonationReceipt** — Donation confirmation with confetti celebration effect.
 - **QuickAmountPicker** — Preset donation amounts (2-column grid on mobile).
