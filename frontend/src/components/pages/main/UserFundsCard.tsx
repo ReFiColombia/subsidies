@@ -19,6 +19,7 @@ import {
   SUBSIDY_CONTRACT_ADDRESS,
 } from '@/constants'
 import { useToast } from '@/hooks/useToast'
+import { appKit } from '@/providers'
 
 import { DonationProgress, type DonationStep } from './DonationProgress'
 import { DonationReceipt } from './DonationReceipt'
@@ -270,9 +271,7 @@ export function UserFundsCard() {
         ) : !isConnected ? (
           <Button
             className="w-full"
-            onClick={() =>
-              (document.querySelector('appkit-button') as HTMLElement)?.click()
-            }
+            onClick={() => appKit.open()}
           >
             Dona aquí
           </Button>
