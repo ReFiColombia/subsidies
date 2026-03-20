@@ -274,7 +274,7 @@ export function UserFundsCard() {
               (document.querySelector('appkit-button') as HTMLElement)?.click()
             }
           >
-            Donar
+            Dona aquí
           </Button>
         ) : null}
 
