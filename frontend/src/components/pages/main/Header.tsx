@@ -22,7 +22,7 @@ export function Header({
     if (!isWhiteListed) {
       return (
         <div className="space-y-6 text-center">
-          <div className="text-base leading-relaxed text-muted-foreground">
+          <div className="text-sm leading-relaxed text-muted-foreground">
             <p className="mb-3">
               El Programa de Subsidios ReFi Colombia es una iniciativa que
               proporciona subsidios periódicos en cCOP (Celo Colombian Peso) a
@@ -34,10 +34,10 @@ export function Header({
               el acceso a servicios descentralizados.
             </p>
           </div>
-          <div className="rounded-lg bg-gradient-to-r from-brand-600 to-brand-800 p-4 text-xl font-bold text-foreground">
+          <div className="rounded-lg bg-gradient-to-r from-brand-600 to-brand-800 p-4 text-lg font-bold text-foreground">
             Lo sentimos, aún no eres beneficiario
           </div>
-          <Button variant="link" asChild className="text-base">
+          <Button variant="link" asChild className="text-sm">
             <a target="_blank" href="https://tinyurl.com/ReFiMedUBIRequest">
               Registrate aquí
             </a>
@@ -46,7 +46,7 @@ export function Header({
       )
     } else if (isAbleToClaim) {
       return (
-        <div className="text-center text-xl font-semibold text-foreground">
+        <div className="text-center text-lg font-semibold text-foreground">
           Monto disponible para reclamar:{' '}
           {new Intl.NumberFormat('es-CO', {
             minimumFractionDigits: 0,
