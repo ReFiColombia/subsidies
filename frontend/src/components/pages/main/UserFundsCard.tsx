@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -14,7 +14,7 @@ import {
   DIVVI_CONSUMER_ADDRESS,
 } from '@/constants';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Loader2, ArrowLeftRight } from 'lucide-react';
 import { erc20Abi, parseUnits, formatUnits } from 'viem';
 import { getReferralTag, submitReferral } from '@divvi/referral-sdk';
 import {
@@ -23,11 +23,12 @@ import {
   useReadContract,
   useWriteContract,
 } from 'wagmi';
-import SwapWidget from './SwapWidget';
 import QuickAmountPicker from './QuickAmountPicker';
 import DonationProgress, { type DonationStep } from './DonationProgress';
 import DonationReceipt from './DonationReceipt';
 import DonationStats from './DonationStats';
+
+const SwapWidget = lazy(() => import('./SwapWidget'));
 
 function UserFundsCard() {
   const { toast } = useToast();
@@ -64,14 +65,15 @@ function UserFundsCard() {
     args: [address!, SUBSIDY_CONTRACT_ADDRESS],
   });
 
-  const { data: balance, refetch: refetchBalance } = useReadContract({
+  const { data: balance, refetch: refetchBalance, isLoading: isBalanceLoading } = useReadContract({
     abi: erc20Abi,
     address: CCOP_CONTRACT_ADDRESS,
     functionName: 'balanceOf',
     args: [address!],
   });
 
-  const hasBalance = balance !== undefined && balance > 0n;
+  const balanceLoaded = balance !== undefined;
+  const hasBalance = balanceLoaded && balance > 0n;
   const activeAmount = selectedAmount || customAmount;
 
   const handleQuickSelect = (amount: string) => {
@@ -230,34 +232,48 @@ function UserFundsCard() {
         )}
 
         {/* Swap Widget Section */}
-        {isConnected && !hasBalance ? (
-          // No COPm balance — show swap widget prominently
+        {isConnected && isBalanceLoading ? (
+          <div className="text-center py-4">
+            <Loader2 className="w-6 h-6 animate-spin mx-auto text-gray-400" />
+          </div>
+        ) : isConnected && balanceLoaded && !hasBalance ? (
           <div className="space-y-3">
             <p className="text-sm text-gray-300 text-center">
               No tienes COPm. Intercambia cualquier token para obtener COPm:
             </p>
-            <SwapWidget onTransactionComplete={handleSwapComplete} />
-          </div>
-        ) : isConnected ? (
-          // Has COPm — collapsible swap widget
-          <>
-            <button
-              type="button"
-              className="flex items-center justify-center gap-1 w-full text-sm text-gray-400 hover:text-gray-200 transition-colors"
-              onClick={() => setShowSwapWidget(!showSwapWidget)}
+            <Button
+              variant="outline"
+              className="w-full bg-white/10 text-white border-white/20 hover:bg-white/20"
+              onClick={() => setShowSwapWidget(true)}
             >
-              {showSwapWidget ? (
-                <ChevronUp className="w-4 h-4" />
-              ) : (
-                <ChevronDown className="w-4 h-4" />
-              )}
-              Necesitas mas COPm?
-            </button>
-            {showSwapWidget && (
-              <SwapWidget onTransactionComplete={handleSwapComplete} />
-            )}
-          </>
+              <ArrowLeftRight className="w-4 h-4 mr-2" />
+              Obtener COPm
+            </Button>
+          </div>
+        ) : isConnected && hasBalance ? (
+          <button
+            type="button"
+            className="flex items-center justify-center gap-2 w-full text-sm text-gray-400 hover:text-gray-200 transition-colors"
+            onClick={() => setShowSwapWidget(true)}
+          >
+            <ArrowLeftRight className="w-4 h-4" />
+            Necesitas mas COPm?
+          </button>
         ) : null}
+
+        {/* Swap Widget Popup */}
+        {showSwapWidget && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            onClick={() => setShowSwapWidget(false)}
+          >
+            <div onClick={(e) => e.stopPropagation()}>
+              <Suspense fallback={<div className="text-center text-gray-400 py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto" /></div>}>
+                <SwapWidget onTransactionComplete={handleSwapComplete} />
+              </Suspense>
+            </div>
+          </div>
+        )}
 
         {/* Quick Amount Picker */}
         {isConnected && hasBalance && (
