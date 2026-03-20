@@ -261,11 +261,11 @@ export function UserFundsCard() {
         ) : isConnected && hasBalance ? (
           <button
             type="button"
-            className="flex w-full items-center justify-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand-600 bg-brand-900 px-4 py-2.5 text-sm font-medium text-brand-300 transition-colors hover:bg-brand-800 hover:text-brand-200"
             onClick={() => setShowSwapWidget(true)}
           >
             <ArrowLeftRight className="h-4 w-4" />
-            Necesitas mas COPm?
+            Necesitas mas COPm? Intercambia aquí
           </button>
         ) : null}
 
