@@ -12,16 +12,16 @@ This program allows registered beneficiaries to claim a fixed amount of cCOP at 
 
 ```
 subsidies/
-├── README.md                          ← Project entry point
-├── CONTRIBUTING.md                    ← Setup, branch conventions, PR process
-├── LICENSE                            ← MIT
+├── backend/                           ← Express + Prisma + Dune Analytics
+│   ├── README.md                      ← API endpoints, database, Vercel deployment
+│   └── .env.example
+│
+├── docs/
+│   ├── BRANDKIT.md                    ← Typography & design tokens
+│   └── superpowers/                   ← Design specs & implementation plans
 │
 ├── frontend/                          ← Vite + React + wagmi (Celo)
 │   ├── README.md                      ← Components, env vars, Vercel deployment
-│   └── .env.example
-│
-├── backend/                           ← Express + Prisma + Dune Analytics
-│   ├── README.md                      ← API endpoints, database, Vercel deployment
 │   └── .env.example
 │
 ├── smart-contracts/                   ← Foundry (Solidity ^0.8.28)
@@ -31,9 +31,9 @@ subsidies/
 ├── subgraph/                          ← The Graph (Celo Mainnet)
 │   └── README.md                      ← Indexed events, schema, grafting
 │
-└── docs/
-    ├── BRANDKIT.md                    ← Typography & design tokens
-    └── superpowers/                   ← Design specs & implementation plans
+├── CONTRIBUTING.md                    ← Setup, branch conventions, PR process
+├── LICENSE                            ← MIT
+└── README.md                          ← Project entry point
 ```
 
 Each package has its own README with setup instructions and detailed documentation.
