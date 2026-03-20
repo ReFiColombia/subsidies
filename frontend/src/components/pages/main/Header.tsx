@@ -34,7 +34,7 @@ export function Header({
               el acceso a servicios descentralizados.
             </p>
           </div>
-          <div className="rounded-lg bg-gradient-to-r from-brand-600 to-brand-800 p-4 text-lg font-bold text-foreground">
+          <div className="rounded-lg border border-border bg-muted p-3 text-sm font-medium text-muted-foreground">
             Lo sentimos, aún no eres beneficiario
           </div>
           <Button asChild className="w-full text-sm">
