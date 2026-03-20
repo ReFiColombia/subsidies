@@ -5,7 +5,6 @@ body {
   height: auto;
   margin: 0;
   padding: 0;
-  /* overflow: hidden; */
 }
 
 #root {
@@ -15,56 +14,20 @@ body {
   height: 100%;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #7c3aedaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #a78bfaaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #c4b5fd;
-}
-
 .tabline {
   border-radius: 10px;
   padding: 0.3em;
-  background-color: #4c1d95;
+  background-color: hsl(274, 66%, 32%);
 }
 
 .tab-button {
   font-size: 0.875em;
-  color: #fafafa;
+  color: hsl(0, 0%, 100%);
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
 }
 
 .tab-button[data-state='inactive'] {
-  background-color: #5b21b6;
-  color: #ddd6fe;
+  background-color: hsl(273, 67%, 39%);
+  color: hsl(269, 100%, 92%);
 }
