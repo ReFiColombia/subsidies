@@ -8,14 +8,97 @@ Live at [subsidios.reficolombia.org](https://subsidios.reficolombia.org)
 
 This program allows registered beneficiaries to claim a fixed amount of cCOP at regular intervals. An admin manages beneficiaries, funds, and program parameters. The V2 smart contract supports multi-token donations with automatic Uniswap V3 swaps to cCOP at claim time.
 
-## Architecture
+## Repository Structure
 
 ```
 subsidies/
-├── frontend/        — Vite + React + wagmi (Celo)
-├── backend/         — Express + Prisma + Dune Analytics
-├── smart-contracts/ — Foundry (Solidity ^0.8.28)
-└── subgraph/        — The Graph (Celo Mainnet)
+├── backend/
+│   ├── prisma/
+│   │   ├── migrations/
+│   │   ├── schema.prisma
+│   │   └── seed.ts
+│   ├── src/
+│   │   └── index.ts
+│   ├── .env.example
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── vercel.json
+│   └── README.md
+│
+├── docs/
+│   └── BRANDKIT.md
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   │   ├── layout/
+│   │   │   ├── pages/
+│   │   │   │   ├── admin/
+│   │   │   │   └── main/
+│   │   │   └── ui/
+│   │   ├── config/
+│   │   ├── constants/
+│   │   ├── hooks/
+│   │   ├── i18n/
+│   │   │   └── locales/
+│   │   ├── lib/
+│   │   ├── pages/
+│   │   ├── queries/
+│   │   ├── App.tsx
+│   │   ├── client.ts
+│   │   ├── main.tsx
+│   │   └── providers.tsx
+│   ├── .env.example
+│   ├── .graphclientrc.yml
+│   ├── components.json
+│   ├── index.html
+│   ├── package.json
+│   ├── tailwind.config.js
+│   ├── tsconfig.json
+│   ├── vercel.json
+│   ├── vite.config.ts
+│   ├── wagmi.config.ts
+│   └── README.md
+│
+├── smart-contracts/
+│   ├── lib/
+│   ├── script/
+│   │   └── DeploySubsidyProgram.s.sol
+│   ├── src/
+│   │   ├── SubsidyProgram.sol
+│   │   └── ISwapRouter.sol
+│   ├── test/
+│   │   ├── helpers/
+│   │   ├── mock/
+│   │   └── unit/
+│   ├── .env.example
+│   ├── foundry.toml
+│   ├── remappings.txt
+│   └── README.md
+│
+├── subgraph/
+│   ├── abis/
+│   │   └── SubsidyProgram.json
+│   ├── src/
+│   │   └── subsidy-program.ts
+│   ├── tests/
+│   │   ├── subsidy-program.test.ts
+│   │   └── subsidy-program-utils.ts
+│   ├── docker-compose.yml
+│   ├── networks.json
+│   ├── package.json
+│   ├── schema.graphql
+│   ├── subgraph.yaml
+│   └── README.md
+│
+├── .gitmodules
+├── .nvmrc
+├── CONTRIBUTING.md
+├── LICENSE
+├── README.md
+└── vercel.json
 ```
 
 Each package has its own README with setup instructions and detailed documentation.

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { formatUnits } from 'viem'
 
 import { Button } from '@/components/ui/button'
@@ -18,41 +19,35 @@ export function Header({
   claimInterval,
   valueToClaim,
 }: HeaderProps) {
+  const { t, i18n } = useTranslation('main')
+  const locale = i18n.language === 'es' ? 'es-CO' : 'en-US'
+
   const getHeaderMessage = () => {
     if (!isWhiteListed) {
       return (
         <div className="space-y-6 text-center">
           <div className="text-sm leading-relaxed text-muted-foreground">
-            <p className="mb-3">
-              El Programa de Subsidios ReFi Colombia es una iniciativa que
-              proporciona subsidios periódicos en cCOP (Celo Colombian Peso) a
-              beneficiarios elegibles en la red Celo.
-            </p>
-            <p>
-              Los beneficiarios pueden reclamar su subsidio cada cierto
-              intervalo de tiempo, contribuyendo así a la inclusión financiera y
-              el acceso a servicios descentralizados.
-            </p>
+            <p className="mb-3">{t('programDescription1')}</p>
+            <p>{t('programDescription2')}</p>
           </div>
           <div className="rounded-lg border border-border bg-muted p-3 text-sm font-medium text-muted-foreground">
-            Lo sentimos, aún no eres beneficiario
+            {t('notBeneficiary')}
           </div>
           <Button asChild className="w-full text-sm">
             <a target="_blank" href="https://tinyurl.com/ReFiMedUBIRequest">
-              Registrate aquí
+              {t('registerHere')}
             </a>
           </Button>
         </div>
       )
     } else if (isAbleToClaim) {
+      const formattedAmount = new Intl.NumberFormat(locale, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(Number(formatUnits(valueToClaim, 18)))
       return (
         <div className="text-center text-lg font-semibold text-foreground">
-          Monto disponible para reclamar:{' '}
-          {new Intl.NumberFormat('es-CO', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          }).format(Number(formatUnits(valueToClaim, 18)))}{' '}
-          cCOP
+          {t('amountAvailable', { amount: formattedAmount })}
         </div>
       )
     } else {
@@ -63,10 +58,10 @@ export function Header({
       return (
         <div className="text-center">
           <div className="text-lg font-semibold text-foreground">
-            Ya reclamaste el subsidio de esta semana.
+            {t('alreadyClaimed')}
           </div>
           <div className="mt-2 text-sm text-muted-foreground">
-            Regresa en {daysLeft} días para reclamar de nuevo.
+            {t('comeBackIn', { days: daysLeft })}
           </div>
         </div>
       )

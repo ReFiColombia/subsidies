@@ -6,6 +6,7 @@ import {
   Users,
   Wallet,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 
 import {
@@ -28,31 +29,37 @@ interface MonthlyData {
   distributed: number
 }
 
-const formatCOP = (value: number) =>
-  new Intl.NumberFormat('es-CO', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)
-
-const chartConfig = {
-  distributed: {
-    label: 'COPm Distribuidos',
-    color: 'hsl(271, 81%, 56%)',
-  },
-}
-
 export function ProgramStats() {
+  const { t, i18n } = useTranslation('main')
+  const locale = i18n.language === 'es' ? 'es-CO' : 'en-US'
+
+  const formatCOP = (value: number) =>
+    new Intl.NumberFormat(locale, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value)
+
+  const chartConfig = {
+    distributed: {
+      label: t('copmDistributed'),
+      color: 'hsl(271, 81%, 56%)',
+    },
+  }
+
   const { data: stats, isLoading: statsLoading } = useQuery<DuneStats>({
     queryKey: ['dune-stats'],
     queryFn: () => fetch(`${API_URL}/api/dune/stats`).then((r) => r.json()),
     staleTime: 5 * 60 * 1000,
   })
 
-  const { data: monthly, isLoading: monthlyLoading } = useQuery<MonthlyData[]>({
-    queryKey: ['dune-monthly'],
-    queryFn: () => fetch(`${API_URL}/api/dune/monthly`).then((r) => r.json()),
-    staleTime: 5 * 60 * 1000,
-  })
+  const { data: monthly, isLoading: monthlyLoading } = useQuery<MonthlyData[]>(
+    {
+      queryKey: ['dune-monthly'],
+      queryFn: () =>
+        fetch(`${API_URL}/api/dune/monthly`).then((r) => r.json()),
+      staleTime: 5 * 60 * 1000,
+    }
+  )
 
   if (statsLoading || monthlyLoading) {
     return (
@@ -67,25 +74,25 @@ export function ProgramStats() {
   const statCards = [
     {
       icon: TrendingUp,
-      label: 'Fondos Agregados',
+      label: t('fundsAdded'),
       value: `${formatCOP(stats.fundsAdded)} COPm`,
       color: 'text-brand-300',
     },
     {
       icon: ArrowDownCircle,
-      label: 'Fondos Distribuidos',
+      label: t('fundsDistributed'),
       value: `${formatCOP(stats.fundsDistributed)} COPm`,
       color: 'text-brand-400',
     },
     {
       icon: Users,
-      label: 'Beneficiarios',
+      label: t('beneficiaries'),
       value: String(stats.recipients),
       color: 'text-brand-500',
     },
     {
       icon: Wallet,
-      label: 'Balance del Contrato',
+      label: t('contractBalance'),
       value: `${formatCOP(stats.contractBalance)} COPm`,
       color: 'text-brand-400',
     },
@@ -94,7 +101,7 @@ export function ProgramStats() {
   return (
     <div className="space-y-4">
       <h3 className="text-center text-lg font-semibold text-foreground">
-        Transparencia del Programa
+        {t('transparencyTitle')}
       </h3>
 
       {/* Summary Cards */}
@@ -107,7 +114,9 @@ export function ProgramStats() {
             <Icon className={`h-5 w-5 ${color} shrink-0`} />
             <div className="min-w-0">
               <p className="text-xs text-muted-foreground">{label}</p>
-              <p className="truncate text-sm font-bold text-foreground">{value}</p>
+              <p className="truncate text-sm font-bold text-foreground">
+                {value}
+              </p>
             </div>
           </div>
         ))}
@@ -116,7 +125,7 @@ export function ProgramStats() {
       {/* Monthly Chart */}
       <div className="rounded-lg border border-border bg-muted p-4">
         <p className="mb-3 text-center text-xs text-muted-foreground">
-          Subsidios Distribuidos por Mes
+          {t('subsidiesByMonth')}
         </p>
         <ChartContainer config={chartConfig} className="h-[200px] w-full">
           <BarChart

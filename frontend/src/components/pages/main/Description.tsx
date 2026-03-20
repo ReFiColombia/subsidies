@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 import { CardHeader, CardTitle } from '@/components/ui/card'
 import { secondsToDays } from '@/lib/utils'
 
@@ -14,32 +16,34 @@ export function Description({
   lastClaimed,
   claimInterval,
 }: DescriptionProps) {
+  const { t } = useTranslation('main')
   const secondsSinceLastClaimed = Date.now() / 1000 - Number(lastClaimed)
   const daysLeft = secondsToDays(
     Number(claimInterval) - secondsSinceLastClaimed
   )
+  const claimIntervalInDays = secondsToDays(Number(claimInterval))
+
   const getClaimMessage = () => {
     if (!isWhiteListed) return null
     else if (isAbleToClaim)
       return (
         <span className="block text-center text-sm text-muted-foreground">
-          Puedes reclamar tu subsidio cada {claimIntervalInDays} días.
+          {t('claimEveryDays', { days: claimIntervalInDays })}
         </span>
       )
     else
       return (
         <div className="text-center">
           <div className="text-lg font-semibold text-foreground">
-            Ya reclamaste el subsidio de esta semana.
+            {t('alreadyClaimed')}
           </div>
           <div className="mt-1 text-sm text-muted-foreground">
-            Regresa en {daysLeft} días para reclamar de nuevo.
+            {t('comeBackIn', { days: daysLeft })}
           </div>
         </div>
       )
   }
 
-  const claimIntervalInDays = secondsToDays(Number(claimInterval))
   const message = getClaimMessage()
 
   if (!message) return null

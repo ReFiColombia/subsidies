@@ -74,12 +74,23 @@ Inter, system-ui, Avenir, Helvetica, Arial, sans-serif
 
 | Class | Size | Usage |
 |-------|------|-------|
-| `text-xs` | 0.75rem | Captions, helper text |
-| `text-sm` | 0.875rem | Secondary text, labels |
-| `text-base` | 1rem | Body text |
-| `text-lg` | 1.125rem | Card titles |
-| `text-xl` | 1.25rem | Section headings |
-| `text-2xl` | 1.5rem | Page headings |
+| `text-xs` | 0.75rem | Captions, labels, helper text |
+| `text-sm` | 0.875rem | Body text, descriptions, paragraphs |
+| `text-lg` | 1.125rem | Card titles, section headings, hero values |
+
+**Standard component patterns:**
+
+| Context | Classes | Example |
+|---------|---------|---------|
+| Card title | `text-lg font-semibold text-card-foreground` | "Donar fondos" |
+| Section heading | `text-lg font-semibold text-foreground` | "Transparencia del Programa" |
+| Hero value | `text-lg font-bold text-foreground` | Balance display |
+| Body text | `text-sm text-muted-foreground` | Descriptions, instructions |
+| Stat label | `text-xs text-muted-foreground` | "Total donado", "Beneficiarios" |
+| Stat value | `text-sm font-bold text-foreground` | "36.121.200 cCOP" |
+| Info label | `text-sm text-muted-foreground` + `font-medium` span | "Última reclamación:" |
+
+> **Note:** `text-base`, `text-xl`, and `text-2xl` are not used in landing page components. Keep the type scale tight to maintain visual consistency.
 
 ---
 
@@ -169,8 +180,22 @@ text-brand-400 hover:text-brand-300
 ### Stat Cards (Small)
 
 ```
-border border-white/10 bg-white/5 rounded-lg p-3
+border border-border bg-muted rounded-lg p-3
 ```
+
+### Wallet Connect (Programmatic)
+
+To open the wallet connect modal programmatically, import the `appKit` instance:
+
+```tsx
+import { appKit } from '@/providers'
+
+// Then call:
+appKit.open()
+```
+
+Do NOT use the `useAppKit` hook — it crashes due to module init order.
+Use the exported `appKit` instance from `providers.tsx` instead.
 
 ---
 

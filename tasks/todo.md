@@ -10,17 +10,18 @@
 
 ### Implementation
 
-- [ ] Install `@0xsquid/widget` and `canvas-confetti` dependencies
-- [ ] Build `SwapWidget.tsx` component (Squid integration with error boundary)
-- [ ] Redesign `UserFundsCard.tsx`:
-  - [ ] Smart COPm detection (show swap widget if balance is 0)
-  - [ ] Quick-pick amount buttons (10k, 50k, 100k, 500k)
-  - [ ] Multi-step progress indicator (Approve → Donate → Done)
-  - [ ] Post-donation thank-you screen (confetti, share button, tx link)
-  - [ ] Preserve Divvi referral SDK integration (getReferralTag, dataSuffix, submitReferral)
-- [ ] Add donation info section (total donated from subgraph, active beneficiary count)
-- [ ] Add GraphQL query for active beneficiary count
-- [ ] COPm balance auto-refresh on Squid widget swap completion
+- [x] Install `@0xsquid/widget` and `canvas-confetti` dependencies
+- [x] Build `SwapWidget.tsx` component (Squid integration with error boundary)
+- [x] Redesign `UserFundsCard.tsx`:
+  - [x] Smart COPm detection (show swap widget if balance is 0)
+  - [x] Quick-pick amount buttons (10k, 50k, 100k, 500k)
+  - [x] Multi-step progress indicator (Approve → Donate → Done)
+  - [x] Post-donation thank-you screen (confetti, share button, tx link)
+  - [x] Preserve Divvi referral SDK integration (getReferralTag, dataSuffix, submitReferral)
+- [x] Add donation info section (total donated from subgraph, active beneficiary count)
+- [x] Add GraphQL query for active beneficiary count
+- [x] COPm balance auto-refresh on Squid widget swap completion
+- [x] "Dona aquí" button triggers wallet connect for non-connected users (`appKit.open()`)
 
 ### Verification
 
@@ -31,6 +32,19 @@
 - [ ] Mobile responsiveness
 - [ ] Build succeeds (`npm run build`)
 - [ ] Commit and PR
+
+---
+
+## Completed: Codebase & Visual Standardization
+
+- [x] Phase 1: Code standardization (naming, imports, exports, formatting)
+- [x] Phase 2: Visual standardization (brand purple palette, dark theme, chart colors)
+- [x] Phase 3: Semantic token migration (replaced all hardcoded non-brand colors)
+- [x] Phase 4: Typography uniformity (text-xs/text-sm/text-lg scale across all components)
+- [x] "Lo sentimos" banner toned down (gradient → muted bordered box)
+- [x] "Registrate aquí" changed from link variant to solid branded button
+- [x] COPm swap button made more visible with brand highlight
+- [x] BRANDKIT.md updated with standardized typography scale and wallet connect pattern
 
 ---
 
