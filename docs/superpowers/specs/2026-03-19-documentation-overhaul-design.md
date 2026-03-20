@@ -12,16 +12,18 @@
 
 The project documentation is fragmented, outdated, and contains security issues. Specific problems:
 
-- **Root README** (549 lines) references outdated URL `subsidio.refimedellin.org`
+- **Root README** (~550 lines) references outdated URL `subsidio.refimedellin.org`
 - **Backend has 7 separate doc files** that overlap and contradict each other: `README.md`, `QUICK_START.md`, `SUMMARY.md`, `DEPLOYMENT.md`, `PRODUCTION_SETUP.md`, `VERCEL_DEPLOYMENT.md`, `VERCEL_QUICK_START.md`
-- **No smart-contracts README** — the most critical package has zero documentation
+- **smart-contracts README is Foundry boilerplate** — the most critical package has zero project-specific documentation
 - **Exposed API keys** in `smart-contracts/foundry.toml` (Celoscan key) and `backend/.env` (Dune key)
-- **Incomplete `.env.example` files** — frontend missing `VITE_PROJECT_ID` and `VITE_CONTRACT_ADDRESS`
+- **Incomplete `.env.example` files** — frontend missing `VITE_PROJECT_ID`
 - **No LICENSE file** in repo root (MIT referenced in headers and package.json)
 - **`.gitmodules` typo** — all 4 submodule names use `smart-cotracts` (missing 'n')
 - **Contract address inconsistency** — `subgraph/networks.json` points to V1 (`0x947C6dB...`) while `subgraph/subgraph.yaml` points to V2 proxy (`0xAbE493F...`)
 - **Misleading comments** — `frontend/src/constants/index.ts` labels an Alfajores testnet address as "Future contract"
+- **URL typo** — `frontend/src/config/index.tsx` has `refimcolombia` instead of `reficolombia`
 - **No CI/CD** — no GitHub Actions or automated pipelines exist
+- **`frontend/.env` was previously tracked** — untracked in commit `d9fb674` but values may remain in git history
 
 ## 2. Approach
 
@@ -58,6 +60,8 @@ Non-upgradeable, single-token (cCOP only). Source: `frontend/src/constants/index
 | `subsidyClaimableAmount()` | View | Current claimable amount |
 | `token()` | View | Token contract address |
 | `owner()` | View | Contract owner |
+| `renounceOwnership()` | Owner | Renounce ownership (irreversible) |
+| `transferOwnership(address)` | Owner | Transfer ownership to new address |
 
 ### V2 Contract Functions (Deployed, not active — `0xAbE493F...`)
 
@@ -85,21 +89,25 @@ UUPS upgradeable, multi-token with Uniswap V3 auto-swap. Source: `smart-contract
 
 **V2 Auto-Swap Mechanism:**
 
-When `claimSubsidy()` is called, if the contract lacks sufficient cCOP (token at index 0), it auto-swaps other tokens to cCOP via Uniswap V3:
+When `claimSubsidy()` is called, the contract **unconditionally** attempts to swap non-cCOP tokens to cCOP — there is no pre-check on the existing cCOP balance before the swap loop:
 
 1. Iterates `tokens[]` array in **reverse order** (highest index first = lowest priority = spent first)
 2. For each token, calls internal `_swapTokenToCCop()` which uses `ISwapRouter.exactOutputSingle()` — specifying the exact cCOP amount needed as output
-3. If the swap produces enough cCOP, the loop breaks
-4. After swaps, requires `cCopBalance >= subsidyClaimableAmount`
+3. If the swap returns `amountIn > 0`, the loop breaks
+4. **After** the loop, requires `cCopBalance >= subsidyClaimableAmount`
 5. Token at index 0 (cCOP) is never swapped — it's the target token
 
+**Note:** Because there is no pre-check, swaps may execute even when the contract already holds sufficient cCOP. This is a potential gas optimization opportunity for a future contract version.
+
 **Priority system:** Lower array index = higher priority = preserved longer. The owner controls priority via `changeTokenPriority()`. Each non-cCOP token must have a fee tier set via `setTokenFeeTier()` before it can be swapped.
+
+**Inherited functions (not listed above):** V2 inherits `transferOwnership`, `renounceOwnership`, `owner` from OwnableUpgradeable and `proxiableUUID`, `upgradeToAndCall` from UUPSUpgradeable. See OpenZeppelin docs for these.
 
 **Storage pattern:** Uses OpenZeppelin namespaced storage (`SubsidyProgramStorage` struct at a computed slot) for UUPS upgrade safety.
 
 ## 4. Root README Design
 
-Replace current 549-line README with a concise project entry point (~150 lines):
+Replace current ~550-line README with a concise project entry point (~150 lines):
 
 ```
 # Subsidios RefiColombia
@@ -135,9 +143,9 @@ MIT — link to LICENSE file
 
 ## 5. Per-Package READMEs
 
-### 5.1 `smart-contracts/README.md` (NEW — does not exist)
+### 5.1 `smart-contracts/README.md` (REWRITE — currently Foundry boilerplate only)
 
-The most important new document. Contents:
+The most important document to rewrite. Contents:
 
 - **Overview** — what the contracts do
 - **Contract Registry** — full table from Section 3
@@ -156,10 +164,16 @@ Delete: `QUICK_START.md`, `SUMMARY.md`, `DEPLOYMENT.md`, `PRODUCTION_SETUP.md`, 
 Single README contents:
 
 - **Overview** — Express API serving Dune Analytics data + beneficiary management
-- **API Endpoints** — `/health`, `/api/dune/stats`, `/api/dune/monthly`, `/api/beneficiaries/*`
+- **API Endpoints** — full list:
+  - `GET /health`
+  - `GET /api/dune/stats`, `GET /api/dune/monthly`
+  - `GET /api/beneficiaries`, `GET /api/beneficiaries/:address`
+  - `POST /api/beneficiaries`, `POST /api/beneficiaries/batch`
+  - `PUT /api/beneficiaries/:address`, `DELETE /api/beneficiaries/:address`
+  - `POST /api/seed` (temporary seed endpoint — document for future removal)
 - **Local Development** — install, env setup, run
 - **Deployment (Vercel)** — consolidated from the 6 deleted files
-- **Environment Variables** — `DATABASE_URL`, `PORT`, `DUNE_API_KEY`
+- **Environment Variables** — `DATABASE_URL`, `PORT`, `DUNE_API_KEY`, `BENEFICIARIES_DATA` (used by temp seed endpoint)
 - **Database** — Prisma schema, migrations
 
 ### 5.3 `frontend/README.md` (REWRITE)
@@ -174,7 +188,7 @@ Single README contents:
 ### 5.4 `subgraph/README.md` (REWRITE)
 
 - **Overview** — The Graph subgraph indexing contract events on Celo
-- **Entities** — Beneficiary, Funds, TokenBalance, DailyClaim
+- **Entities** (from `schema.graphql`) — Beneficiary, Funds, TokenBalance, DailyClaim
 - **Contract Address Note** — document the `networks.json` vs `subgraph.yaml` discrepancy and resolution
 - **Development** — codegen, build, deploy commands
 - **Grafting** — explain current grafting configuration
@@ -187,18 +201,28 @@ Single README contents:
 |-------|------|--------|
 | Exposed Celoscan API key | `smart-contracts/foundry.toml` | Replace with `${CELOSCAN_API_KEY}` env var reference |
 | Exposed Dune API key | `backend/.env` | Ensure `.env` is in `.gitignore` (already is), but key is in git history |
+| `frontend/.env` was tracked | `frontend/.env` | Untracked in commit `d9fb674`, but values remain in git history |
 
 ### 6.2 `.env.example` Completion
 
-**`frontend/.env.example`** — add missing variables:
-```
+**`frontend/.env.example`** — add missing variable:
+
+```env
 VITE_PROJECT_ID=
-VITE_CONTRACT_ADDRESS=
 VITE_API_URL=http://localhost:3001
 VITE_SQUID_INTEGRATOR_ID=squid-swap-widget
 ```
 
-**`backend/.env.example`** — already complete (3 vars).
+Note: `VITE_CONTRACT_ADDRESS` exists in `frontend/.env` but is **not used** anywhere in the frontend code (the contract address is hardcoded in `constants/index.ts`). Do not add it to `.env.example` — it would be misleading.
+
+**`backend/.env.example`** — add `BENEFICIARIES_DATA` for the temp seed endpoint:
+
+```env
+DATABASE_URL="file:./dev.db"
+PORT=3001
+DUNE_API_KEY=
+BENEFICIARIES_DATA=
+```
 
 **`smart-contracts/.env.example`** — create new:
 ```
@@ -208,15 +232,26 @@ ALFAJORES_RPC_URL=https://alfajores-forno.celo-testnet.org
 CELOSCAN_API_KEY=
 ```
 
-### 6.3 Label Fixes
+### 6.3 Label & URL Fixes
 
 **`frontend/src/constants/index.ts`** — change misleading comment:
+
 ```typescript
 // Before:
 // Future contract: 0x1A6FBc7b51E55C6D4F15c8D5CE7e97daEA699ecf (deployed, not yet active)
 
 // After:
 // Alfajores testnet deployment: 0x1A6FBc7b51E55C6D4F15c8D5CE7e97daEA699ecf (chain 44787, test only)
+```
+
+**`frontend/src/config/index.tsx`** — fix URL typo on line 14:
+
+```typescript
+// Before:
+url: 'https://subsidios.refimcolombia.org',
+
+// After:
+url: 'https://subsidios.reficolombia.org',
 ```
 
 ### 6.4 `.gitmodules` Typo Fix
@@ -258,22 +293,25 @@ These are documented for awareness but **not part of this overhaul**:
 ## 8. File Inventory
 
 ### Files to CREATE
+
 | File | Description |
 |------|-------------|
 | `LICENSE` | MIT license, copyright RefiColombia |
 | `CONTRIBUTING.md` | Contributor guide |
-| `smart-contracts/README.md` | Full contract documentation |
 | `smart-contracts/.env.example` | Environment variable template |
 
 ### Files to REWRITE
+
 | File | Description |
 |------|-------------|
 | `README.md` (root) | Concise project entry point |
+| `smart-contracts/README.md` | Full contract docs (currently Foundry boilerplate) |
 | `backend/README.md` | Consolidated from 7 files |
 | `frontend/README.md` | Updated with complete env vars and components |
 | `subgraph/README.md` | Updated with entities and address notes |
 
 ### Files to DELETE
+
 | File | Reason |
 |------|--------|
 | `backend/QUICK_START.md` | Consolidated into backend/README.md |
@@ -284,14 +322,17 @@ These are documented for awareness but **not part of this overhaul**:
 | `backend/VERCEL_QUICK_START.md` | Consolidated into backend/README.md |
 
 ### Files to EDIT (small fixes)
+
 | File | Change |
 |------|--------|
 | `frontend/src/constants/index.ts` | Fix "Future contract" comment → "Alfajores testnet" |
-| `frontend/.env.example` | Add missing `VITE_PROJECT_ID` and `VITE_CONTRACT_ADDRESS` |
+| `frontend/src/config/index.tsx` | Fix URL typo: `refimcolombia` → `reficolombia` |
+| `frontend/.env.example` | Add missing `VITE_PROJECT_ID` |
+| `backend/.env.example` | Add missing `BENEFICIARIES_DATA` |
 | `smart-contracts/foundry.toml` | Replace hardcoded Celoscan key with env var |
 | `.gitmodules` | Fix `smart-cotracts` → `smart-contracts` (4 occurrences) |
 | `subgraph/networks.json` | Update or document V1 vs V2 address discrepancy |
 
 ---
 
-**Total scope:** 4 files created, 4 files rewritten, 6 files deleted, 5 files edited.
+**Total scope:** 3 files created, 5 files rewritten, 6 files deleted, 7 files edited.
