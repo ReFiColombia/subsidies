@@ -5,6 +5,7 @@ import { ToastAction } from '@radix-ui/react-toast'
 import { useAppKitAccount } from '@reown/appkit/react'
 import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
 
 import { Header } from '@/components/pages/main/Header'
@@ -24,10 +25,11 @@ import { useSubsidyContract } from './hooks/useSubsidyContract'
 import { useToast } from './hooks/useToast'
 
 export function App() {
+  const { t } = useTranslation('common')
+  const { t: tMain } = useTranslation('main')
   const { toast } = useToast()
   const { address } = useAppKitAccount()
 
-  // Función para generar enlace de Celoscan
   const getCeloscanUrl = (hash: string) => {
     return `https://celoscan.io/tx/${hash}`
   }
@@ -40,21 +42,20 @@ export function App() {
       onError: (error) => {
         console.error(error)
         toast({
-          title: '❌ Error al reclamar el subsidio',
+          title: t('claimErrorTitle'),
           description: (
             <div className="space-y-2">
               <p className="text-sm">{error.message}</p>
               <p className="text-xs text-muted-foreground">
-                Verifica que tengas suficiente gas y que tu wallet esté
-                conectada.
+                {t('claimErrorDescription')}
               </p>
             </div>
           ),
           variant: 'destructive',
-          duration: 10000, // 10 segundos para errores
+          duration: 10000,
           action: (
-            <ToastAction onClick={handleClaim} altText="Intentar de nuevo">
-              Intentar de nuevo
+            <ToastAction onClick={handleClaim} altText={t('tryAgain')}>
+              {t('tryAgain')}
             </ToastAction>
           ),
         })
@@ -63,7 +64,6 @@ export function App() {
   })
 
   const handleClaim = () => {
-    // Build Divvi referral tag using connected user and provided consumer address
     const referralTag = getReferralTag({
       user:
         (address as `0x${string}`) ??
@@ -71,7 +71,6 @@ export function App() {
       consumer: DIVVI_CONSUMER_ADDRESS,
     })
 
-    // Append the referral tag using dataSuffix so it doesn't change function args
     writeContract({
       abi: SUBSIDY_CONTRACT_ABI,
       address: SUBSIDY_CONTRACT_ADDRESS,
@@ -92,17 +91,18 @@ export function App() {
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({ hash })
 
-  // Mostrar mensaje cuando la transacción está pendiente
   useEffect(() => {
     if (hash && isConfirming) {
       const celoscanUrl = getCeloscanUrl(hash)
       toast({
-        title: '⏳ Transacción enviada',
+        title: t('txSentTitle'),
         description: (
           <div className="space-y-2">
-            <p>Tu transacción está siendo procesada en la blockchain.</p>
+            <p>{t('txSentDescription')}</p>
             <div className="flex items-center space-x-2">
-              <span className="text-xs text-muted-foreground">Hash:</span>
+              <span className="text-xs text-muted-foreground">
+                {t('hashLabel')}
+              </span>
               <a
                 href={celoscanUrl}
                 target="_blank"
@@ -123,12 +123,14 @@ export function App() {
     if (isConfirmed && hash) {
       const celoscanUrl = getCeloscanUrl(hash)
       toast({
-        title: '¡Subsidio reclamado exitosamente! 🎉',
+        title: t('claimSuccessTitle'),
         description: (
           <div className="space-y-2">
-            <p>Tu subsidio ha sido reclamado correctamente.</p>
+            <p>{t('claimSuccessDescription')}</p>
             <div className="flex items-center space-x-2">
-              <span className="text-xs text-muted-foreground">Hash:</span>
+              <span className="text-xs text-muted-foreground">
+                {t('hashLabel')}
+              </span>
               <a
                 href={celoscanUrl}
                 target="_blank"
@@ -140,10 +142,9 @@ export function App() {
             </div>
           </div>
         ),
-        duration: 8000, // 8 segundos para dar tiempo a leer
+        duration: 8000,
       })
 
-      // Report transaction to Divvi for attribution
       submitReferral({ txHash: hash, chainId: 42220 }).catch((e) => {
         console.warn('Divvi submitReferral failed', e)
       })
@@ -189,7 +190,7 @@ export function App() {
                 {(isPending || isConfirming) && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Reclamar
+                {tMain('claimButton')}
               </Button>
             </CardFooter>
           </Card>
@@ -203,7 +204,7 @@ export function App() {
           <div className="w-full">
             <UserFundsCard />
             <p className="mt-6 text-center text-sm leading-relaxed text-muted-foreground">
-              Recuerda que esta donación es voluntaria y no se puede retirar.
+              {tMain('donationDisclaimer')}
             </p>
           </div>
         </div>
