@@ -1,12 +1,15 @@
 import { useAppKitAccount } from '@reown/appkit/react'
+import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
 import { useReadContract } from 'wagmi'
 
 import { SUBSIDY_CONTRACT_ABI, SUBSIDY_CONTRACT_ADDRESS } from '@/constants'
 
 import { Button } from '../ui/button'
+import { LanguageToggle } from './LanguageToggle'
 
 export function NavBar() {
+  const { t } = useTranslation('common')
   const { isConnected, address } = useAppKitAccount()
   const { data } = useReadContract({
     address: SUBSIDY_CONTRACT_ADDRESS,
@@ -27,15 +30,18 @@ export function NavBar() {
             {isAdmin &&
               (location.pathname == '/admin' ? (
                 <Link to="/">
-                  <Button>User Panel</Button>
+                  <Button>{t('userPanel')}</Button>
                 </Link>
               ) : (
                 <Link to="/admin">
-                  <Button>Admin Panel</Button>
+                  <Button>{t('adminPanel')}</Button>
                 </Link>
               ))}
           </div>
-          <appkit-button />
+          <div className="flex items-center gap-3">
+            <LanguageToggle />
+            <appkit-button />
+          </div>
         </div>
       </nav>
     </div>
