@@ -2,7 +2,6 @@ import { getReferralTag, submitReferral } from '@divvi/referral-sdk'
 import { ArrowLeftRight, Loader2 } from 'lucide-react'
 import { lazy, Suspense, useState } from 'react'
 import { erc20Abi, formatUnits, parseUnits } from 'viem'
-import { useAppKit } from '@reown/appkit/react'
 import {
   useAccount,
   usePublicClient,
@@ -33,7 +32,6 @@ const SwapWidget = lazy(() =>
 export function UserFundsCard() {
   const { toast } = useToast()
   const { address, isConnected } = useAccount()
-  const { open } = useAppKit()
   const client = usePublicClient()
 
   const [selectedAmount, setSelectedAmount] = useState('')
@@ -270,9 +268,12 @@ export function UserFundsCard() {
             Necesitas mas COPm? Intercambia aquí
           </button>
         ) : !isConnected ? (
-          <Button className="w-full" onClick={() => open()}>
-            Dona aquí
-          </Button>
+          <div className="flex flex-col items-center gap-3">
+            <p className="text-center text-sm text-muted-foreground">
+              Conecta tu wallet para donar
+            </p>
+            <appkit-button />
+          </div>
         ) : null}
 
         {/* Swap Widget Popup */}
