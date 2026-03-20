@@ -14,56 +14,91 @@ This program allows registered beneficiaries to claim a fixed amount of cCOP at 
 subsidies/
 ├── backend/                           ← Express + Prisma + Dune Analytics
 │   ├── prisma/
-│   │   └── schema.prisma              ← Beneficiary model (PostgreSQL)
+│   │   ├── migrations/
+│   │   ├── schema.prisma              ← Beneficiary model (PostgreSQL)
+│   │   └── seed.ts
 │   ├── src/
 │   │   └── index.ts                   ← API routes, Dune client, CORS
 │   ├── .env.example
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── vercel.json
 │   └── README.md
 │
 ├── docs/
-│   ├── BRANDKIT.md                    ← Typography & design tokens
-│   └── superpowers/                   ← Design specs & implementation plans
+│   └── BRANDKIT.md                    ← Typography & design tokens
 │
 ├── frontend/                          ← Vite + React + wagmi (Celo)
+│   ├── public/
 │   ├── src/
-│   │   ├── components/                ← layout/, pages/, ui/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   │   ├── layout/                ← Navbar, LanguageToggle
+│   │   │   ├── pages/
+│   │   │   │   ├── admin/             ← Dashboard, Beneficiaries, Funds
+│   │   │   │   └── main/              ← Header, ProgramStats, SwapWidget, UserFundsCard
+│   │   │   └── ui/                    ← shadcn/ui components
 │   │   ├── config/                    ← Contract addresses, chain config
 │   │   ├── constants/                 ← ABIs, addresses
-│   │   ├── hooks/                     ← Custom React hooks
-│   │   ├── i18n/                      ← Internationalization (en/es)
+│   │   ├── hooks/                     ← useBeneficiaries, useSubsidyContract
+│   │   ├── i18n/
+│   │   │   └── locales/               ← en/, es/
 │   │   ├── lib/                       ← Utility functions
 │   │   ├── pages/                     ← Admin.tsx
-│   │   ├── queries/                   ← Subgraph & API queries
-│   │   ├── App.tsx                    ← Root component
+│   │   ├── queries/                   ← GraphQL queries (beneficiaries, funds, claims)
+│   │   ├── App.tsx
+│   │   ├── client.ts                  ← GraphQL client
 │   │   ├── main.tsx                   ← Entry point
 │   │   └── providers.tsx              ← Wagmi, Reown, React Query
 │   ├── .env.example
+│   ├── .graphclientrc.yml
+│   ├── components.json                ← shadcn/ui config
+│   ├── index.html
+│   ├── package.json
+│   ├── tailwind.config.js
+│   ├── tsconfig.json
+│   ├── vercel.json
+│   ├── vite.config.ts
+│   ├── wagmi.config.ts
 │   └── README.md
 │
 ├── smart-contracts/                   ← Foundry (Solidity ^0.8.28)
+│   ├── lib/                           ← forge-std, openzeppelin (submodules)
 │   ├── script/
 │   │   └── DeploySubsidyProgram.s.sol
 │   ├── src/
 │   │   ├── SubsidyProgram.sol         ← V2 (UUPS + Uniswap V3 auto-swap)
 │   │   └── ISwapRouter.sol            ← Uniswap V3 interface
 │   ├── test/
-│   │   ├── unit/
+│   │   ├── helpers/
 │   │   ├── mock/
-│   │   └── helpers/
+│   │   └── unit/                      ← Fork tests, swap tests, unit tests
 │   ├── .env.example
+│   ├── foundry.toml
+│   ├── remappings.txt
 │   └── README.md
 │
 ├── subgraph/                          ← The Graph (Celo Mainnet)
-│   ├── abis/                          ← Contract ABIs
+│   ├── abis/
+│   │   └── SubsidyProgram.json
 │   ├── src/
 │   │   └── subsidy-program.ts         ← Event handlers
+│   ├── tests/
+│   │   ├── subsidy-program.test.ts
+│   │   └── subsidy-program-utils.ts
+│   ├── docker-compose.yml
+│   ├── networks.json
+│   ├── package.json
 │   ├── schema.graphql                 ← Entity definitions
 │   ├── subgraph.yaml                  ← Data sources & mappings
 │   └── README.md
 │
+├── .gitmodules
+├── .nvmrc
 ├── CONTRIBUTING.md                    ← Setup, branch conventions, PR process
 ├── LICENSE                            ← MIT
-└── README.md                          ← Project entry point
+├── README.md                          ← Project entry point
+└── vercel.json
 ```
 
 Each package has its own README with setup instructions and detailed documentation.
