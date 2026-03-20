@@ -1,6 +1,7 @@
 import { getReferralTag, submitReferral } from '@divvi/referral-sdk'
 import { ArrowLeftRight, Loader2 } from 'lucide-react'
 import { lazy, Suspense, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { erc20Abi, formatUnits, parseUnits } from 'viem'
 import {
   useAccount,
@@ -31,6 +32,9 @@ const SwapWidget = lazy(() =>
 )
 
 export function UserFundsCard() {
+  const { t: tCommon } = useTranslation('common')
+  const { t, i18n } = useTranslation('main')
+  const locale = i18n.language === 'es' ? 'es-CO' : 'en-US'
   const { toast } = useToast()
   const { address, isConnected } = useAccount()
   const client = usePublicClient()
@@ -50,7 +54,7 @@ export function UserFundsCard() {
         console.error(error)
         setDonationStep('idle')
         toast({
-          title: 'Error en la transaccion',
+          title: tCommon('txErrorTitle'),
           description: error.message,
           variant: 'destructive',
         })
@@ -115,8 +119,8 @@ export function UserFundsCard() {
         })
 
         toast({
-          title: 'Aprobacion enviada',
-          description: 'Esperando confirmacion...',
+          title: tCommon('approvalSentTitle'),
+          description: tCommon('waitingConfirmation'),
         })
 
         const receipt = await client!.waitForTransactionReceipt({
@@ -129,8 +133,8 @@ export function UserFundsCard() {
         if (receipt.status === 'reverted') {
           setDonationStep('idle')
           toast({
-            title: 'Error en la aprobacion',
-            description: 'La transaccion de aprobacion fallo.',
+            title: tCommon('approvalErrorTitle'),
+            description: tCommon('approvalErrorDescription'),
             variant: 'destructive',
           })
           return
@@ -167,8 +171,8 @@ export function UserFundsCard() {
       if (donateReceipt.status === 'reverted') {
         setDonationStep('idle')
         toast({
-          title: 'Error al donar',
-          description: 'La transaccion de donacion fallo.',
+          title: tCommon('donationErrorTitle'),
+          description: tCommon('donationErrorDescription'),
           variant: 'destructive',
         })
         return
@@ -186,7 +190,7 @@ export function UserFundsCard() {
       console.error(error)
       setDonationStep('idle')
       toast({
-        title: 'Error al donar fondos',
+        title: tCommon('donationFundsErrorTitle'),
         description: error.message,
         variant: 'destructive',
       })
@@ -218,7 +222,7 @@ export function UserFundsCard() {
     <Card className="w-full">
       <CardHeader className="pb-2 text-center">
         <CardTitle className="text-lg font-semibold text-card-foreground">
-          Donar fondos
+          {t('donateFunds')}
         </CardTitle>
       </CardHeader>
 
@@ -229,9 +233,11 @@ export function UserFundsCard() {
         {/* Balance Display */}
         {isConnected && balance !== undefined && (
           <div className="rounded-lg border border-border bg-muted p-3 text-center">
-            <p className="mb-1 text-xs text-muted-foreground">Tu balance</p>
+            <p className="mb-1 text-xs text-muted-foreground">
+              {t('yourBalance')}
+            </p>
             <p className="text-lg font-bold text-foreground">
-              {new Intl.NumberFormat('es-CO', {
+              {new Intl.NumberFormat(locale, {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,
               }).format(Number(formatUnits(balance, 18)))}{' '}
@@ -248,7 +254,7 @@ export function UserFundsCard() {
         ) : isConnected && balanceLoaded && !hasBalance ? (
           <div className="space-y-3">
             <p className="text-center text-sm text-muted-foreground">
-              No tienes COPm. Intercambia cualquier token para obtener COPm:
+              {t('noCOPm')}
             </p>
             <Button
               variant="outline"
@@ -256,7 +262,7 @@ export function UserFundsCard() {
               onClick={() => setShowSwapWidget(true)}
             >
               <ArrowLeftRight className="mr-2 h-4 w-4" />
-              Obtener COPm
+              {t('getCOPm')}
             </Button>
           </div>
         ) : isConnected && hasBalance ? (
@@ -266,14 +272,11 @@ export function UserFundsCard() {
             onClick={() => setShowSwapWidget(true)}
           >
             <ArrowLeftRight className="h-4 w-4" />
-            Necesitas mas COPm? Intercambia aquí
+            {t('needMoreCOPm')}
           </button>
         ) : !isConnected ? (
-          <Button
-            className="w-full"
-            onClick={() => appKit.open()}
-          >
-            Dona aquí
+          <Button className="w-full" onClick={() => appKit.open()}>
+            {t('donateHere')}
           </Button>
         ) : null}
 
@@ -307,7 +310,7 @@ export function UserFundsCard() {
 
             {/* Custom Amount Input */}
             <Input
-              placeholder="Cantidad personalizada"
+              placeholder={t('customAmount')}
               value={customAmount}
               onChange={(e) => handleCustomAmountChange(e.target.value)}
               className="border-border bg-background text-center text-foreground"
@@ -323,10 +326,11 @@ export function UserFundsCard() {
               onClick={handleDonate}
             >
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Donar
               {activeAmount
-                ? ` ${Number(activeAmount).toLocaleString('es-CO')} cCOP`
-                : ''}
+                ? t('donateWithAmount', {
+                    amount: Number(activeAmount).toLocaleString(locale),
+                  })
+                : t('donate')}
             </Button>
           </>
         )}
