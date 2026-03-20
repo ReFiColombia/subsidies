@@ -37,8 +37,8 @@ export function DonationReceipt({
   return (
     <div className="flex flex-col items-center gap-4 px-6 py-6 text-center">
       <div className="text-4xl">🎉</div>
-      <h3 className="text-xl font-bold text-foreground">Donacion exitosa!</h3>
-      <p className="text-muted-foreground">
+      <h3 className="text-lg font-bold text-foreground">Donacion exitosa!</h3>
+      <p className="text-sm text-muted-foreground">
         Donaste{' '}
         <span className="font-bold text-foreground">{formattedAmount} cCOP</span> al
         programa de subsidios.
