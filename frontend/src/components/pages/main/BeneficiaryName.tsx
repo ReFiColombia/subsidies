@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 import { useBeneficiary } from '@/hooks/useBeneficiaries'
 
 interface BeneficiaryNameProps {
@@ -11,10 +13,11 @@ export function BeneficiaryName({
   showAddress = true,
   className,
 }: BeneficiaryNameProps) {
+  const { t } = useTranslation('common')
   const { data: beneficiary, isLoading, error } = useBeneficiary(address)
 
   if (isLoading) {
-    return <span className={className}>Loading...</span>
+    return <span className={className}>{t('loading')}</span>
   }
 
   if (error || !beneficiary) {

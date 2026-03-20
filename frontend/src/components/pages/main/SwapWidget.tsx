@@ -1,5 +1,6 @@
 import { SquidWidget } from '@0xsquid/widget'
 import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { CCOP_CONTRACT_ADDRESS } from '@/constants'
 
@@ -138,13 +139,12 @@ function SwapWidgetInner(_props: SwapWidgetProps) {
 }
 
 function SwapWidgetFallback() {
+  const { t } = useTranslation('main')
   return (
     <div className="rounded-lg border border-border bg-muted p-6 text-center">
-      <p className="mb-3 text-foreground">
-        No se pudo cargar el widget de intercambio.
-      </p>
+      <p className="mb-3 text-foreground">{t('swapWidgetError')}</p>
       <p className="text-sm text-muted-foreground">
-        Puedes obtener COPm directamente en{' '}
+        {t('getCOPmDirectly')}{' '}
         <a
           href="https://app.squidrouter.com"
           target="_blank"
@@ -153,7 +153,7 @@ function SwapWidgetFallback() {
         >
           Squid Router
         </a>{' '}
-        o{' '}
+        {t('or')}{' '}
         <a
           href="https://app.uniswap.org"
           target="_blank"
