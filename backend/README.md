@@ -66,14 +66,14 @@ Responses are cached for 1 hour.
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `DATABASE_URL` | Yes | Prisma connection string (`file:./dev.db` for local SQLite) |
+| `POSTGRES_URL` | Yes | PostgreSQL connection string (used by Prisma) |
 | `PORT` | No | Server port (default: `3001`) |
 | `DUNE_API_KEY` | Yes | Dune Analytics API key for program stats |
 | `BENEFICIARIES_DATA` | No | JSON string for seeding via `POST /api/seed` |
 
 ## Database
 
-Uses Prisma ORM with SQLite locally. For production, switch to PostgreSQL by updating `DATABASE_URL`.
+Uses Prisma ORM with PostgreSQL. The Prisma schema reads from the `POSTGRES_URL` environment variable.
 
 ```prisma
 model Beneficiary {
@@ -105,7 +105,7 @@ The backend is deployed on Vercel as a serverless function.
 1. Install Vercel CLI: `npm i -g vercel`
 2. Link project: `vercel link`
 3. Add environment variables in the Vercel dashboard:
-   - `DATABASE_URL` — use Vercel Postgres or an external PostgreSQL provider
+   - `POSTGRES_URL` — Vercel Postgres or an external PostgreSQL connection string
    - `DUNE_API_KEY` — your Dune Analytics API key
    - `BENEFICIARIES_DATA` — JSON string of seed data (if needed)
 4. Deploy: `vercel --prod`
@@ -114,13 +114,13 @@ The backend is deployed on Vercel as a serverless function.
 
 - **Deployment Protection** must be disabled for the backend project in Vercel settings, otherwise API calls from the frontend will receive 401 responses.
 - The `vercel-build` script runs `prisma generate && prisma migrate deploy && tsc`.
-- For PostgreSQL, update the Prisma schema provider from `sqlite` to `postgresql`.
+- The Prisma schema already uses `postgresql` as the provider.
 
 ## Tech Stack
 
 - **Runtime:** Node.js 22.x
 - **Framework:** Express with CORS
-- **Database:** Prisma ORM (SQLite local / PostgreSQL production)
+- **Database:** Prisma ORM with PostgreSQL
 - **Analytics:** Dune Analytics client SDK (1-hour cache)
 - **Validation:** viem (Ethereum address validation)
 - **Language:** TypeScript (tsx for dev, tsc for build)

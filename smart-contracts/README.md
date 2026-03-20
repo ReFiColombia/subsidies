@@ -38,7 +38,7 @@ Source: `src/SubsidyProgram.sol`
 
 | Function | Description |
 |----------|-------------|
-| `initialize(address _token, address _swapRouter, address _owner)` | Set primary token (cCOP), swap router, and initial owner |
+| `initialize(address _tokenAddress, address _swapRouter, address _initialOwner)` | Set primary token (cCOP), swap router, and initial owner |
 | `setClaimInterval(uint256 _interval)` | Set time between claims (default: 7 days) |
 | `setClaimableAmount(uint256 _amount)` | Set cCOP amount per claim |
 | `addBeneficiary(address _user)` | Register a beneficiary (sets lastClaimed so they can claim immediately) |
