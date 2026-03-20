@@ -25,8 +25,8 @@ export function QuickAmountPicker({
           variant={selectedAmount === value ? 'default' : 'outline'}
           className={`text-sm ${
             selectedAmount === value
-              ? 'bg-primary text-white'
-              : 'border-white/20 bg-white/10 text-gray-300 hover:bg-white/20'
+              ? 'bg-primary text-primary-foreground'
+              : 'border-border bg-muted text-muted-foreground hover:bg-brand-800'
           }`}
           onClick={() => onSelect(value)}
         >

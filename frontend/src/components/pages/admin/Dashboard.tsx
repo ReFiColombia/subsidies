@@ -6,16 +6,16 @@ import { DailyClaimsCard } from './DailyClaimsCard'
 export function Dashboard() {
   return (
     <Tabs defaultValue="claims" className="flex h-full w-full flex-col">
-      <TabsList className="mb-4 grid w-full grid-cols-2 gap-x-2 rounded-xl bg-gray-100 p-1">
+      <TabsList className="mb-4 grid w-full grid-cols-2 gap-x-2 rounded-xl bg-muted p-1">
         <TabsTrigger
           value="claims"
-          className="tab-button rounded-lg transition-colors data-[state=active]:bg-cyan-600 data-[state=inactive]:bg-gray-200 data-[state=active]:text-white data-[state=inactive]:text-gray-700"
+          className="tab-button rounded-lg transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-white data-[state=inactive]:text-muted-foreground"
         >
           Fondos
         </TabsTrigger>
         <TabsTrigger
           value="beneficiaries"
-          className="tab-button rounded-lg transition-colors data-[state=active]:bg-cyan-600 data-[state=inactive]:bg-gray-200 data-[state=active]:text-white data-[state=inactive]:text-gray-700"
+          className="tab-button rounded-lg transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-white data-[state=inactive]:text-muted-foreground"
         >
           Beneficiarios
         </TabsTrigger>

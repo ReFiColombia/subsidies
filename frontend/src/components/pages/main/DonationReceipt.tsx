@@ -1,5 +1,5 @@
 import confetti from 'canvas-confetti'
-import { ArrowLeft,ExternalLink, Share2 } from 'lucide-react'
+import { ArrowLeft, ExternalLink, Share2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { formatUnits } from 'viem'
 
@@ -37,10 +37,10 @@ export function DonationReceipt({
   return (
     <div className="flex flex-col items-center gap-4 px-6 py-6 text-center">
       <div className="text-4xl">🎉</div>
-      <h3 className="text-xl font-bold text-white">Donacion exitosa!</h3>
-      <p className="text-gray-300">
+      <h3 className="text-xl font-bold text-foreground">Donacion exitosa!</h3>
+      <p className="text-muted-foreground">
         Donaste{' '}
-        <span className="font-bold text-white">{formattedAmount} cCOP</span> al
+        <span className="font-bold text-foreground">{formattedAmount} cCOP</span> al
         programa de subsidios.
       </p>
 
@@ -49,7 +49,7 @@ export function DonationReceipt({
           href={celoscanUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 text-sm text-blue-400 hover:text-blue-300"
+          className="flex items-center justify-center gap-2 text-sm text-brand-400 hover:text-brand-300"
         >
           <ExternalLink className="h-4 w-4" />
           Ver en Celoscan
@@ -59,7 +59,7 @@ export function DonationReceipt({
           <Button
             type="button"
             variant="outline"
-            className="w-full border-white/20 bg-white/10 text-white hover:bg-white/20"
+            className="w-full border-border bg-muted text-foreground hover:bg-brand-800"
           >
             <Share2 className="mr-2 h-4 w-4" />
             Compartir en X
@@ -69,7 +69,7 @@ export function DonationReceipt({
         <Button
           type="button"
           variant="ghost"
-          className="text-gray-400 hover:text-white"
+          className="text-muted-foreground hover:text-foreground"
           onClick={onReset}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />

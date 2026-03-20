@@ -1,7 +1,7 @@
 import { getBuiltGraphSDK } from '@graphclient'
 import { useQuery } from '@tanstack/react-query'
-import { Check,Edit, Save, Search, Settings2, X } from 'lucide-react'
-import { useCallback,useEffect, useMemo, useState } from 'react'
+import { Check, Edit, Save, Search, Settings2, X } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { formatUnits, isAddress } from 'viem'
 
 import { Button } from '@/components/ui/button'
@@ -450,13 +450,13 @@ export function BeneficiariesPanel() {
 
   return (
     <div className="flex max-w-[90vw] flex-col items-center justify-center overflow-auto">
-      <Card className="w-full rounded-xl border border-gray-200 bg-white p-0 shadow-md">
+      <Card className="w-full rounded-xl border border-border bg-card p-0 shadow-md">
         <CardHeader className="mb-4 flex flex-col gap-2 border-b p-6 md:flex-row md:items-center md:justify-between">
           <div>
-            <CardTitle className="text-lg font-bold text-gray-800 md:text-xl">
+            <CardTitle className="text-lg font-bold text-card-foreground md:text-xl">
               Beneficiarios
             </CardTitle>
-            <CardDescription className="text-sm text-gray-500">
+            <CardDescription className="text-sm text-muted-foreground">
               Consulta el listado de beneficiarios, su estado y estadísticas de
               participación.
             </CardDescription>
@@ -465,16 +465,16 @@ export function BeneficiariesPanel() {
             value={activeTab}
             onValueChange={(v) => setActiveTab(v as 'resumen' | 'tabla')}
           >
-            <TabsList className="rounded-xl bg-gray-100 p-1">
+            <TabsList className="rounded-xl bg-muted p-1">
               <TabsTrigger
                 value="resumen"
-                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-cyan-600 data-[state=inactive]:bg-gray-200 data-[state=active]:text-white data-[state=inactive]:text-gray-700"
+                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-white data-[state=inactive]:text-muted-foreground"
               >
                 Resumen
               </TabsTrigger>
               <TabsTrigger
                 value="tabla"
-                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-cyan-600 data-[state=inactive]:bg-gray-200 data-[state=active]:text-white data-[state=inactive]:text-gray-700"
+                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-white data-[state=inactive]:text-muted-foreground"
               >
                 Tabla
               </TabsTrigger>
@@ -486,19 +486,19 @@ export function BeneficiariesPanel() {
             {activeTab === 'resumen' && (
               <>
                 <div className="mb-4 grid w-full grid-cols-1 gap-4 p-0 py-6 md:grid-cols-3">
-                  <div className="flex h-full flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-6 text-center shadow-sm">
-                    <p className="mb-2 text-sm font-medium text-gray-500">
+                  <div className="flex h-full flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
+                    <p className="mb-2 text-sm font-medium text-muted-foreground">
                       Beneficiarios activos
                     </p>
-                    <p className="text-xl font-bold text-gray-800">
+                    <p className="text-xl font-bold text-card-foreground">
                       {sortedBeneficiaries.filter((b) => b.isActive).length}
                     </p>
                   </div>
-                  <div className="flex h-full flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-6 text-center shadow-sm">
-                    <p className="mb-2 text-sm font-medium text-gray-500">
+                  <div className="flex h-full flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
+                    <p className="mb-2 text-sm font-medium text-muted-foreground">
                       Promedio reclamado por beneficiario
                     </p>
-                    <p className="text-xl font-bold text-gray-800">
+                    <p className="text-xl font-bold text-card-foreground">
                       {new Intl.NumberFormat('es-CO', {
                         minimumFractionDigits: 0,
                         maximumFractionDigits: 0,
@@ -514,11 +514,11 @@ export function BeneficiariesPanel() {
                       cCOP
                     </p>
                   </div>
-                  <div className="flex h-full flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-6 text-center shadow-sm">
-                    <p className="mb-2 text-sm font-medium text-gray-500">
+                  <div className="flex h-full flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
+                    <p className="mb-2 text-sm font-medium text-muted-foreground">
                       Intervalo de reclamo más común
                     </p>
-                    <p className="text-xl font-bold text-gray-800">
+                    <p className="text-xl font-bold text-card-foreground">
                       {mostCommonInterval !== null
                         ? `${mostCommonInterval} días`
                         : 'Cargando...'}
@@ -526,8 +526,8 @@ export function BeneficiariesPanel() {
                   </div>
                 </div>
                 {/* Leaderboard */}
-                <div className="w-full rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-sm">
-                  <p className="mb-2 font-medium text-gray-500">
+                <div className="w-full rounded-lg border border-border bg-muted p-4 shadow-sm">
+                  <p className="mb-2 font-medium text-muted-foreground">
                     Top 5 beneficiarios por monto reclamado
                   </p>
                   <ol className="space-y-1">
@@ -544,7 +544,7 @@ export function BeneficiariesPanel() {
                         return (
                           <li
                             key={b.id}
-                            className="flex items-center justify-between text-gray-800"
+                            className="flex items-center justify-between text-card-foreground"
                           >
                             <span
                               className="cursor-pointer text-sm hover:underline"
@@ -579,12 +579,12 @@ export function BeneficiariesPanel() {
                 {/* Primera línea de filtros */}
                 <div className="mb-3 flex w-full flex-col gap-3 md:flex-row">
                   <div className="relative flex-1">
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-cyan-600" />
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-brand-400" />
                     <Input
                       placeholder="Buscar por dirección..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="h-10 border-2 border-cyan-600 bg-white pl-10 font-medium text-cyan-700 placeholder:text-gray-400 focus:border-cyan-600 focus:ring-cyan-600"
+                      className="h-10 border-2 border-primary bg-card pl-10 font-medium text-brand-400 placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
                     />
                   </div>
                   <DatePicker
@@ -616,7 +616,7 @@ export function BeneficiariesPanel() {
                       setStatusFilter(value as 'all' | 'active' | 'inactive')
                     }
                   >
-                    <SelectTrigger className="h-10 w-full border-2 border-cyan-600 bg-white font-medium text-cyan-700 hover:bg-cyan-50 focus:ring-cyan-600 md:w-[140px]">
+                    <SelectTrigger className="h-10 w-full border-2 border-primary bg-card font-medium text-brand-400 hover:bg-muted focus:ring-primary md:w-[140px]">
                       <SelectValue placeholder="Estado" />
                     </SelectTrigger>
                     <SelectContent>
@@ -628,7 +628,7 @@ export function BeneficiariesPanel() {
 
                   {/* Filtro de umbral de monto reclamado */}
                   <div className="flex flex-1 items-center gap-2">
-                    <span className="whitespace-nowrap text-sm font-medium text-cyan-700">
+                    <span className="whitespace-nowrap text-sm font-medium text-brand-400">
                       Monto:
                     </span>
                     <Select
@@ -637,7 +637,7 @@ export function BeneficiariesPanel() {
                         setAmountComparison(v as 'gt' | 'lt')
                       }
                     >
-                      <SelectTrigger className="h-10 w-[140px] border-2 border-cyan-600 bg-white font-medium text-cyan-700 hover:bg-cyan-50 focus:ring-cyan-600">
+                      <SelectTrigger className="h-10 w-[140px] border-2 border-primary bg-card font-medium text-brand-400 hover:bg-muted focus:ring-primary">
                         <SelectValue>
                           {amountComparison === 'gt' ? 'Más de' : 'Menos de'}
                         </SelectValue>
@@ -654,13 +654,13 @@ export function BeneficiariesPanel() {
                       placeholder="Cantidad en COP"
                       value={amountThreshold}
                       onChange={(e) => setAmountThreshold(e.target.value)}
-                      className="h-10 flex-1 border-2 border-cyan-600 bg-white font-medium text-cyan-700 placeholder:text-gray-400 focus:border-cyan-600 focus:ring-cyan-600"
+                      className="h-10 flex-1 border-2 border-primary bg-card font-medium text-brand-400 placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
                     />
                   </div>
 
                   {/* Column visibility toggle */}
                   <Select value="columns" onValueChange={() => {}}>
-                    <SelectTrigger className="h-10 w-full border-2 border-cyan-600 font-medium text-cyan-700 hover:bg-cyan-50 focus:ring-cyan-600 md:w-[160px]">
+                    <SelectTrigger className="h-10 w-full border-2 border-primary font-medium text-brand-400 hover:bg-muted focus:ring-primary md:w-[160px]">
                       <Settings2 className="mr-2 h-4 w-4" />
                       <SelectValue>Columnas</SelectValue>
                     </SelectTrigger>
@@ -688,21 +688,21 @@ export function BeneficiariesPanel() {
                         ].map((col) => (
                           <div
                             key={col.key}
-                            className="flex cursor-pointer items-center space-x-2 rounded p-2 transition-colors hover:bg-cyan-50"
+                            className="flex cursor-pointer items-center space-x-2 rounded p-2 transition-colors hover:bg-muted"
                             onClick={() => toggleColumn(col.key)}
                           >
                             <div
                               className={`flex h-5 w-5 items-center justify-center rounded border-2 transition-all ${
                                 visibleColumns[col.key]
-                                  ? 'border-cyan-600 bg-cyan-600'
-                                  : 'border-gray-300 bg-white'
+                                  ? 'border-primary bg-primary'
+                                  : 'border-border bg-card'
                               }`}
                             >
                               {visibleColumns[col.key] && (
                                 <Check className="h-3 w-3 font-bold text-white" />
                               )}
                             </div>
-                            <span className="text-sm font-medium text-gray-700">
+                            <span className="text-sm font-medium text-muted-foreground">
                               {col.label}
                             </span>
                           </div>
@@ -713,15 +713,15 @@ export function BeneficiariesPanel() {
                 </div>
                 <div className="relative max-h-[65vh] w-full flex-1 overflow-x-auto overflow-y-auto">
                   <Table className="w-full min-w-[1000px]">
-                    <TableHeader className="sticky top-0 z-10 rounded-t-xl bg-white shadow-sm">
-                      <TableRow className="border-b-2 border-gray-300">
+                    <TableHeader className="sticky top-0 z-10 rounded-t-xl bg-card shadow-sm">
+                      <TableRow className="border-b-2 border-border">
                         {visibleColumns.acciones && (
                           <TableHead
                             className="relative"
                             style={{ width: `${columnWidths.acciones}px` }}
                           >
                             <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-cyan-600"
+                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
                               onMouseDown={(e) =>
                                 handleResizeStart(e, 'acciones')
                               }
@@ -739,7 +739,7 @@ export function BeneficiariesPanel() {
                           >
                             Nombre
                             <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-cyan-600"
+                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
                               onMouseDown={(e) =>
                                 handleResizeStart(e, 'nombre')
                               }
@@ -757,7 +757,7 @@ export function BeneficiariesPanel() {
                           >
                             Dir
                             <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-cyan-600"
+                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
                               onMouseDown={(e) =>
                                 handleResizeStart(e, 'direccion')
                               }
@@ -775,7 +775,7 @@ export function BeneficiariesPanel() {
                           >
                             Tel
                             <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-cyan-600"
+                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
                               onMouseDown={(e) =>
                                 handleResizeStart(e, 'telefono')
                               }
@@ -793,7 +793,7 @@ export function BeneficiariesPanel() {
                           >
                             Resp
                             <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-cyan-600"
+                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
                               onMouseDown={(e) =>
                                 handleResizeStart(e, 'responsable')
                               }
@@ -811,7 +811,7 @@ export function BeneficiariesPanel() {
                           >
                             Activo
                             <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-cyan-600"
+                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
                               onMouseDown={(e) =>
                                 handleResizeStart(e, 'activo')
                               }
@@ -829,7 +829,7 @@ export function BeneficiariesPanel() {
                           >
                             Fec. Añad.
                             <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-cyan-600"
+                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
                               onMouseDown={(e) =>
                                 handleResizeStart(e, 'fechaAnadido')
                               }
@@ -849,7 +849,7 @@ export function BeneficiariesPanel() {
                           >
                             Fec. Elim.
                             <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-cyan-600"
+                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
                               onMouseDown={(e) =>
                                 handleResizeStart(e, 'fechaEliminado')
                               }
@@ -869,7 +869,7 @@ export function BeneficiariesPanel() {
                           >
                             Total Reclamado
                             <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-cyan-600"
+                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
                               onMouseDown={(e) =>
                                 handleResizeStart(e, 'totalReclamado')
                               }
@@ -886,7 +886,7 @@ export function BeneficiariesPanel() {
                         return (
                           <TableRow
                             key={beneficiary.id}
-                            className="transition-colors hover:bg-gray-50"
+                            className="transition-colors hover:bg-muted"
                           >
                             {visibleColumns.acciones && (
                               <TableCell
@@ -897,15 +897,15 @@ export function BeneficiariesPanel() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleRowClick(beneficiary.id)}
-                                  className="h-6 w-6 p-0 transition-colors hover:bg-cyan-100"
+                                  className="h-6 w-6 p-0 transition-colors hover:bg-muted"
                                 >
-                                  <Edit className="h-3 w-3 text-gray-600" />
+                                  <Edit className="h-3 w-3 text-muted-foreground" />
                                 </Button>
                               </TableCell>
                             )}
                             {visibleColumns.nombre && (
                               <TableCell
-                                className="cursor-pointer overflow-hidden text-ellipsis font-medium transition-colors hover:text-cyan-600"
+                                className="cursor-pointer overflow-hidden text-ellipsis font-medium transition-colors hover:text-brand-400"
                                 onClick={() => handleRowClick(beneficiary.id)}
                                 style={{
                                   width: `${columnWidths.nombre}px`,
@@ -920,7 +920,7 @@ export function BeneficiariesPanel() {
                             )}
                             {visibleColumns.direccion && (
                               <TableCell
-                                className="cursor-pointer overflow-hidden transition-colors hover:text-cyan-600"
+                                className="cursor-pointer overflow-hidden transition-colors hover:text-brand-400"
                                 onClick={() => {
                                   navigator.clipboard.writeText(beneficiary.id)
                                   toast({
@@ -1038,12 +1038,12 @@ export function BeneficiariesPanel() {
 
       {/* Beneficiary Management Section */}
       <div className="mt-6 w-full space-y-4">
-        <Card className="w-full rounded-xl border border-gray-200 bg-white shadow-md">
+        <Card className="w-full rounded-xl border border-border bg-card shadow-md">
           <CardHeader className="border-b p-6">
-            <CardTitle className="text-lg font-bold text-gray-800 md:text-xl">
+            <CardTitle className="text-lg font-bold text-card-foreground md:text-xl">
               Buscar Beneficiario
             </CardTitle>
-            <CardDescription className="text-sm text-gray-500">
+            <CardDescription className="text-sm text-muted-foreground">
               Ingresa la dirección del beneficiario para buscar y actualizar su
               información
             </CardDescription>
@@ -1063,7 +1063,7 @@ export function BeneficiariesPanel() {
                       handleSearch()
                     }
                   }}
-                  className="border-gray-300 text-gray-900"
+                  className="border-border text-foreground"
                 />
                 {searchError && (
                   <p className="mt-1 text-sm text-red-500">{searchError}</p>
@@ -1072,7 +1072,7 @@ export function BeneficiariesPanel() {
               <Button
                 onClick={handleSearch}
                 disabled={!searchAddress.trim()}
-                className="bg-cyan-600 text-white hover:bg-cyan-700"
+                className="bg-primary text-white hover:bg-brand-700"
               >
                 <Search className="mr-2 h-4 w-4" />
                 Buscar
@@ -1082,12 +1082,12 @@ export function BeneficiariesPanel() {
         </Card>
 
         {selectedAddress && selectedBeneficiary && (
-          <Card className="w-full rounded-xl border border-gray-200 bg-white shadow-md">
+          <Card className="w-full rounded-xl border border-border bg-card shadow-md">
             <CardHeader className="border-b p-6">
-              <CardTitle className="text-lg font-bold text-gray-800 md:text-xl">
+              <CardTitle className="text-lg font-bold text-card-foreground md:text-xl">
                 Editar Beneficiario
               </CardTitle>
-              <CardDescription className="text-sm text-gray-500">
+              <CardDescription className="text-sm text-muted-foreground">
                 Dirección: {selectedAddress}
               </CardDescription>
             </CardHeader>
@@ -1096,7 +1096,7 @@ export function BeneficiariesPanel() {
                 <div>
                   <Label
                     htmlFor="name"
-                    className="text-sm font-medium text-gray-700"
+                    className="text-sm font-medium text-muted-foreground"
                   >
                     Nombre
                   </Label>
@@ -1107,14 +1107,14 @@ export function BeneficiariesPanel() {
                       setFormData({ ...formData, name: e.target.value })
                     }
                     placeholder="Nombre completo"
-                    className="mt-1 border-gray-300 text-gray-900"
+                    className="mt-1 border-border text-foreground"
                   />
                 </div>
 
                 <div>
                   <Label
                     htmlFor="phoneNumber"
-                    className="text-sm font-medium text-gray-700"
+                    className="text-sm font-medium text-muted-foreground"
                   >
                     Teléfono
                   </Label>
@@ -1125,14 +1125,14 @@ export function BeneficiariesPanel() {
                       setFormData({ ...formData, phoneNumber: e.target.value })
                     }
                     placeholder="Número de teléfono"
-                    className="mt-1 border-gray-300 text-gray-900"
+                    className="mt-1 border-border text-foreground"
                   />
                 </div>
 
                 <div>
                   <Label
                     htmlFor="responsable"
-                    className="text-sm font-medium text-gray-700"
+                    className="text-sm font-medium text-muted-foreground"
                   >
                     Responsable
                   </Label>
@@ -1143,7 +1143,7 @@ export function BeneficiariesPanel() {
                       setFormData({ ...formData, responsable: e.target.value })
                     }
                     placeholder="Nombre del responsable"
-                    className="mt-1 border-gray-300 text-gray-900"
+                    className="mt-1 border-border text-foreground"
                   />
                 </div>
 
@@ -1153,7 +1153,7 @@ export function BeneficiariesPanel() {
                     disabled={
                       updateBeneficiary.isPending || !formData.name.trim()
                     }
-                    className="flex-1 bg-cyan-600 text-white hover:bg-cyan-700"
+                    className="flex-1 bg-primary text-white hover:bg-brand-700"
                   >
                     <Save className="mr-2 h-4 w-4" />
                     {updateBeneficiary.isPending ? 'Guardando...' : 'Guardar'}
@@ -1162,7 +1162,7 @@ export function BeneficiariesPanel() {
                     onClick={handleCancel}
                     variant="outline"
                     disabled={updateBeneficiary.isPending}
-                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                    className="border-border text-muted-foreground hover:bg-muted"
                   >
                     <X className="mr-2 h-4 w-4" />
                     Cancelar
@@ -1178,10 +1178,10 @@ export function BeneficiariesPanel() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle className="text-gray-800">
+            <DialogTitle className="text-card-foreground">
               Editar Beneficiario
             </DialogTitle>
-            <DialogDescription className="text-gray-600">
+            <DialogDescription className="text-muted-foreground">
               {dialogAddress && `Dirección: ${dialogAddress}`}
             </DialogDescription>
           </DialogHeader>
@@ -1189,7 +1189,7 @@ export function BeneficiariesPanel() {
             <div>
               <Label
                 htmlFor="dialog-name"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-muted-foreground"
               >
                 Nombre
               </Label>
@@ -1200,14 +1200,14 @@ export function BeneficiariesPanel() {
                   setFormData({ ...formData, name: e.target.value })
                 }
                 placeholder="Nombre completo"
-                className="mt-1 border-gray-300 text-gray-900"
+                className="mt-1 border-border text-foreground"
               />
             </div>
 
             <div>
               <Label
                 htmlFor="dialog-phoneNumber"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-muted-foreground"
               >
                 Teléfono
               </Label>
@@ -1218,14 +1218,14 @@ export function BeneficiariesPanel() {
                   setFormData({ ...formData, phoneNumber: e.target.value })
                 }
                 placeholder="Número de teléfono"
-                className="mt-1 border-gray-300 text-gray-900"
+                className="mt-1 border-border text-foreground"
               />
             </div>
 
             <div>
               <Label
                 htmlFor="dialog-responsable"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-muted-foreground"
               >
                 Responsable
               </Label>
@@ -1236,7 +1236,7 @@ export function BeneficiariesPanel() {
                   setFormData({ ...formData, responsable: e.target.value })
                 }
                 placeholder="Nombre del responsable"
-                className="mt-1 border-gray-300 text-gray-900"
+                className="mt-1 border-border text-foreground"
               />
             </div>
 
@@ -1244,7 +1244,7 @@ export function BeneficiariesPanel() {
               <Button
                 onClick={handleUpdate}
                 disabled={updateBeneficiary.isPending || !formData.name.trim()}
-                className="flex-1 bg-cyan-600 text-white hover:bg-cyan-700"
+                className="flex-1 bg-primary text-white hover:bg-brand-700"
               >
                 <Save className="mr-2 h-4 w-4" />
                 {updateBeneficiary.isPending ? 'Guardando...' : 'Guardar'}
@@ -1253,7 +1253,7 @@ export function BeneficiariesPanel() {
                 onClick={handleCancel}
                 variant="outline"
                 disabled={updateBeneficiary.isPending}
-                className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                className="border-border text-muted-foreground hover:bg-muted"
               >
                 <X className="mr-2 h-4 w-4" />
                 Cancelar
@@ -1266,12 +1266,12 @@ export function BeneficiariesPanel() {
       {/* Context Menu */}
       {contextMenu && (
         <div
-          className="fixed z-50 rounded-lg border border-gray-300 bg-white py-1 shadow-lg"
+          className="fixed z-50 rounded-lg border border-border bg-card py-1 shadow-lg"
           style={{ left: `${contextMenu.x}px`, top: `${contextMenu.y}px` }}
           onClick={(e) => e.stopPropagation()}
         >
           <button
-            className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-100"
+            className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-muted"
             onClick={() => toggleColumn(contextMenu.column)}
           >
             <X className="h-4 w-4" />

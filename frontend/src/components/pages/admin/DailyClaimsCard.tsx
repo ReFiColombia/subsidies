@@ -53,23 +53,23 @@ export function DailyClaimsCard() {
   const chartConfig = {
     claims: {
       label: 'Cantidad de Reclamos',
-      color: '#6366f1',
+      color: 'hsl(271, 81%, 56%)',
     },
     amount: {
       label: 'Monto Reclamado',
-      color: '#06b6d4',
+      color: 'hsl(269, 97%, 85%)',
     },
   }
 
   return (
     <div className="flex max-w-[90vw] flex-col items-center justify-center overflow-auto">
-      <Card className="w-full rounded-xl border border-gray-200 bg-white p-0 shadow-md">
+      <Card className="w-full rounded-xl border border-border bg-card p-0 shadow-md">
         <CardHeader className="flex flex-col gap-2 border-b p-6 md:flex-row md:items-center md:justify-between">
           <div>
-            <CardTitle className="text-lg font-bold text-gray-800 md:text-xl">
+            <CardTitle className="text-lg font-bold text-card-foreground md:text-xl">
               Reclamos Diarios
             </CardTitle>
-            <CardDescription className="text-sm text-gray-500">
+            <CardDescription className="text-sm text-muted-foreground">
               Visualiza la cantidad de reclamos o el monto reclamado por día de
               los últimos 60 días
             </CardDescription>
@@ -78,16 +78,16 @@ export function DailyClaimsCard() {
             value={activeChart}
             onValueChange={(v) => setActiveChart(v as 'claims' | 'amount')}
           >
-            <TabsList className="rounded-xl bg-gray-100 p-1">
+            <TabsList className="rounded-xl bg-muted p-1">
               <TabsTrigger
                 value="claims"
-                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-cyan-600 data-[state=inactive]:bg-gray-200 data-[state=active]:text-white data-[state=inactive]:text-gray-700"
+                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-white data-[state=inactive]:text-muted-foreground"
               >
                 Cantidad
               </TabsTrigger>
               <TabsTrigger
                 value="amount"
-                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-cyan-600 data-[state=inactive]:bg-gray-200 data-[state=active]:text-white data-[state=inactive]:text-gray-700"
+                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-white data-[state=inactive]:text-muted-foreground"
               >
                 Monto
               </TabsTrigger>
@@ -108,7 +108,7 @@ export function DailyClaimsCard() {
                 <CartesianGrid
                   vertical={false}
                   strokeDasharray="3 3"
-                  stroke="#e0e7ef"
+                  stroke="rgba(255,255,255,0.1)"
                 />
                 <XAxis
                   dataKey="date"
@@ -117,7 +117,7 @@ export function DailyClaimsCard() {
                   tickMargin={8}
                   minTickGap={18}
                   fontSize={13}
-                  stroke="#6366f1"
+                  stroke="hsl(271, 81%, 56%)"
                   label={{
                     value: 'Fecha',
                     position: 'bottom',
@@ -125,7 +125,7 @@ export function DailyClaimsCard() {
                     style: {
                       textAnchor: 'middle',
                       fontSize: 12,
-                      fill: '#000000',
+                      fill: 'rgba(255,255,255,0.7)',
                     },
                   }}
                 />
@@ -133,7 +133,7 @@ export function DailyClaimsCard() {
                   tickLine={false}
                   axisLine={false}
                   fontSize={13}
-                  stroke="#6366f1"
+                  stroke="hsl(271, 81%, 56%)"
                   tickMargin={8}
                   width={60}
                   label={{
@@ -146,7 +146,7 @@ export function DailyClaimsCard() {
                     style: {
                       textAnchor: 'middle',
                       fontSize: 12,
-                      fill: '#000000',
+                      fill: 'rgba(255,255,255,0.7)',
                     },
                   }}
                   tickFormatter={(value) =>
@@ -180,11 +180,11 @@ export function DailyClaimsCard() {
             </ChartContainer>
           </div>
           <div className="mt-6 grid grid-cols-1 gap-4 overflow-x-auto sm:grid-cols-2 lg:grid-cols-4">
-            <Card className="flex min-w-[180px] flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-6 text-center shadow-sm">
-              <p className="mb-2 text-sm font-medium text-gray-500">
+            <Card className="flex min-w-[180px] flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
+              <p className="mb-2 text-sm font-medium text-muted-foreground">
                 Total aportado
               </p>
-              <p className="text-lg font-bold text-gray-800 md:text-xl">
+              <p className="text-lg font-bold text-card-foreground md:text-xl">
                 {new Intl.NumberFormat('es-CO', {
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0,
@@ -194,11 +194,11 @@ export function DailyClaimsCard() {
                 cCOP
               </p>
             </Card>
-            <Card className="flex min-w-[180px] flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-6 text-center shadow-sm">
-              <p className="mb-2 text-sm font-medium text-gray-500">
+            <Card className="flex min-w-[180px] flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
+              <p className="mb-2 text-sm font-medium text-muted-foreground">
                 Total retirado
               </p>
-              <p className="text-lg font-bold text-gray-800 md:text-xl">
+              <p className="text-lg font-bold text-card-foreground md:text-xl">
                 {new Intl.NumberFormat('es-CO', {
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0,
@@ -208,11 +208,11 @@ export function DailyClaimsCard() {
                 cCOP
               </p>
             </Card>
-            <Card className="flex min-w-[180px] flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-6 text-center shadow-sm">
-              <p className="mb-2 text-sm font-medium text-gray-500">
+            <Card className="flex min-w-[180px] flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
+              <p className="mb-2 text-sm font-medium text-muted-foreground">
                 Total reclamado
               </p>
-              <p className="text-lg font-bold text-gray-800 md:text-xl">
+              <p className="text-lg font-bold text-card-foreground md:text-xl">
                 {new Intl.NumberFormat('es-CO', {
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0,
@@ -222,11 +222,11 @@ export function DailyClaimsCard() {
                 cCOP
               </p>
             </Card>
-            <Card className="flex min-w-[180px] flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-6 text-center shadow-sm">
-              <p className="mb-2 text-sm font-medium text-gray-500">
+            <Card className="flex min-w-[180px] flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
+              <p className="mb-2 text-sm font-medium text-muted-foreground">
                 Balance actual
               </p>
-              <p className="text-lg font-bold text-gray-800 md:text-xl">
+              <p className="text-lg font-bold text-card-foreground md:text-xl">
                 {new Intl.NumberFormat('es-CO', {
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0,

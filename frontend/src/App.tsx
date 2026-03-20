@@ -5,7 +5,7 @@ import { ToastAction } from '@radix-ui/react-toast'
 import { useAppKitAccount } from '@reown/appkit/react'
 import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
-import { useWaitForTransactionReceipt,useWriteContract } from 'wagmi'
+import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
 
 import { Header } from '@/components/pages/main/Header'
 import { Button } from '@/components/ui/button'
@@ -44,7 +44,7 @@ export function App() {
           description: (
             <div className="space-y-2">
               <p className="text-sm">{error.message}</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Verifica que tengas suficiente gas y que tu wallet esté
                 conectada.
               </p>
@@ -102,12 +102,12 @@ export function App() {
           <div className="space-y-2">
             <p>Tu transacción está siendo procesada en la blockchain.</p>
             <div className="flex items-center space-x-2">
-              <span className="text-xs text-gray-500">Hash:</span>
+              <span className="text-xs text-muted-foreground">Hash:</span>
               <a
                 href={celoscanUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded bg-gray-100 px-2 py-1 font-mono text-xs text-blue-600 transition-colors hover:bg-gray-200 hover:text-blue-800"
+                className="rounded bg-muted px-2 py-1 font-mono text-xs text-brand-400 transition-colors hover:bg-brand-800 hover:text-brand-300"
               >
                 {hash.slice(0, 10)}...{hash.slice(-8)}
               </a>
@@ -128,12 +128,12 @@ export function App() {
           <div className="space-y-2">
             <p>Tu subsidio ha sido reclamado correctamente.</p>
             <div className="flex items-center space-x-2">
-              <span className="text-xs text-gray-500">Hash:</span>
+              <span className="text-xs text-muted-foreground">Hash:</span>
               <a
                 href={celoscanUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded bg-gray-100 px-2 py-1 font-mono text-xs text-blue-600 transition-colors hover:bg-gray-200 hover:text-blue-800"
+                className="rounded bg-muted px-2 py-1 font-mono text-xs text-brand-400 transition-colors hover:bg-brand-800 hover:text-brand-300"
               >
                 {hash.slice(0, 10)}...{hash.slice(-8)}
               </a>
@@ -202,7 +202,7 @@ export function App() {
           {/* Donate Funds Card */}
           <div className="w-full">
             <UserFundsCard />
-            <p className="mt-6 text-center text-sm leading-relaxed text-gray-300">
+            <p className="mt-6 text-center text-sm leading-relaxed text-muted-foreground">
               Recuerda que esta donación es voluntaria y no se puede retirar.
             </p>
           </div>

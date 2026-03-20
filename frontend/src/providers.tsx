@@ -13,7 +13,7 @@ const generalConfig = {
   networks,
 }
 
-createAppKit({
+export const appKit = createAppKit({
   adapters: [wagmiAdapter],
   features: {
     analytics: true,

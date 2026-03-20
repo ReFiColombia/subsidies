@@ -29,7 +29,7 @@ export function BeneficiaryName({
     <span className={className}>
       {beneficiary.name}
       {showAddress && (
-        <span className="ml-2 text-xs text-gray-500">
+        <span className="ml-2 text-xs text-muted-foreground">
           ({address.slice(0, 6)}...{address.slice(-4)})
         </span>
       )}

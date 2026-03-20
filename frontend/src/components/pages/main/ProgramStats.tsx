@@ -37,7 +37,7 @@ const formatCOP = (value: number) =>
 const chartConfig = {
   distributed: {
     label: 'COPm Distribuidos',
-    color: '#8b5cf6',
+    color: 'hsl(271, 81%, 56%)',
   },
 }
 
@@ -57,7 +57,7 @@ export function ProgramStats() {
   if (statsLoading || monthlyLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     )
   }
@@ -69,31 +69,31 @@ export function ProgramStats() {
       icon: TrendingUp,
       label: 'Fondos Agregados',
       value: `${formatCOP(stats.fundsAdded)} COPm`,
-      color: 'text-green-400',
+      color: 'text-brand-300',
     },
     {
       icon: ArrowDownCircle,
       label: 'Fondos Distribuidos',
       value: `${formatCOP(stats.fundsDistributed)} COPm`,
-      color: 'text-cyan-400',
+      color: 'text-brand-400',
     },
     {
       icon: Users,
       label: 'Beneficiarios',
       value: String(stats.recipients),
-      color: 'text-blue-400',
+      color: 'text-brand-500',
     },
     {
       icon: Wallet,
       label: 'Balance del Contrato',
       value: `${formatCOP(stats.contractBalance)} COPm`,
-      color: 'text-purple-400',
+      color: 'text-brand-400',
     },
   ]
 
   return (
     <div className="space-y-4">
-      <h3 className="text-center text-lg font-semibold text-white">
+      <h3 className="text-center text-lg font-semibold text-foreground">
         Transparencia del Programa
       </h3>
 
@@ -102,20 +102,20 @@ export function ProgramStats() {
         {statCards.map(({ icon: Icon, label, value, color }) => (
           <div
             key={label}
-            className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-3"
+            className="flex items-center gap-3 rounded-lg border border-border bg-muted p-3"
           >
             <Icon className={`h-5 w-5 ${color} shrink-0`} />
             <div className="min-w-0">
-              <p className="text-xs text-gray-400">{label}</p>
-              <p className="truncate text-sm font-bold text-white">{value}</p>
+              <p className="text-xs text-muted-foreground">{label}</p>
+              <p className="truncate text-sm font-bold text-foreground">{value}</p>
             </div>
           </div>
         ))}
       </div>
 
       {/* Monthly Chart */}
-      <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-        <p className="mb-3 text-center text-xs text-gray-400">
+      <div className="rounded-lg border border-border bg-muted p-4">
+        <p className="mb-3 text-center text-xs text-muted-foreground">
           Subsidios Distribuidos por Mes
         </p>
         <ChartContainer config={chartConfig} className="h-[200px] w-full">
@@ -158,7 +158,11 @@ export function ProgramStats() {
                 />
               }
             />
-            <Bar dataKey="distributed" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+            <Bar
+              dataKey="distributed"
+              fill="hsl(271, 81%, 56%)"
+              radius={[4, 4, 0, 0]}
+            />
           </BarChart>
         </ChartContainer>
       </div>

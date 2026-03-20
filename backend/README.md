@@ -1,128 +1,79 @@
-# Subsidies Backend API
+# Backend API
 
-Backend API for managing beneficiary information including names, phone numbers, and responsible persons.
+Express API serving Dune Analytics program statistics and beneficiary management for the Subsidios RefiColombia platform.
 
-## Features
+## Quick Start
 
-- Store beneficiary names, phone numbers, and responsible persons mapped to Ethereum addresses
-- RESTful API with full CRUD operations
-- Address validation using viem
-- SQLite database with Prisma ORM
-- TypeScript support
-
-## Setup
-
-### Prerequisites
-
-- Node.js >= 20
-- npm or yarn
-
-### Installation
-
-1. Install dependencies:
 ```bash
 npm install
-```
-
-2. Set up environment variables:
-```bash
-cp .env.example .env
-```
-
-3. Generate Prisma client and run migrations:
-```bash
+cp .env.example .env         # fill in DUNE_API_KEY
 npm run prisma:generate
 npm run prisma:migrate
-```
-
-4. Seed the database with initial data:
-
-   The seed script loads beneficiary data from either:
-
-   - `prisma/beneficiaries.json` (local development - create this file with your data)
-   - `BENEFICIARIES_DATA` environment variable (production)
-
-   ```bash
-   npm run seed
-   ```
-
-**Note**: `beneficiaries.json` is gitignored for security. See [DEPLOYMENT.md](./DEPLOYMENT.md) for production setup.
-
-### Development
-
-Run the development server with hot reload:
-```bash
-npm run dev
-```
-
-The API will be available at `http://localhost:3001`
-
-### Production
-
-Build and run:
-```bash
-npm run build
-npm start
+npm run dev                   # http://localhost:3001
 ```
 
 ## API Endpoints
 
-### Health Check
-- `GET /health` - Check if the API is running
+### Health
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/health` | Health check |
+
+### Dune Analytics
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/dune/stats` | Program stats (funds added, distributed, recipients, balance) |
+| `GET` | `/api/dune/monthly` | Monthly distribution data for charts |
+
+Responses are cached for 1 hour.
 
 ### Beneficiaries
 
-#### Get all beneficiaries
-```bash
-GET /api/beneficiaries
-```
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/beneficiaries` | List all beneficiaries |
+| `GET` | `/api/beneficiaries/:address` | Get beneficiary by Ethereum address |
+| `POST` | `/api/beneficiaries` | Create a beneficiary |
+| `PUT` | `/api/beneficiaries/:address` | Update a beneficiary |
+| `DELETE` | `/api/beneficiaries/:address` | Delete a beneficiary |
+| `POST` | `/api/beneficiaries/batch` | Batch lookup by address array |
+| `POST` | `/api/seed` | Seed database from `BENEFICIARIES_DATA` env var (temporary) |
 
-#### Get beneficiary by address
-```bash
-GET /api/beneficiaries/:address
-```
+#### Create/Update Body
 
-#### Create new beneficiary
-```bash
-POST /api/beneficiaries
-Content-Type: application/json
-
+```json
 {
   "address": "0x...",
   "name": "John Doe",
-  "phoneNumber": "+57 123 456 7890",  // optional
-  "responsable": "Ana"                 // optional
-}
-```
-
-#### Update beneficiary
-```bash
-PUT /api/beneficiaries/:address
-Content-Type: application/json
-
-{
-  "name": "John Doe Updated",
   "phoneNumber": "+57 123 456 7890",
   "responsable": "Ana"
 }
 ```
 
-#### Delete beneficiary
-```bash
-DELETE /api/beneficiaries/:address
-```
+`phoneNumber` and `responsable` are optional.
 
-#### Batch get beneficiaries
-```bash
-POST /api/beneficiaries/batch
-Content-Type: application/json
+#### Batch Lookup Body
 
+```json
 {
   "addresses": ["0x...", "0x..."]
 }
 ```
 
-## Database Schema
+## Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `POSTGRES_URL` | Yes | PostgreSQL connection string (used by Prisma) |
+| `PORT` | No | Server port (default: `3001`) |
+| `DUNE_API_KEY` | Yes | Dune Analytics API key for program stats |
+| `BENEFICIARIES_DATA` | No | JSON string for seeding via `POST /api/seed` |
+
+## Database
+
+Uses Prisma ORM with PostgreSQL. The Prisma schema reads from the `POSTGRES_URL` environment variable.
 
 ```prisma
 model Beneficiary {
@@ -136,31 +87,40 @@ model Beneficiary {
 }
 ```
 
-## Prisma Commands
+### Useful Commands
 
-- `npm run prisma:generate` - Generate Prisma client
-- `npm run prisma:migrate` - Run database migrations
-- `npm run prisma:studio` - Open Prisma Studio (database GUI)
-
-## Example Usage
-
-### Fetch beneficiary name for an address:
-```typescript
-const response = await fetch('http://localhost:3001/api/beneficiaries/0xf01365c382f29861ec27e2ad332f0b94171f7f93');
-const beneficiary = await response.json();
-console.log(beneficiary.name); // "Luz Elena"
+```bash
+npm run prisma:generate   # Generate Prisma client
+npm run prisma:migrate    # Run migrations
+npm run prisma:studio     # Open database GUI
+npm run seed              # Seed from prisma/beneficiaries.json or BENEFICIARIES_DATA
 ```
 
-### Create a new beneficiary:
-```typescript
-const response = await fetch('http://localhost:3001/api/beneficiaries', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    address: '0x1234...',
-    name: 'Maria Garcia',
-    phoneNumber: '+57 300 123 4567',
-    responsable: 'Ana'
-  })
-});
-```
+## Deployment (Vercel)
+
+The backend is deployed on Vercel as a serverless function.
+
+### Steps
+
+1. Install Vercel CLI: `npm i -g vercel`
+2. Link project: `vercel link`
+3. Add environment variables in the Vercel dashboard:
+   - `POSTGRES_URL` — Vercel Postgres or an external PostgreSQL connection string
+   - `DUNE_API_KEY` — your Dune Analytics API key
+   - `BENEFICIARIES_DATA` — JSON string of seed data (if needed)
+4. Deploy: `vercel --prod`
+
+### Important Notes
+
+- **Deployment Protection** must be disabled for the backend project in Vercel settings, otherwise API calls from the frontend will receive 401 responses.
+- The `vercel-build` script runs `prisma generate && prisma migrate deploy && tsc`.
+- The Prisma schema already uses `postgresql` as the provider.
+
+## Tech Stack
+
+- **Runtime:** Node.js 22.x
+- **Framework:** Express with CORS
+- **Database:** Prisma ORM with PostgreSQL
+- **Analytics:** Dune Analytics client SDK (1-hour cache)
+- **Validation:** viem (Ethereum address validation)
+- **Language:** TypeScript (tsx for dev, tsc for build)

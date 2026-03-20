@@ -7,93 +7,92 @@ const CELO_CHAIN_ID = '42220'
 
 const SQUID_THEME = {
   borderRadius: {
-    'button-lg-primary': '3.75rem',
-    'button-lg-secondary': '3.75rem',
-    'button-lg-tertiary': '3.75rem',
-    'button-md-primary': '1.25rem',
-    'button-md-secondary': '1.25rem',
-    'button-md-tertiary': '1.25rem',
-    'button-sm-primary': '1.25rem',
-    'button-sm-secondary': '1.25rem',
-    'button-sm-tertiary': '1.25rem',
-    container: '1.875rem',
-    input: '9999px',
-    'menu-sm': '0.9375rem',
-    'menu-lg': '1.25rem',
-    modal: '1.875rem',
+    'button-lg-primary': '0.5rem',
+    'button-lg-secondary': '0.5rem',
+    'button-lg-tertiary': '0.5rem',
+    'button-md-primary': '0.5rem',
+    'button-md-secondary': '0.5rem',
+    'button-md-tertiary': '0.5rem',
+    'button-sm-primary': '0.375rem',
+    'button-sm-secondary': '0.375rem',
+    'button-sm-tertiary': '0.375rem',
+    container: '0.75rem',
+    input: '0.5rem',
+    'menu-sm': '0.375rem',
+    'menu-lg': '0.5rem',
+    modal: '0.75rem',
   },
   fontSize: {
-    caption: '0.875rem',
-    'body-small': '1.14375rem',
-    'body-medium': '1.40625rem',
-    'body-large': '1.75625rem',
-    'heading-small': '2.1875rem',
-    'heading-medium': '3.08125rem',
-    'heading-large': '4.40625rem',
+    caption: '0.75rem',
+    'body-small': '0.875rem',
+    'body-medium': '1rem',
+    'body-large': '1.125rem',
+    'heading-small': '1.25rem',
+    'heading-medium': '1.5rem',
+    'heading-large': '2rem',
   },
   fontWeight: {
     caption: '400',
     'body-small': '400',
-    'body-medium': '400',
-    'body-large': '400',
-    'heading-small': '400',
-    'heading-medium': '400',
-    'heading-large': '400',
+    'body-medium': '500',
+    'body-large': '500',
+    'heading-small': '600',
+    'heading-medium': '600',
+    'heading-large': '700',
   },
   fontFamily: {
-    'squid-main': 'GeistVariable, sans-serif',
+    'squid-main': 'Inter, system-ui, sans-serif',
   },
   boxShadow: {
-    container:
-      '0px 2px 4px 0px rgba(0, 0, 0, 0.20), 0px 5px 50px -1px rgba(0, 0, 0, 0.33)',
+    container: '0px 2px 8px 0px rgba(0, 0, 0, 0.3)',
   },
   color: {
-    'grey-100': '#FBFBFD',
-    'grey-200': '#EDEFF3',
-    'grey-300': '#D1D6E0',
-    'grey-400': '#A7ABBE',
-    'grey-500': '#8A8FA8',
-    'grey-600': '#676B7E',
-    'grey-700': '#4C515D',
-    'grey-800': '#292C32',
-    'grey-900': '#17191C',
-    'royal-300': '#D9BEF4',
-    'royal-400': '#B893EC',
-    'royal-500': '#9E79D2',
-    'royal-600': '#8353C5',
-    'royal-700': '#6B45A1',
+    'grey-100': '#F5F3FF',
+    'grey-200': '#EDE9FE',
+    'grey-300': '#C4B5FD',
+    'grey-400': '#A78BFA',
+    'grey-500': '#7C3AED',
+    'grey-600': '#6D28D9',
+    'grey-700': '#4C1D95',
+    'grey-800': '#2E1065',
+    'grey-900': '#1E1033',
+    'royal-300': '#C4B5FD',
+    'royal-400': '#A78BFA',
+    'royal-500': '#8B5CF6',
+    'royal-600': '#7C3AED',
+    'royal-700': '#6D28D9',
     'status-positive': '#7AE870',
     'status-negative': '#FF4D5B',
     'status-partial': '#F3AF25',
-    'highlight-700': '#E4FE53',
-    'animation-bg': '#9E79D2',
-    'animation-text': '#FBFBFD',
-    'button-lg-primary-bg': '#9E79D2',
-    'button-lg-primary-text': '#FBFBFD',
-    'button-lg-secondary-bg': '#FBFBFD',
-    'button-lg-secondary-text': '#292C32',
-    'button-lg-tertiary-bg': '#292C32',
-    'button-lg-tertiary-text': '#D1D6E0',
-    'button-md-primary-bg': '#9E79D2',
-    'button-md-primary-text': '#FBFBFD',
-    'button-md-secondary-bg': '#FBFBFD',
-    'button-md-secondary-text': '#292C32',
-    'button-md-tertiary-bg': '#292C32',
-    'button-md-tertiary-text': '#D1D6E0',
-    'button-sm-primary-bg': '#9E79D2',
-    'button-sm-primary-text': '#FBFBFD',
-    'button-sm-secondary-bg': '#FBFBFD',
-    'button-sm-secondary-text': '#292C32',
-    'button-sm-tertiary-bg': '#292C32',
-    'button-sm-tertiary-text': '#D1D6E0',
-    'input-bg': '#17191C',
-    'input-placeholder': '#676B7E',
-    'input-text': '#D1D6E0',
-    'input-selection': '#D1D6E0',
-    'menu-bg': '#17191CA8',
-    'menu-text': '#FBFBFDA8',
-    'menu-backdrop': '#FBFBFD1A',
-    'modal-backdrop': '#17191C54',
+    'highlight-700': '#C4B5FD',
+    'animation-bg': '#7C3AED',
+    'animation-text': '#F5F3FF',
+    'button-lg-primary-bg': '#7C3AED',
+    'button-lg-primary-text': '#F5F3FF',
+    'button-lg-secondary-bg': '#F5F3FF',
+    'button-lg-secondary-text': '#2E1065',
+    'button-lg-tertiary-bg': '#2E1065',
+    'button-lg-tertiary-text': '#C4B5FD',
+    'button-md-primary-bg': '#7C3AED',
+    'button-md-primary-text': '#F5F3FF',
+    'button-md-secondary-bg': '#F5F3FF',
+    'button-md-secondary-text': '#2E1065',
+    'button-md-tertiary-bg': '#2E1065',
+    'button-md-tertiary-text': '#C4B5FD',
+    'button-sm-primary-bg': '#7C3AED',
+    'button-sm-primary-text': '#F5F3FF',
+    'button-sm-secondary-bg': '#F5F3FF',
+    'button-sm-secondary-text': '#2E1065',
+    'button-sm-tertiary-bg': '#2E1065',
+    'button-sm-tertiary-text': '#C4B5FD',
+    'input-bg': '#1E1033',
+    'input-placeholder': '#6D28D9',
+    'input-text': '#EDE9FE',
+    'input-selection': '#C4B5FD',
+    'menu-bg': '#1E1033A8',
+    'menu-text': '#F5F3FFA8',
+    'menu-backdrop': '#F5F3FF1A',
+    'modal-backdrop': '#1E103354',
   },
 }
 
@@ -140,17 +139,17 @@ function SwapWidgetInner(_props: SwapWidgetProps) {
 
 function SwapWidgetFallback() {
   return (
-    <div className="rounded-lg border border-white/20 bg-white/5 p-6 text-center">
-      <p className="mb-3 text-gray-300">
+    <div className="rounded-lg border border-border bg-muted p-6 text-center">
+      <p className="mb-3 text-foreground">
         No se pudo cargar el widget de intercambio.
       </p>
-      <p className="text-sm text-gray-400">
+      <p className="text-sm text-muted-foreground">
         Puedes obtener COPm directamente en{' '}
         <a
           href="https://app.squidrouter.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-400 underline hover:text-blue-300"
+          className="text-brand-400 underline hover:text-brand-300"
         >
           Squid Router
         </a>{' '}
@@ -159,7 +158,7 @@ function SwapWidgetFallback() {
           href="https://app.uniswap.org"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-400 underline hover:text-blue-300"
+          className="text-brand-400 underline hover:text-brand-300"
         >
           Uniswap
         </a>
