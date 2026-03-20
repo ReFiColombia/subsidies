@@ -12,5 +12,5 @@ celo = { key = "${CELOSCAN_API_KEY}", url = "https://api.celoscan.io/api" }
 
 [rpc_endpoints]
 anvil = "http://127.0.0.1:8545"
-alfajores = "https://alfajores-forno.celo-testnet.org"
-celo = "https://rpc.ankr.com/celo"
+alfajores = "${ALFAJORES_RPC_URL}"
+celo = "${CELO_RPC_URL}"
