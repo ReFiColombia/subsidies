@@ -1,5 +1,5 @@
 import { CardHeader, CardTitle } from '@/components/ui/card';
-import { secondsToDays } from '@/utils';
+import { secondsToDays } from '@/lib/utils';
 
 type DescriptionProps = {
   isWhiteListed: boolean;
@@ -8,7 +8,7 @@ type DescriptionProps = {
   claimInterval: bigint;
 };
 
-function Description({
+export function Description({
   isWhiteListed,
   isAbleToClaim,
   lastClaimed,
@@ -52,4 +52,3 @@ function Description({
   );
 }
 
-export default Description;

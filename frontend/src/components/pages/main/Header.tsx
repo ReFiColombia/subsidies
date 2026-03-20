@@ -1,4 +1,4 @@
-import { secondsToDays } from '@/utils';
+import { secondsToDays } from '@/lib/utils';
 import { formatUnits } from 'viem';
 import { Button } from '@/components/ui/button';
 
@@ -10,7 +10,7 @@ type HeaderProps = {
   valueToClaim: bigint;
 };
 
-function Header({
+export function Header({
   isWhiteListed,
   isAbleToClaim,
   lastClaimed,
@@ -71,4 +71,3 @@ function Header({
   return <div className='w-full'>{getHeaderMessage()}</div>;
 }
 
-export default Header;
