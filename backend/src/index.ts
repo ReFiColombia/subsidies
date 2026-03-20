@@ -3,12 +3,26 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import { isAddress } from 'viem';
+import { DuneClient } from '@duneanalytics/client-sdk';
 
 dotenv.config();
 
 const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3001;
+
+// Dune Analytics
+const dune = new DuneClient(process.env.DUNE_API_KEY ?? '');
+const DUNE_QUERY_STATS = 6272760;
+const DUNE_QUERY_MONTHLY = 6272762;
+const DUNE_CACHE_TTL = 60 * 60 * 1000; // 1 hour
+
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+const duneCache: Record<string, CacheEntry<unknown>> = {};
 
 app.use(cors());
 app.use(express.json());
@@ -190,6 +204,64 @@ app.post('/api/beneficiaries/batch', async (req, res) => {
     res.json(beneficiaries);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch beneficiaries' });
+  }
+});
+
+// Dune Analytics: Program Stats (funds added, distributed, recipients, balance)
+app.get('/api/dune/stats', async (req, res) => {
+  try {
+    const cached = duneCache['stats'];
+    if (cached && Date.now() - cached.timestamp < DUNE_CACHE_TTL) {
+      return res.json(cached.data);
+    }
+
+    const result = await dune.getLatestResult({ queryId: DUNE_QUERY_STATS });
+    const row = result.result?.rows?.[0];
+
+    if (!row) {
+      return res.status(404).json({ error: 'No data available' });
+    }
+
+    const data = {
+      fundsAdded: Number(row['Funds Added']),
+      fundsDistributed: Number(row['Distributed']),
+      recipients: Number(row['Recipients']),
+      contractBalance: Number(row['Delta (Added - Distributed)']),
+    };
+
+    duneCache['stats'] = { data, timestamp: Date.now() };
+    res.json(data);
+  } catch (error: any) {
+    console.error('Dune stats error:', error.message);
+    res.status(500).json({ error: 'Failed to fetch Dune stats' });
+  }
+});
+
+// Dune Analytics: Monthly Subsidies Distributed
+app.get('/api/dune/monthly', async (req, res) => {
+  try {
+    const cached = duneCache['monthly'];
+    if (cached && Date.now() - cached.timestamp < DUNE_CACHE_TTL) {
+      return res.json(cached.data);
+    }
+
+    const result = await dune.getLatestResult({ queryId: DUNE_QUERY_MONTHLY });
+    const rows = result.result?.rows;
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ error: 'No data available' });
+    }
+
+    const data = rows.map((row: Record<string, unknown>) => ({
+      month: row['Month'] as string,
+      distributed: Number(row['Distributed']),
+    }));
+
+    duneCache['monthly'] = { data, timestamp: Date.now() };
+    res.json(data);
+  } catch (error: any) {
+    console.error('Dune monthly error:', error.message);
+    res.status(500).json({ error: 'Failed to fetch Dune monthly data' });
   }
 });
 
