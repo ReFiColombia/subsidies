@@ -10,7 +10,7 @@ interface DonationReceiptProps {
   onReset: () => void;
 }
 
-export default function DonationReceipt({ amount, txHash, onReset }: DonationReceiptProps) {
+export function DonationReceipt({ amount, txHash, onReset }: DonationReceiptProps) {
   useEffect(() => {
     confetti({
       particleCount: 100,

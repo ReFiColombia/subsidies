@@ -7,7 +7,7 @@ type InfoProps = {
   totalClaimed: bigint;
 }
 
-function Info({ isWhiteListed, lastClaimed, totalClaimed}: InfoProps) {
+export function Info({ isWhiteListed, lastClaimed, totalClaimed}: InfoProps) {
   const lastClaimedDate = new Date(Number(lastClaimed) * 1000)
   return (
     <CardContent className="space-y-3 text-center pt-6 pb-4">
@@ -24,4 +24,3 @@ function Info({ isWhiteListed, lastClaimed, totalClaimed}: InfoProps) {
   )
 }
 
-export default Info

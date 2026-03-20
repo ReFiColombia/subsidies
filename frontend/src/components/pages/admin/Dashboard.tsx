@@ -1,8 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
-import DailyClaimsCard from './DailyClaimsCard';
-import BeneficiariesPanel from './BeneficiariesPanel';
+import { DailyClaimsCard } from './DailyClaimsCard';
+import { BeneficiariesPanel } from './BeneficiariesPanel';
 
-function Dashboard() {
+export function Dashboard() {
   return (
     <Tabs defaultValue="claims" className="w-full h-full flex flex-col">
       <TabsList className="grid w-full grid-cols-2 p-1 gap-x-2 bg-gray-100 rounded-xl mb-4">
@@ -19,4 +19,3 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;

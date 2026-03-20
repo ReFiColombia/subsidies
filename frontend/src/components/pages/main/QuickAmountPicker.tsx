@@ -12,7 +12,7 @@ interface QuickAmountPickerProps {
   onSelect: (amount: string) => void;
 }
 
-export default function QuickAmountPicker({ selectedAmount, onSelect }: QuickAmountPickerProps) {
+export function QuickAmountPicker({ selectedAmount, onSelect }: QuickAmountPickerProps) {
   return (
     <div className="grid grid-cols-4 gap-2">
       {QUICK_AMOUNTS.map(({ label, value }) => (

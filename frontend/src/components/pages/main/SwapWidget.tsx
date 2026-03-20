@@ -190,7 +190,7 @@ class SwapWidgetErrorBoundary extends Component<{ children: ReactNode }, ErrorBo
   }
 }
 
-export default function SwapWidget(props: SwapWidgetProps) {
+export function SwapWidget(props: SwapWidgetProps) {
   return (
     <SwapWidgetErrorBoundary>
       <SwapWidgetInner {...props} />

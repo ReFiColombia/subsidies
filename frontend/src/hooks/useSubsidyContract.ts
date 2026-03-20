@@ -1,7 +1,7 @@
 import { SUBSIDY_CONTRACT_ABI, SUBSIDY_CONTRACT_ADDRESS } from '@/constants'
 import { useReadContracts } from 'wagmi'
 
-function useSubsidyContract(address?: string) {
+export function useSubsidyContract(address?: string) {
 
     const { data } = useReadContracts({
         contracts: [
@@ -41,4 +41,3 @@ function useSubsidyContract(address?: string) {
 
 }
 
-export default useSubsidyContract

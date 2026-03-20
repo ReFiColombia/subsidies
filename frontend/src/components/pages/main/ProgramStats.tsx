@@ -30,7 +30,7 @@ const chartConfig = {
   },
 };
 
-export default function ProgramStats() {
+export function ProgramStats() {
   const { data: stats, isLoading: statsLoading } = useQuery<DuneStats>({
     queryKey: ['dune-stats'],
     queryFn: () => fetch(`${API_URL}/api/dune/stats`).then((r) => r.json()),

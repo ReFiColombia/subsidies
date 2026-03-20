@@ -19,7 +19,7 @@ const stepOrder: Record<DonationStep, number> = {
   done: 2,
 };
 
-export default function DonationProgress({ currentStep }: DonationProgressProps) {
+export function DonationProgress({ currentStep }: DonationProgressProps) {
   if (currentStep === 'idle') return null;
 
   const currentIndex = stepOrder[currentStep];
