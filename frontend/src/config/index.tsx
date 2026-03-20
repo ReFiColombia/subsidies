@@ -11,7 +11,7 @@ if (!projectId) {
 export const metadata = {
   name: 'Subsidios ReFi Colombia',
   description: 'Subsidios ReFi Colombia module',
-  url: 'https://subsidios.refimcolombia.org',
+  url: 'https://subsidios.reficolombia.org',
   icons: ['https://avatars.githubusercontent.com/u/179229932'],
 }
 
@@ -23,3 +23,4 @@ export const wagmiAdapter = new WagmiAdapter({
 })
 
 export const config = wagmiAdapter.wagmiConfig
+image.png
