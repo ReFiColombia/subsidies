@@ -43,7 +43,7 @@ function Calendar({
             : '[&:has([aria-selected])]:rounded-md'
         ),
         day: cn(
-          'h-8 w-8 p-0 font-normal rounded transition-colors bg-white text-gray-900 hover:bg-gray-100 aria-selected:bg-cyan-600 aria-selected:text-white'
+          'h-8 w-8 p-0 font-normal rounded transition-colors bg-card text-card-foreground hover:bg-muted aria-selected:bg-primary aria-selected:text-primary-foreground'
         ),
         day_range_start: 'day-range-start',
         day_range_end: 'day-range-end',

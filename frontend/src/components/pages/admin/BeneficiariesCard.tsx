@@ -230,12 +230,12 @@ export function BeneficiariesCard() {
               <div className="space-y-2">
                 <p>La operación ha sido procesada correctamente.</p>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500">Hash:</span>
+                  <span className="text-xs text-muted-foreground">Hash:</span>
                   <a
                     href={celoscanUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded bg-gray-100 px-2 py-1 font-mono text-xs text-blue-600 transition-colors hover:bg-gray-200 hover:text-blue-800"
+                    className="rounded bg-muted px-2 py-1 font-mono text-xs text-brand-400 transition-colors hover:bg-brand-800 hover:text-brand-300"
                   >
                     {hash.slice(0, 10)}...{hash.slice(-8)}
                   </a>
