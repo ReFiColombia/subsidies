@@ -12,22 +12,28 @@ This program allows registered beneficiaries to claim a fixed amount of cCOP at 
 
 ```
 subsidies/
-├── frontend/                — Vite + React + wagmi (Celo)
-│   ├── README.md            — Components, env vars, Vercel deployment
+├── README.md                          ← Project entry point
+├── CONTRIBUTING.md                    ← Setup, branch conventions, PR process
+├── LICENSE                            ← MIT
+│
+├── frontend/                          ← Vite + React + wagmi (Celo)
+│   ├── README.md                      ← Components, env vars, Vercel deployment
 │   └── .env.example
-├── backend/                 — Express + Prisma + Dune Analytics
-│   ├── README.md            — API endpoints, database, Vercel deployment
+│
+├── backend/                           ← Express + Prisma + Dune Analytics
+│   ├── README.md                      ← API endpoints, database, Vercel deployment
 │   └── .env.example
-├── smart-contracts/         — Foundry (Solidity ^0.8.28)
-│   ├── README.md            — Contract registry, V1/V2 docs, auto-swap
+│
+├── smart-contracts/                   ← Foundry (Solidity ^0.8.28)
+│   ├── README.md                      ← Contract registry, V1/V2 docs, auto-swap
 │   └── .env.example
-├── subgraph/                — The Graph (Celo Mainnet)
-│   └── README.md            — Indexed events, schema, grafting
-├── docs/
-│   ├── BRANDKIT.md          — Typography & design tokens
-│   └── superpowers/         — Design specs & implementation plans
-├── CONTRIBUTING.md          — Setup, branches, PR process, code style
-└── LICENSE                  — MIT
+│
+├── subgraph/                          ← The Graph (Celo Mainnet)
+│   └── README.md                      ← Indexed events, schema, grafting
+│
+└── docs/
+    ├── BRANDKIT.md                    ← Typography & design tokens
+    └── superpowers/                   ← Design specs & implementation plans
 ```
 
 Each package has its own README with setup instructions and detailed documentation.
