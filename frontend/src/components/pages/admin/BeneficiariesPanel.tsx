@@ -1,7 +1,7 @@
 import { getBuiltGraphSDK } from '@graphclient'
 import { useQuery } from '@tanstack/react-query'
-import { Check,Edit, Save, Search, Settings2, X } from 'lucide-react'
-import { useCallback,useEffect, useMemo, useState } from 'react'
+import { Check, Edit, Save, Search, Settings2, X } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { formatUnits, isAddress } from 'viem'
 
 import { Button } from '@/components/ui/button'

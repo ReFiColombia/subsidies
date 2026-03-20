@@ -2,7 +2,7 @@ import { useAppKitAccount } from '@reown/appkit/react'
 import { Link, useLocation } from 'react-router'
 import { useReadContract } from 'wagmi'
 
-import { SUBSIDY_CONTRACT_ABI,SUBSIDY_CONTRACT_ADDRESS } from '@/constants'
+import { SUBSIDY_CONTRACT_ABI, SUBSIDY_CONTRACT_ADDRESS } from '@/constants'
 
 import { Button } from '../ui/button'
 

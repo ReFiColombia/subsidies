@@ -338,7 +338,9 @@ export function BeneficiariesCard() {
                 />
               </div>
               <div>
-                <Label className="mb-2 text-muted-foreground">Responsable</Label>
+                <Label className="mb-2 text-muted-foreground">
+                  Responsable
+                </Label>
                 <Input
                   name="responsable"
                   placeholder="Nombre del responsable"

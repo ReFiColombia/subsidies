@@ -5,7 +5,7 @@ import { ToastAction } from '@radix-ui/react-toast'
 import { useAppKitAccount } from '@reown/appkit/react'
 import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
-import { useWaitForTransactionReceipt,useWriteContract } from 'wagmi'
+import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
 
 import { Header } from '@/components/pages/main/Header'
 import { Button } from '@/components/ui/button'

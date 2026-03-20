@@ -1,6 +1,6 @@
 import { getBuiltGraphSDK } from '@graphclient'
 import { useQuery } from '@tanstack/react-query'
-import { Heart,Users } from 'lucide-react'
+import { Heart, Users } from 'lucide-react'
 import { formatUnits } from 'viem'
 
 const sdk = getBuiltGraphSDK()

@@ -1,5 +1,5 @@
 import confetti from 'canvas-confetti'
-import { ArrowLeft,ExternalLink, Share2 } from 'lucide-react'
+import { ArrowLeft, ExternalLink, Share2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { formatUnits } from 'viem'
 

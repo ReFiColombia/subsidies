@@ -1,7 +1,7 @@
 import { getReferralTag, submitReferral } from '@divvi/referral-sdk'
-import { ArrowLeftRight,Loader2 } from 'lucide-react'
+import { ArrowLeftRight, Loader2 } from 'lucide-react'
 import { lazy, Suspense, useState } from 'react'
-import { erc20Abi, formatUnits,parseUnits } from 'viem'
+import { erc20Abi, formatUnits, parseUnits } from 'viem'
 import {
   useAccount,
   usePublicClient,
