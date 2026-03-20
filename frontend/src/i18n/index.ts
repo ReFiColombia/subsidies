@@ -25,7 +25,7 @@ i18n
       escapeValue: false,
     },
     ns: ['common', 'main'],
-    defaultNs: 'common',
+    defaultNS: 'common',
   })
 
 i18n.on('languageChanged', (lng) => {
