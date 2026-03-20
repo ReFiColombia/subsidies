@@ -1,6 +1,6 @@
 import { getReferralTag, submitReferral } from '@divvi/referral-sdk'
 import { ArrowLeftRight, Loader2 } from 'lucide-react'
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { erc20Abi, formatUnits, parseUnits } from 'viem'
 import {
@@ -47,6 +47,17 @@ export function UserFundsCard() {
     amount: bigint
     txHash: string
   } | null>(null)
+
+  useEffect(() => {
+    if (showSwapWidget) {
+      document.body.classList.add('overflow-hidden')
+    } else {
+      document.body.classList.remove('overflow-hidden')
+    }
+    return () => {
+      document.body.classList.remove('overflow-hidden')
+    }
+  }, [showSwapWidget])
 
   const { writeContractAsync, isPending } = useWriteContract({
     mutation: {
@@ -283,7 +294,7 @@ export function UserFundsCard() {
         {/* Swap Widget Popup */}
         {showSwapWidget && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
             onClick={() => setShowSwapWidget(false)}
           >
             <div onClick={(e) => e.stopPropagation()}>
