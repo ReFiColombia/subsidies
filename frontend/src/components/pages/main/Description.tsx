@@ -22,7 +22,7 @@ export function Description({
     if (!isWhiteListed) return null
     else if (isAbleToClaim)
       return (
-        <span className="block text-center text-muted-foreground">
+        <span className="block text-center text-sm text-muted-foreground">
           Puedes reclamar tu subsidio cada {claimIntervalInDays} días.
         </span>
       )
