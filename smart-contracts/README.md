@@ -141,6 +141,9 @@ cp .env.example .env
 | `CELO_RPC_URL` | Celo mainnet RPC (default: `https://forno.celo.org`) |
 | `ALFAJORES_RPC_URL` | Celo Alfajores RPC |
 | `CELOSCAN_API_KEY` | For contract verification on Celoscan |
+| `TOKEN_ADDRESS` | cCOP token address (required by deploy script) |
+| `SWAP_ROUTER_ADDRESS` | Uniswap V3 SwapRouter address (required by deploy script) |
+| `INITIAL_OWNER` | Contract owner address (optional, defaults to deployer) |
 
 ### Deploy
 
