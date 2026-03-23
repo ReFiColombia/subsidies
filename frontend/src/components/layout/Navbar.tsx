@@ -17,7 +17,11 @@ export function NavBar() {
     functionName: 'owner',
   })
 
-  const isAdmin = isConnected && data && address && data === address
+  const isAdmin =
+    isConnected &&
+    !!data &&
+    !!address &&
+    (data as string).toLowerCase() === address.toLowerCase()
 
   const location = useLocation()
 
