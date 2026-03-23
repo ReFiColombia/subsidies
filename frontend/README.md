@@ -17,14 +17,19 @@ npm run dev             # http://localhost:5173
 - **ProgramStats** — Displays on-chain program stats (funds added/distributed, beneficiaries, balance) fetched from the backend's Dune Analytics endpoints. Includes a monthly distribution bar chart.
 - **SwapWidget** — Squid Router cross-chain swap widget, pre-configured to output cCOP on Celo. Wrapped in an error boundary with a fallback UI.
 - **UserFundsCard** — Main user interface for beneficiaries to view their status and claim subsidies.
+- **DonationStats** — Donation statistics display.
+- **DonationProgress** — Donation progress bar with responsive layout.
+- **DonationReceipt** — Donation confirmation with confetti celebration effect.
+- **QuickAmountPicker** — Preset donation amounts (2-column grid on mobile).
+- **Header** — Main page header with claim status.
+- **LanguageToggle** — EN/ES language switcher.
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `VITE_PROJECT_ID` | Yes | Reown (WalletConnect) project ID |
-| `VITE_API_URL` | No | Backend API URL (default: `http://localhost:3001`) |
-| `VITE_SQUID_INTEGRATOR_ID` | No | Squid Router integrator ID (default: `squid-swap-widget`) |
+| Variable          | Required | Description                                       |
+|-------------------|----------|---------------------------------------------------|
+| `VITE_PROJECT_ID` | Yes      | Reown (WalletConnect) project ID                  |
+| `VITE_API_URL`    | No       | Backend API URL (default: `http://localhost:3001`) |
 
 **Important:** `VITE_*` variables are baked into the bundle at build time. Changing them in Vercel requires a redeploy to take effect.
 
@@ -35,15 +40,30 @@ The frontend is deployed on Vercel with SPA routing configured in `vercel.json`.
 - Set all `VITE_*` environment variables in the Vercel dashboard
 - The `x-vercel-disable-toolbar` header is set to prevent CSP conflicts with the Squid widget's SES lockdown
 
+## PWA
+
+The app is installable as a Progressive Web App. Files in `public/`:
+
+- `manifest.json` — app name, icons, display mode, theme color
+- `sw.js` — minimal service worker (fetch passthrough)
+- `icons/` — 192px and 512px app icons
+
+Service worker registration is in `index.html`.
+
+## i18n
+
+Supports English and Spanish via `i18next` + `react-i18next`. Locale files are in `src/i18n/locales/{en,es}/`. Language detection is automatic via `i18next-browser-languagedetector`.
+
 ## Divvi Integration
 
 The app registers with [Divvi Protocol](https://divvi.xyz) using consumer address `0x302E2A0D4291ac14Aa1160504cA45A0A1F2E7a5c`.
 
 ## Tech Stack
 
-- **Build:** Vite + SWC
-- **UI:** React 18, TailwindCSS, shadcn/ui, Lucide icons, Recharts
+- **Build:** Vite + React (Babel)
+- **UI:** React 18, TailwindCSS, shadcn/ui, Lucide icons, Recharts, canvas-confetti
 - **Web3:** wagmi, viem, Reown AppKit (WalletConnect)
 - **Swap:** Squid Router widget (`@0xsquid/widget`)
 - **Data:** TanStack React Query
-- **Linting:** Biome
+- **i18n:** i18next, react-i18next
+- **Linting:** ESLint + Prettier

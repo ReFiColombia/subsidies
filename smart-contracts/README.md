@@ -72,7 +72,7 @@ Inherited from OpenZeppelin: `owner()`, `transferOwnership(address)`, `renounceO
 
 ## Auto-Swap Mechanism
 
-When `claimSubsidy()` is called, the contract unconditionally attempts to swap non-cCOP tokens to cCOP:
+When `claimSubsidy()` is called, the contract attempts to swap non-cCOP tokens to cCOP without checking the existing cCOP balance first:
 
 1. Iterates `tokens[]` in **reverse order** (highest index = lowest priority = spent first)
 2. For each token, calls `_swapTokenToCCop()` using Uniswap V3 `exactOutputSingle` — requests exactly `subsidyClaimableAmount` of cCOP as output
@@ -103,7 +103,7 @@ struct SubsidyProgramStorage {
 }
 ```
 
-The storage slot is computed from `keccak256("openzeppelin.storage.subsidy_program")`.
+The storage slot follows the ERC-7201 namespaced storage pattern: `keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.subsidy_program")) - 1)) & ~bytes32(uint256(0xff))`.
 
 ## Development
 
@@ -141,15 +141,18 @@ cp .env.example .env
 | `CELO_RPC_URL` | Celo mainnet RPC (default: `https://forno.celo.org`) |
 | `ALFAJORES_RPC_URL` | Celo Alfajores RPC |
 | `CELOSCAN_API_KEY` | For contract verification on Celoscan |
+| `TOKEN_ADDRESS` | cCOP token address (required by deploy script) |
+| `SWAP_ROUTER_ADDRESS` | Uniswap V3 SwapRouter address (required by deploy script) |
+| `INITIAL_OWNER` | Contract owner address (optional, defaults to deployer) |
 
 ### Deploy
 
 ```bash
-# Alfajores testnet
-forge script script/DeploySubsidyProgram.s.sol --rpc-url alfajores --broadcast --verify
+# Alfajores testnet (uses mock tokens and mock swap router)
+forge script script/DeploySubsidyProgram.s.sol --target-contract DeploySubsidyProgramTestnet --rpc-url alfajores --broadcast --verify
 
-# Celo mainnet
-forge script script/DeploySubsidyProgram.s.sol --rpc-url celo --broadcast --verify
+# Celo mainnet (requires TOKEN_ADDRESS and SWAP_ROUTER_ADDRESS in .env)
+forge script script/DeploySubsidyProgram.s.sol --target-contract DeploySubsidyProgram --rpc-url celo --broadcast --verify
 ```
 
 ### Verify

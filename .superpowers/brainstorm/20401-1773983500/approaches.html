@@ -1,0 +1,63 @@
+<h2>Responsive + PWA: Two Approaches</h2>
+<p class="subtitle">The claim page is already mostly well-structured. Here's what each approach covers.</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Targeted Fixes + Basic PWA (Recommended)</h3>
+      <p>Fix the 4-5 specific mobile issues + make it installable as a PWA. Minimal changes, maximum impact.</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Includes</h4>
+          <ul>
+            <li>QuickAmountPicker: 2 cols on mobile, 4 on sm+</li>
+            <li>Navbar: tighten spacing for small phones</li>
+            <li>Swap widget overlay: add dark backdrop + scroll lock</li>
+            <li>DonationProgress: stack vertically on small screens</li>
+            <li>PWA manifest.json with app metadata</li>
+            <li>App icons (192x192, 512x512) from existing logo</li>
+            <li>iOS meta tags (apple-mobile-web-app-capable, theme-color)</li>
+            <li>Proper viewport for PWA (viewport-fit=cover)</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Skips</h4>
+          <ul>
+            <li>No responsive card padding changes</li>
+            <li>No safe-area-inset handling for notched phones</li>
+            <li>No splash screen images</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Polished Mobile + Full PWA</h3>
+      <p>Everything in A, plus extra mobile polish and full PWA experience with splash screens.</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Adds on top of A</h4>
+          <ul>
+            <li>Responsive card padding (p-4 sm:p-6 instead of fixed p-6)</li>
+            <li>Safe-area-inset padding for iPhone notch/Dynamic Island</li>
+            <li>PWA splash screen images for iOS</li>
+            <li>Standalone display with status bar theming</li>
+            <li>Chart tooltip responsive width</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Trade-offs</h4>
+          <ul>
+            <li>More files touched = more review needed</li>
+            <li>Splash screen images need manual creation per device size</li>
+            <li>Safe-area changes could affect desktop layout if not careful</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

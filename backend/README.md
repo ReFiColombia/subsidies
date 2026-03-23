@@ -84,6 +84,8 @@ model Beneficiary {
   responsable String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([address])
 }
 ```
 
@@ -113,7 +115,7 @@ The backend is deployed on Vercel as a serverless function.
 ### Important Notes
 
 - **Deployment Protection** must be disabled for the backend project in Vercel settings, otherwise API calls from the frontend will receive 401 responses.
-- The `vercel-build` script runs `prisma generate && prisma migrate deploy && tsc`.
+- The `vercel-build` script runs `prisma generate && prisma migrate deploy && npm run build`.
 - The Prisma schema already uses `postgresql` as the provider.
 
 ## Tech Stack
