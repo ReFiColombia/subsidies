@@ -300,12 +300,16 @@ export function BeneficiariesPanel() {
     if (!sortedBeneficiaries) return []
 
     return sortedBeneficiaries.filter((beneficiary) => {
-      // Search filter
-      if (
-        searchQuery &&
-        !beneficiary.id.toLowerCase().includes(searchQuery.toLowerCase())
-      ) {
-        return false
+      // Search filter (address or name)
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase()
+        const name = beneficiaryLookup.get(beneficiary.id.toLowerCase())?.name
+        if (
+          !beneficiary.id.toLowerCase().includes(q) &&
+          !(name && name.toLowerCase().includes(q))
+        ) {
+          return false
+        }
       }
 
       // Status filter
@@ -339,6 +343,7 @@ export function BeneficiariesPanel() {
     dateRange,
     amountThreshold,
     amountComparison,
+    beneficiaryLookup,
   ])
 
   const requestSort = (key: sortable_fields) => {
@@ -581,7 +586,7 @@ export function BeneficiariesPanel() {
                   <div className="relative flex-1">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-brand-400" />
                     <Input
-                      placeholder="Buscar por dirección..."
+                      placeholder="Buscar por nombre o dirección..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="h-10 border-2 border-primary bg-card pl-10 font-medium text-brand-400 placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
