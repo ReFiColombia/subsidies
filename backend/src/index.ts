@@ -265,17 +265,23 @@ app.get('/api/dune/monthly', async (req, res) => {
   }
 });
 
-// For Vercel serverless deployment
+// Bind unconditionally for long-running hosts (Railway, local dev).
+// The default export is kept for potential test / serverless reuse.
 export default app;
 
-// For local development
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+const server = app.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`Server listening on 0.0.0.0:${PORT}`);
+});
 
-  process.on('SIGINT', async () => {
+const shutdown = async (signal: string) => {
+  console.log(`Received ${signal}, shutting down...`);
+  server.close(async () => {
     await prisma.$disconnect();
     process.exit(0);
   });
-}
+  // Fallback: force exit after 10s if close hangs.
+  setTimeout(() => process.exit(1), 10_000).unref();
+};
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
