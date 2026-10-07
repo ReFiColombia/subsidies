@@ -39,7 +39,6 @@ Responses are cached for 1 hour.
 | `PUT` | `/api/beneficiaries/:address` | Update a beneficiary |
 | `DELETE` | `/api/beneficiaries/:address` | Delete a beneficiary |
 | `POST` | `/api/beneficiaries/batch` | Batch lookup by address array |
-| `POST` | `/api/seed` | Seed database from `BENEFICIARIES_DATA` env var (temporary) |
 
 #### Create/Update Body
 
@@ -69,7 +68,11 @@ Responses are cached for 1 hour.
 | `POSTGRES_URL` | Yes | PostgreSQL connection string (used by Prisma) |
 | `PORT` | No | Server port (default: `3001`) |
 | `DUNE_API_KEY` | Yes | Dune Analytics API key for program stats |
-| `BENEFICIARIES_DATA` | No | JSON string for seeding via `POST /api/seed` |
+| `BENEFICIARIES_DATA` | No | JSON string used by `npm run seed` |
+| `ADMIN_ADDRESSES` | No | Extra admin wallets, comma separated. The contract owner is always an admin |
+| `SUBSIDY_CONTRACT_ADDRESS` | No | Contract whose owner is the admin. Defaults to the V1 SubsidyProgram |
+| `CELO_RPC_URL` | No | RPC used to read the contract owner. Defaults to forno.celo.org |
+| `ALLOWED_ORIGINS` | No | Extra browser origins allowed to call the API, comma separated |
 
 ## Database
 
@@ -126,3 +129,27 @@ The backend is deployed on Vercel as a serverless function.
 - **Analytics:** Dune Analytics client SDK (1-hour cache)
 - **Validation:** viem (Ethereum address validation)
 - **Language:** TypeScript (tsx for dev, tsc for build)
+
+## Admin access
+
+Beneficiary records hold names and phone numbers, so every `/api/beneficiaries`
+route needs an admin signature. `/health` and `/api/dune/*` stay public.
+
+The caller sends three headers:
+
+| Header | Value |
+|---|---|
+| `x-admin-address` | Admin wallet address |
+| `x-admin-timestamp` | Time of signing, in milliseconds |
+| `x-admin-signature` | Wallet signature over the message below |
+
+```
+ReFi Colombia Subsidies
+Sign to access beneficiary records as an admin.
+Address: <address in lowercase>
+Issued at: <timestamp>
+```
+
+A signature is valid for 8 hours. The wallet must be the owner of the
+SubsidyProgram contract or be listed in `ADMIN_ADDRESSES`. The frontend handles
+this in `src/lib/adminAuth.ts`: the admin signs once per browser session.
