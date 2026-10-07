@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client';
 import { isAddress } from 'viem';
 import { DuneClient } from '@duneanalytics/client-sdk';
 import { allowedOrigins, isAdmin, requireAdmin } from './auth.js';
+import { getMonthlyDistributed, getProgramStats } from './stats.js';
 
 dotenv.config();
 
@@ -189,14 +190,24 @@ app.post('/api/beneficiaries/batch', async (req, res) => {
   }
 });
 
-// Dune Analytics: Program Stats (funds added, distributed, recipients, balance)
+// Program stats (funds added, distributed, recipients, balance).
+// Source: the subsidies subgraph. Falls back to the saved Dune result if the
+// subgraph cannot be reached. The path keeps its old name for the frontend.
 app.get('/api/dune/stats', async (req, res) => {
-  try {
-    const cached = duneCache['stats'];
-    if (cached && Date.now() - cached.timestamp < DUNE_CACHE_TTL) {
-      return res.json(cached.data);
-    }
+  const cached = duneCache['stats'];
+  if (cached && Date.now() - cached.timestamp < DUNE_CACHE_TTL) {
+    return res.json(cached.data);
+  }
 
+  try {
+    const data = await getProgramStats();
+    duneCache['stats'] = { data, timestamp: Date.now() };
+    return res.json(data);
+  } catch (error: any) {
+    console.error('Subgraph stats error, trying Dune:', error.message);
+  }
+
+  try {
     const result = await dune.getLatestResult({ queryId: DUNE_QUERY_STATS });
     const row = result.result?.rows?.[0];
 
@@ -204,29 +215,36 @@ app.get('/api/dune/stats', async (req, res) => {
       return res.status(404).json({ error: 'No data available' });
     }
 
-    const data = {
+    res.json({
       fundsAdded: Number(row['Funds Added']),
       fundsDistributed: Number(row['Distributed']),
       recipients: Number(row['Recipients']),
       contractBalance: Number(row['Delta (Added - Distributed)']),
-    };
-
-    duneCache['stats'] = { data, timestamp: Date.now() };
-    res.json(data);
+    });
   } catch (error: any) {
     console.error('Dune stats error:', error.message);
-    res.status(500).json({ error: 'Failed to fetch Dune stats' });
+    res.status(500).json({ error: 'Failed to fetch program stats' });
   }
 });
 
-// Dune Analytics: Monthly Subsidies Distributed
+// Subsidies distributed per month. Same source and fallback as above.
 app.get('/api/dune/monthly', async (req, res) => {
-  try {
-    const cached = duneCache['monthly'];
-    if (cached && Date.now() - cached.timestamp < DUNE_CACHE_TTL) {
-      return res.json(cached.data);
-    }
+  const cached = duneCache['monthly'];
+  if (cached && Date.now() - cached.timestamp < DUNE_CACHE_TTL) {
+    return res.json(cached.data);
+  }
 
+  try {
+    const data = await getMonthlyDistributed();
+    if (data.length > 0) {
+      duneCache['monthly'] = { data, timestamp: Date.now() };
+      return res.json(data);
+    }
+  } catch (error: any) {
+    console.error('Subgraph monthly error, trying Dune:', error.message);
+  }
+
+  try {
     const result = await dune.getLatestResult({ queryId: DUNE_QUERY_MONTHLY });
     const rows = result.result?.rows;
 
@@ -234,16 +252,15 @@ app.get('/api/dune/monthly', async (req, res) => {
       return res.status(404).json({ error: 'No data available' });
     }
 
-    const data = rows.map((row: Record<string, unknown>) => ({
-      month: row['Month'] as string,
-      distributed: Number(row['Distributed']),
-    }));
-
-    duneCache['monthly'] = { data, timestamp: Date.now() };
-    res.json(data);
+    res.json(
+      rows.map((row: Record<string, unknown>) => ({
+        month: row['Month'] as string,
+        distributed: Number(row['Distributed']),
+      }))
+    );
   } catch (error: any) {
     console.error('Dune monthly error:', error.message);
-    res.status(500).json({ error: 'Failed to fetch Dune monthly data' });
+    res.status(500).json({ error: 'Failed to fetch monthly data' });
   }
 });
 
