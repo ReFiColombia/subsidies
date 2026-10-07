@@ -1,5 +1,5 @@
 {
-  "name": "refimedubi-celo",
+  "name": "refi-colombia-subsidies",
   "license": "UNLICENSED",
   "engines": {
     "node": "22.x"
@@ -7,10 +7,10 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ refimedubi-celo",
-    "create-local": "graph create --node http://localhost:8020/ refimedubi-celo",
-    "remove-local": "graph remove --node http://localhost:8020/ refimedubi-celo",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 refimedubi-celo",
+    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ refi-colombia-subsidies",
+    "create-local": "graph create --node http://localhost:8020/ refi-colombia-subsidies",
+    "remove-local": "graph remove --node http://localhost:8020/ refi-colombia-subsidies",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 refi-colombia-subsidies",
     "test": "graph test"
   },
   "dependencies": {

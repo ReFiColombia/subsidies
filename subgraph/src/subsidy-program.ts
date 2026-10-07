@@ -1,4 +1,4 @@
-import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts"
+import { Bytes } from "@graphprotocol/graph-ts"
 import {
   BeneficiaryAdded as BeneficiaryAddedEvent,
   BeneficiaryRemoved as BeneficiaryRemovedEvent,
@@ -9,105 +9,33 @@ import {
   TokenAdded as TokenAddedEvent,
 } from "../generated/SubsidyProgram/SubsidyProgram"
 import {
-  Beneficiary,
-  Funds,
-  DailyClaim,
-  TokenBalance,
-} from "../generated/schema"
+  addBeneficiary,
+  removeBeneficiary,
+  recordClaim,
+  getOrCreateFunds,
+  getOrCreateTokenBalance,
+} from "./helpers"
+
+// Handlers for the V2 contract (UUPS proxy, multi-token).
 
 const BASE_TOKEN = Bytes.fromHexString("0x8A567e2aE79CA692Bd748aB832081C45de4041eA")
 
-// Helper function to get or create DailyClaim entity
-function getOrCreateDailyClaim(timestamp: BigInt): DailyClaim {
-  let day = timestamp.toI32() / 86400 // Convert to days
-  let id = day.toString()
-  let dailyClaim = DailyClaim.load(id)
-  
-  if (!dailyClaim) {
-    dailyClaim = new DailyClaim(id)
-    dailyClaim.date = timestamp
-    dailyClaim.totalClaims = BigInt.zero()
-    dailyClaim.totalAmount = BigInt.zero()
-    dailyClaim.beneficiaries = []
-  }
-  
-  return dailyClaim
-}
-
-function getOrCreateFunds(address: Address): Funds {
-  let funds = Funds.load(address)
-  if (!funds) {
-    funds = new Funds(address)
-    funds.totalSupplied = BigInt.zero()
-    funds.totalWithdrawn = BigInt.zero()
-    funds.totalClaimed = BigInt.zero()
-  }
-  return funds
-}
-
-function getOrCreateTokenBalance(funds: Funds, token: Bytes): TokenBalance {
-  let tb = TokenBalance.load(token)
-  if (!tb) {
-    tb = new TokenBalance(token)
-    tb.token = token
-    tb.balance = BigInt.zero()
-    tb.totalSwapped = BigInt.zero()
-    tb.totalWithdrawn = BigInt.zero()
-    tb.funds = funds.id
-  }
-  return tb
-}
-
 export function handleBeneficiaryAdded(event: BeneficiaryAddedEvent): void {
-  let entity = new Beneficiary(
-    event.params.beneficiaryAddress
-  )
-
-  entity.totalClaimed = BigInt.zero()
-  entity.dateAdded = event.block.timestamp
-  entity.dateRemoved = null
-  entity.isActive = true
-
-  entity.save()
+  addBeneficiary(event.params.beneficiaryAddress, event.block.timestamp)
 }
 
 export function handleBeneficiaryRemoved(event: BeneficiaryRemovedEvent): void {
-  let entity = Beneficiary.load(event.params.beneficiaryAddress)
-
-  if (!entity) return
-
-  entity.isActive = false
-  entity.dateRemoved = event.block.timestamp
-
-  entity.save()
+  removeBeneficiary(event.params.beneficiaryAddress, event.block.timestamp)
 }
 
 export function handleSubsidyClaimed(event: SubsidyClaimedEvent): void {
-  let entity = Beneficiary.load(event.params.beneficiaryAddress)
-  let funds = getOrCreateFunds(event.address)
-  
-  if (!entity) return
-
-  entity.totalClaimed = entity.totalClaimed.plus(event.params.amount)
-  funds.totalClaimed = funds.totalClaimed.plus(event.params.amount)
-  funds.contractBalance = event.params.contractBalance
-
-  entity.save()
-  funds.save()
-  
-  // Update daily claims
-  let dailyClaim = getOrCreateDailyClaim(event.block.timestamp)
-  dailyClaim.totalClaims = dailyClaim.totalClaims.plus(BigInt.fromI32(1))
-  dailyClaim.totalAmount = dailyClaim.totalAmount.plus(event.params.amount)
-  
-  // Add beneficiary to the list if not already present
-  let beneficiaries = dailyClaim.beneficiaries
-  if (!beneficiaries.includes(event.params.beneficiaryAddress)) {
-    beneficiaries.push(event.params.beneficiaryAddress)
-    dailyClaim.beneficiaries = beneficiaries
-  }
-  
-  dailyClaim.save()
+  recordClaim(
+    event.address,
+    event.params.beneficiaryAddress,
+    event.params.amount,
+    event.params.contractBalance,
+    event.block.timestamp
+  )
 }
 
 export function handleFundsAdded(event: FundsAddedEvent): void {
