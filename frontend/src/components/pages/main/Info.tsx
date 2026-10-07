@@ -28,7 +28,7 @@ export function Info({ isWhiteListed, lastClaimed, totalClaimed }: InfoProps) {
               maximumFractionDigits: 0,
             }).format(Number(formatUnits(totalClaimed, 18)))
           : '0'}{' '}
-        cCOP
+        COPm
       </p>
     </CardContent>
   )

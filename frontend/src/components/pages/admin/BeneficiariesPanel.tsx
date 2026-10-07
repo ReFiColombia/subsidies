@@ -516,7 +516,7 @@ export function BeneficiariesPanel() {
                             ) / sortedBeneficiaries.length
                           : 0
                       )}{' '}
-                      cCOP
+                      COPm
                     </p>
                   </div>
                   <div className="flex h-full flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
@@ -570,7 +570,7 @@ export function BeneficiariesPanel() {
                               }).format(
                                 Number(formatUnits(b.totalClaimed, 18))
                               )}{' '}
-                              cCOP
+                              COPm
                             </span>
                           </li>
                         )
@@ -1026,7 +1026,7 @@ export function BeneficiariesPanel() {
                                     formatUnits(beneficiary.totalClaimed, 18)
                                   )
                                 )}{' '}
-                                cCOP
+                                COPm
                               </TableCell>
                             )}
                           </TableRow>

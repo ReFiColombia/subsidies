@@ -40,7 +40,7 @@ export function DonationStats() {
         <div>
           <p className="text-xs text-muted-foreground">{t('totalDonated')}</p>
           <p className="text-sm font-bold text-foreground">
-            {formattedTotal} cCOP
+            {formattedTotal} COPm
           </p>
         </div>
       </div>
