@@ -17,5 +17,9 @@
   "approvalErrorDescription": "The approval transaction failed.",
   "donationErrorTitle": "Donation error",
   "donationErrorDescription": "The donation transaction failed.",
-  "donationFundsErrorTitle": "Error donating funds"
+  "donationFundsErrorTitle": "Error donating funds",
+  "adminOnlyTitle": "Admins only",
+  "adminConnect": "Connect the ReFi Colombia admin wallet to continue.",
+  "adminDenied": "This wallet does not have access to the admin panel.",
+  "adminChecking": "Checking access..."
 }
