@@ -1,4 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCallback } from 'react'
+import { useAccount, useSignMessage } from 'wagmi'
+
+import { clearAdminProof, getAdminHeaders } from '@/lib/adminAuth'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
@@ -12,25 +16,53 @@ export interface Beneficiary {
   updatedAt: string
 }
 
+
+// fetch for the beneficiaries API. Adds the admin proof to every request and
+// drops a rejected proof so the next request asks the wallet again.
+const useAdminFetch = () => {
+  const { address } = useAccount()
+  const { signMessageAsync } = useSignMessage()
+
+  const adminFetch = useCallback(
+    async (url: string, init: RequestInit = {}): Promise<Response> => {
+      if (!address) throw new Error('Connect the admin wallet first')
+      const adminHeaders = await getAdminHeaders(address, signMessageAsync)
+      const response = await fetch(url, {
+        ...init,
+        headers: { ...(init.headers as Record<string, string>), ...adminHeaders },
+      })
+      if (response.status === 401) clearAdminProof()
+      return response
+    },
+    [address, signMessageAsync]
+  )
+
+  return { adminFetch, address }
+}
+
 // Fetch all beneficiaries
 export const useBeneficiaries = () => {
+  const { adminFetch, address } = useAdminFetch()
   return useQuery({
-    queryKey: ['beneficiaries'],
+    queryKey: ['beneficiaries', address?.toLowerCase()],
     queryFn: async (): Promise<Beneficiary[]> => {
-      const response = await fetch(`${API_BASE_URL}/api/beneficiaries`)
+      const response = await adminFetch(`${API_BASE_URL}/api/beneficiaries`)
       if (!response.ok) throw new Error('Failed to fetch beneficiaries')
       return response.json()
     },
+    enabled: !!address,
+    retry: false,
   })
 }
 
 // Fetch single beneficiary by address
 export const useBeneficiary = (address: string | undefined) => {
+  const { adminFetch, address: admin } = useAdminFetch()
   return useQuery({
     queryKey: ['beneficiary', address?.toLowerCase()],
     queryFn: async (): Promise<Beneficiary> => {
       if (!address) throw new Error('Address is required')
-      const response = await fetch(
+      const response = await adminFetch(
         `${API_BASE_URL}/api/beneficiaries/${address}`
       )
       if (!response.ok) {
@@ -41,16 +73,18 @@ export const useBeneficiary = (address: string | undefined) => {
       }
       return response.json()
     },
-    enabled: !!address,
+    enabled: !!address && !!admin,
+    retry: false,
   })
 }
 
 // Fetch multiple beneficiaries by addresses
 export const useBeneficiariesByAddresses = (addresses: string[]) => {
+  const { adminFetch, address: admin } = useAdminFetch()
   return useQuery({
     queryKey: ['beneficiaries', 'batch', addresses],
     queryFn: async (): Promise<Beneficiary[]> => {
-      const response = await fetch(`${API_BASE_URL}/api/beneficiaries/batch`, {
+      const response = await adminFetch(`${API_BASE_URL}/api/beneficiaries/batch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ addresses }),
@@ -58,13 +92,15 @@ export const useBeneficiariesByAddresses = (addresses: string[]) => {
       if (!response.ok) throw new Error('Failed to fetch beneficiaries')
       return response.json()
     },
-    enabled: addresses.length > 0,
+    enabled: addresses.length > 0 && !!admin,
+    retry: false,
   })
 }
 
 // Create beneficiary
 export const useCreateBeneficiary = () => {
   const queryClient = useQueryClient()
+  const { adminFetch } = useAdminFetch()
 
   return useMutation({
     mutationFn: async (data: {
@@ -73,7 +109,7 @@ export const useCreateBeneficiary = () => {
       phoneNumber?: string
       responsable?: string
     }) => {
-      const response = await fetch(`${API_BASE_URL}/api/beneficiaries`, {
+      const response = await adminFetch(`${API_BASE_URL}/api/beneficiaries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -93,6 +129,7 @@ export const useCreateBeneficiary = () => {
 // Update beneficiary
 export const useUpdateBeneficiary = () => {
   const queryClient = useQueryClient()
+  const { adminFetch } = useAdminFetch()
 
   return useMutation({
     mutationFn: async (data: {
@@ -102,7 +139,7 @@ export const useUpdateBeneficiary = () => {
       responsable?: string | null
     }) => {
       const { address, ...updateData } = data
-      const response = await fetch(
+      const response = await adminFetch(
         `${API_BASE_URL}/api/beneficiaries/${address}`,
         {
           method: 'PUT',
@@ -128,10 +165,11 @@ export const useUpdateBeneficiary = () => {
 // Delete beneficiary
 export const useDeleteBeneficiary = () => {
   const queryClient = useQueryClient()
+  const { adminFetch } = useAdminFetch()
 
   return useMutation({
     mutationFn: async (address: string) => {
-      const response = await fetch(
+      const response = await adminFetch(
         `${API_BASE_URL}/api/beneficiaries/${address}`,
         {
           method: 'DELETE',

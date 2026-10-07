@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import { isAddress } from 'viem';
 import { DuneClient } from '@duneanalytics/client-sdk';
+import { allowedOrigins, requireAdmin } from './auth.js';
 
 dotenv.config();
 
@@ -24,7 +25,7 @@ interface CacheEntry<T> {
 
 const duneCache: Record<string, CacheEntry<unknown>> = {};
 
-app.use(cors());
+app.use(cors({ origin: allowedOrigins() }));
 app.use(express.json());
 
 // Health check
@@ -32,39 +33,9 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// TEMPORARY: One-time seed endpoint - REMOVE AFTER USE
-app.post('/api/seed', async (req, res) => {
-  try {
-    if (!process.env.BENEFICIARIES_DATA) {
-      return res.status(500).json({ error: 'BENEFICIARIES_DATA not configured' });
-    }
-
-    const beneficiaries = JSON.parse(process.env.BENEFICIARIES_DATA);
-    let count = 0;
-
-    for (const beneficiary of beneficiaries) {
-      await prisma.beneficiary.upsert({
-        where: { address: beneficiary.address.toLowerCase() },
-        update: {
-          name: beneficiary.name,
-          responsable: beneficiary.responsable,
-          phoneNumber: beneficiary.phoneNumber,
-        },
-        create: {
-          address: beneficiary.address.toLowerCase(),
-          name: beneficiary.name,
-          responsable: beneficiary.responsable,
-          phoneNumber: beneficiary.phoneNumber,
-        },
-      });
-      count++;
-    }
-
-    res.json({ success: true, message: `Seeded ${count} beneficiaries` });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
-});
+// Beneficiary records hold personal data. Every route below this line needs
+// an admin signature (see auth.ts).
+app.use('/api/beneficiaries', requireAdmin);
 
 // Get all beneficiaries
 app.get('/api/beneficiaries', async (req, res) => {
