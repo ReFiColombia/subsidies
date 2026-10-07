@@ -647,7 +647,7 @@ const refiMedellinUbiTransforms = [];
 const additionalTypeDefs = [] as any[];
 const refiMedellinUbiHandler = new GraphqlHandler({
               name: "refi-medellin-ubi",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/102458/refi-medellin-ubi/version/latest"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/1757108/refi-colombia-subsidies/version/latest"},
               baseDir,
               cache,
               pubsub,
