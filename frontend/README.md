@@ -31,14 +31,14 @@ npm run dev             # http://localhost:5173
 | `VITE_PROJECT_ID` | Yes      | Reown (WalletConnect) project ID                  |
 | `VITE_API_URL`    | No       | Backend API URL (default: `http://localhost:3001`) |
 
-**Important:** `VITE_*` variables are baked into the bundle at build time. Changing them in Vercel requires a redeploy to take effect.
+**Important:** `VITE_*` variables are baked into the bundle at build time. Changing them in Railway requires a redeploy to take effect.
 
-## Deployment (Vercel)
+## Deployment (Railway)
 
-The frontend is deployed on Vercel with SPA routing configured in `vercel.json`.
+The frontend is deployed on Railway from the `main` branch, using `frontend/railway.json`. The build output in `dist/` is served as a single page app with `serve -s`.
 
-- Set all `VITE_*` environment variables in the Vercel dashboard
-- The `x-vercel-disable-toolbar` header is set to prevent CSP conflicts with the Squid widget's SES lockdown
+- Set all `VITE_*` environment variables in the Railway service
+- Production URL: https://subsidios.reficolombia.org
 
 ## PWA
 

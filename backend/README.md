@@ -101,25 +101,19 @@ npm run prisma:studio     # Open database GUI
 npm run seed              # Seed from prisma/beneficiaries.json or BENEFICIARIES_DATA
 ```
 
-## Deployment (Vercel)
+## Deployment (Railway)
 
-The backend is deployed on Vercel as a serverless function.
+The backend is deployed on Railway from the `main` branch, using `backend/railway.json`. It runs as a long-lived Node process next to a Railway Postgres database.
 
-### Steps
+Environment variables in the Railway service:
 
-1. Install Vercel CLI: `npm i -g vercel`
-2. Link project: `vercel link`
-3. Add environment variables in the Vercel dashboard:
-   - `POSTGRES_URL` — Vercel Postgres or an external PostgreSQL connection string
-   - `DUNE_API_KEY` — your Dune Analytics API key
-   - `BENEFICIARIES_DATA` — JSON string of seed data (if needed)
-4. Deploy: `vercel --prod`
+- `POSTGRES_URL`: PostgreSQL connection string (Railway Postgres)
+- `DUNE_API_KEY`: Dune Analytics API key (only used as a fallback for stats)
+- `ADMIN_ADDRESSES`: optional, extra admin wallets (comma separated)
+- `ALLOWED_ORIGINS`: optional, extra sites allowed to call the API (comma separated)
+- `SUBGRAPH_URL`: optional, overrides the subsidies subgraph endpoint
 
-### Important Notes
-
-- **Deployment Protection** must be disabled for the backend project in Vercel settings, otherwise API calls from the frontend will receive 401 responses.
-- The `vercel-build` script runs `prisma generate && prisma migrate deploy && npm run build`.
-- The Prisma schema already uses `postgresql` as the provider.
+Migrations run before each deploy with `prisma migrate deploy`. The health check is `GET /health`.
 
 ## Tech Stack
 
