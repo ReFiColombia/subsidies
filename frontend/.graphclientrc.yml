@@ -2,7 +2,7 @@ sources:
   - name: refi-medellin-ubi
     handler:
       graphql:
-        endpoint: https://api.studio.thegraph.com/query/102458/refi-medellin-ubi/version/latest
+        endpoint: https://api.studio.thegraph.com/query/1757108/refi-colombia-subsidies/version/latest
 
 documents:
   - ./src/queries/beneficiaries.graphql

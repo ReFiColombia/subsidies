@@ -2,17 +2,25 @@
 
 The Graph subgraph indexing SubsidyProgram contract events on Celo mainnet.
 
-Subgraph name: `refimedubi-celo`
+Subgraph name: `refi-colombia-subsidies` (Studio account of ReFi Colombia)
+
+Query URL: `https://api.studio.thegraph.com/query/1757108/refi-colombia-subsidies/version/latest`
 
 ## Contract Configuration
 
-`subgraph.yaml` indexes the **V2 proxy** contract:
+`subgraph.yaml` indexes both contracts on Celo mainnet:
 
-- **Address:** `0xAbE493F082f41B432696F715f84D5471F48cdA2B`
-- **Start block:** 51341193
-- **Network:** Celo
+| Data source | Contract | Address | Start block | Status |
+|---|---|---|---|---|
+| `SubsidyProgramV1` | V1, non-upgradeable | `0x947C6dB1569edc9fd37B017B791cA0F008AB4946` | 29277553 | Active, holds the funds |
+| `SubsidyProgram` | V2, UUPS proxy | `0xAbE493F082f41B432696F715f84D5471F48cdA2B` | 51341193 | Deployed, not active yet |
 
-> **Note:** `networks.json` still references the V1 contract (`0x947C6dB...`, start block 29277553). This file is not currently used by the deployment pipeline — `subgraph.yaml` takes precedence.
+Each contract gets its own `Funds` entity (the id is the contract address).
+`Beneficiary` and `DailyClaim` are shared, so the history carries over when
+the program moves to V2. No new deployment is needed for that switch.
+
+Studio allows 3 deployed subgraphs per account and 3,000 queries per day on
+the development URL.
 
 ## Indexed Events
 
@@ -37,12 +45,23 @@ Defined in `schema.graphql`:
 
 ## Grafting
 
-The subgraph uses [grafting](https://thegraph.com/docs/en/developing/creating-a-subgraph/#grafting-onto-existing-subgraphs) to continue from a previous deployment:
+History is copied from the previous deployment
+(`Qmb6TtJ3e8btLVkwcBYQFktAXJWgRjcYwjHszQ865YvHcv`) at block 79499496. Blocks
+after that are indexed normally.
 
-- **Base:** `Qmb6TtJ3e8btLVkwcBYQFktAXJWgRjcYwjHszQ865YvHcv`
-- **Block:** 51667562
+Why: a full re-index in Studio on 2026-10-07 finished without errors but with
+more than half of the Celo events missing (28 of 85 beneficiaries, 4.65M of
+27.04M claimed). The block explorer and the previous deployment both have every
+event, so the gap is in Studio's historical backfill, not in the mappings. A
+replay of the explorer's logs through the same handler logic gives the right
+totals.
 
-This means the subgraph inherits indexed data up to block 51667562 from the base deployment and continues indexing from there.
+After grafting, the totals, the 85 beneficiaries and the 544 daily claim rows
+match the previous deployment exactly, and `contractBalance` matches the token
+balance read from chain.
+
+Do not remove the graft and redeploy without checking the result against the
+block explorer.
 
 ## Development
 
