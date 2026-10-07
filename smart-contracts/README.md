@@ -10,20 +10,20 @@ Solidity contracts for the Subsidios RefiColombia subsidy distribution program o
 | `0xAbE493F082f41B432696F715f84D5471F48cdA2B` | Celo Mainnet | V2 SubsidyProgram (UUPS Proxy) | Deployed, not yet active |
 | `0x35108fAa4511BAfe42ABD85F0BAB71f67Cc4AC1d` | Celo Mainnet | V2 SubsidyProgram (Implementation) | Behind proxy |
 | `0x1A6FBc7b51E55C6D4F15c8D5CE7e97daEA699ecf` | Celo Alfajores | Old test deployment | Testnet only |
-| `0x8A567e2aE79CA692Bd748aB832081C45de4041eA` | Celo Mainnet | cCOP Token (ERC-20) | Active |
+| `0x8A567e2aE79CA692Bd748aB832081C45de4041eA` | Celo Mainnet | COPm Token (ERC-20) | Active |
 
 ## V1 vs V2 Overview
 
-**V1** is a simple, non-upgradeable contract that holds a single token (cCOP) and distributes a fixed amount to registered beneficiaries on a time interval.
+**V1** is a simple, non-upgradeable contract that holds a single token (COPm) and distributes a fixed amount to registered beneficiaries on a time interval.
 
-**V2** is a UUPS-upgradeable contract that supports multiple whitelisted tokens. When a beneficiary claims their subsidy, the contract automatically swaps non-cCOP tokens to cCOP via Uniswap V3 if needed.
+**V2** is a UUPS-upgradeable contract that supports multiple whitelisted tokens. When a beneficiary claims their subsidy, the contract automatically swaps non-COPm tokens to COPm via Uniswap V3 if needed.
 
 ### Key Differences
 
 | Feature | V1 | V2 |
 |---------|----|----|
 | Upgrade pattern | None | UUPS Proxy (OpenZeppelin) |
-| Token support | cCOP only | Multi-token with whitelist |
+| Token support | COPm only | Multi-token with whitelist |
 | `addFunds` | `addFunds(uint256)` | `addFunds(uint256, address)` |
 | `withdrawFunds` | `withdrawFunds()` | `withdrawFunds(address)` |
 | Auto-swap | No | Yes (Uniswap V3) |
@@ -38,9 +38,9 @@ Source: `src/SubsidyProgram.sol`
 
 | Function | Description |
 |----------|-------------|
-| `initialize(address _tokenAddress, address _swapRouter, address _initialOwner)` | Set primary token (cCOP), swap router, and initial owner |
+| `initialize(address _tokenAddress, address _swapRouter, address _initialOwner)` | Set primary token (COPm), swap router, and initial owner |
 | `setClaimInterval(uint256 _interval)` | Set time between claims (default: 7 days) |
-| `setClaimableAmount(uint256 _amount)` | Set cCOP amount per claim |
+| `setClaimableAmount(uint256 _amount)` | Set COPm amount per claim |
 | `addBeneficiary(address _user)` | Register a beneficiary (sets lastClaimed so they can claim immediately) |
 | `removeBeneficiary(address _user)` | Remove a beneficiary |
 | `addToken(address _token)` | Whitelist a new donation token |
@@ -54,7 +54,7 @@ Source: `src/SubsidyProgram.sol`
 | Function | Description |
 |----------|-------------|
 | `addFunds(uint256 _amount, address _token)` | Deposit a whitelisted token into the contract |
-| `claimSubsidy()` | Claim cCOP subsidy (beneficiaries only, respects claim interval) |
+| `claimSubsidy()` | Claim COPm subsidy (beneficiaries only, respects claim interval) |
 
 ### View Functions
 
@@ -63,7 +63,7 @@ Source: `src/SubsidyProgram.sol`
 | `isBeneficiary(address)` | `bool` | Check if address is a registered beneficiary |
 | `addressToUser(address)` | `User` | Get user's `lastClaimed` and `totalClaimed` |
 | `subsidyClaimInterval()` | `uint256` | Current claim interval in seconds |
-| `subsidyClaimableAmount()` | `uint256` | cCOP amount per claim |
+| `subsidyClaimableAmount()` | `uint256` | COPm amount per claim |
 | `getWhitelistedTokens()` | `address[]` | All whitelisted token addresses |
 | `swapRouter()` | `ISwapRouter` | Uniswap V3 swap router address |
 | `tokenToFeeTier(address)` | `uint24` | Fee tier for a given token |
@@ -72,20 +72,20 @@ Inherited from OpenZeppelin: `owner()`, `transferOwnership(address)`, `renounceO
 
 ## Auto-Swap Mechanism
 
-When `claimSubsidy()` is called, the contract attempts to swap non-cCOP tokens to cCOP without checking the existing cCOP balance first:
+When `claimSubsidy()` is called, the contract attempts to swap non-COPm tokens to COPm without checking the existing COPm balance first:
 
 1. Iterates `tokens[]` in **reverse order** (highest index = lowest priority = spent first)
-2. For each token, calls `_swapTokenToCCop()` using Uniswap V3 `exactOutputSingle` — requests exactly `subsidyClaimableAmount` of cCOP as output
+2. For each token, calls `_swapTokenToCCop()` using Uniswap V3 `exactOutputSingle` — requests exactly `subsidyClaimableAmount` of COPm as output
 3. If the swap returns `amountIn > 0`, the loop breaks
 4. After the loop, requires `cCopBalance >= subsidyClaimableAmount`
-5. Token at index 0 (cCOP) is never swapped — it is the target output token
+5. Token at index 0 (COPm) is never swapped — it is the target output token
 
 ### Token Priority
 
 - **Lower array index = higher priority = preserved longer**
-- Index 0 is always cCOP (never swapped)
+- Index 0 is always COPm (never swapped)
 - The owner controls priority via `changeTokenPriority(address, uint256)`
-- Each non-cCOP token must have a fee tier set via `setTokenFeeTier()` before swaps work
+- Each non-COPm token must have a fee tier set via `setTokenFeeTier()` before swaps work
 
 ### Storage Pattern
 
@@ -141,7 +141,7 @@ cp .env.example .env
 | `CELO_RPC_URL` | Celo mainnet RPC (default: `https://forno.celo.org`) |
 | `ALFAJORES_RPC_URL` | Celo Alfajores RPC |
 | `CELOSCAN_API_KEY` | For contract verification on Celoscan |
-| `TOKEN_ADDRESS` | cCOP token address (required by deploy script) |
+| `TOKEN_ADDRESS` | COPm token address (required by deploy script) |
 | `SWAP_ROUTER_ADDRESS` | Uniswap V3 SwapRouter address (required by deploy script) |
 | `INITIAL_OWNER` | Contract owner address (optional, defaults to deployer) |
 
