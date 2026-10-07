@@ -11,6 +11,7 @@
     "build": "tsc -b && NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "start": "serve -s dist -l tcp://0.0.0.0:${PORT:-3000}",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\""
   },
@@ -43,6 +44,7 @@
     "react-i18next": "^16.5.8",
     "react-router": "^7.0.2",
     "recharts": "^2.15.3",
+    "serve": "^14.2.4",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "viem": "^2.21.51",
