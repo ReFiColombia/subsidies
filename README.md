@@ -22,7 +22,7 @@ subsidies/
 │   ├── .env.example
 │   ├── package.json
 │   ├── tsconfig.json
-│   ├── vercel.json
+│   ├── railway.json
 │   └── README.md
 │
 ├── docs/
@@ -62,7 +62,7 @@ subsidies/
 │   ├── postcss.config.js
 │   ├── tailwind.config.js
 │   ├── tsconfig.json
-│   ├── vercel.json
+│   ├── railway.json
 │   ├── vite.config.ts
 │   ├── wagmi.config.ts
 │   └── README.md
@@ -103,8 +103,7 @@ subsidies/
 ├── .nvmrc
 ├── CONTRIBUTING.md
 ├── LICENSE
-├── README.md
-└── vercel.json
+└── README.md
 ```
 
 Each package has its own README with setup instructions and detailed documentation.
@@ -152,7 +151,7 @@ Then follow the README in each package:
 | Backend | Express, Prisma, Dune Analytics SDK |
 | Subgraph | The Graph (AssemblyScript) |
 | Swap | Uniswap V3 (on-chain), Squid Router (frontend widget) |
-| Deployment | Vercel (frontend + backend) |
+| Deployment | Railway (frontend + backend + Postgres), from `main` |
 
 ## Contributing
 

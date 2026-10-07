@@ -123,7 +123,6 @@ export function allowedOrigins(): string[] {
   const defaults = [
     'https://subsidios.reficolombia.org',
     'https://subsidies-frontend-production.up.railway.app',
-    'https://subsidies-reficolombia.vercel.app',
     'http://localhost:5173',
   ];
   const extra = (process.env.ALLOWED_ORIGINS || '')
