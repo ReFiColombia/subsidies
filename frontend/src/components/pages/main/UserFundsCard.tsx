@@ -252,7 +252,7 @@ export function UserFundsCard() {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,
               }).format(Number(formatUnits(balance, 18)))}{' '}
-              cCOP
+              COPm
             </p>
           </div>
         )}

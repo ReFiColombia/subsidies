@@ -191,7 +191,7 @@ export function DailyClaimsCard() {
                 }).format(
                   Number(formatUnits(funds ? funds.totalSupplied : 0, 18))
                 )}{' '}
-                cCOP
+                COPm
               </p>
             </Card>
             <Card className="flex min-w-[180px] flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
@@ -205,7 +205,7 @@ export function DailyClaimsCard() {
                 }).format(
                   Number(formatUnits(funds ? funds.totalWithdrawn : 0, 18))
                 )}{' '}
-                cCOP
+                COPm
               </p>
             </Card>
             <Card className="flex min-w-[180px] flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
@@ -219,7 +219,7 @@ export function DailyClaimsCard() {
                 }).format(
                   Number(formatUnits(funds ? funds.totalClaimed : 0, 18))
                 )}{' '}
-                cCOP
+                COPm
               </p>
             </Card>
             <Card className="flex min-w-[180px] flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
@@ -233,7 +233,7 @@ export function DailyClaimsCard() {
                 }).format(
                   Number(formatUnits(funds ? funds.contractBalance : 0, 18))
                 )}{' '}
-                cCOP
+                COPm
               </p>
             </Card>
           </div>

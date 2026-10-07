@@ -87,7 +87,7 @@ Inter, system-ui, Avenir, Helvetica, Arial, sans-serif
 | Hero value | `text-lg font-bold text-foreground` | Balance display |
 | Body text | `text-sm text-muted-foreground` | Descriptions, instructions |
 | Stat label | `text-xs text-muted-foreground` | "Total donado", "Beneficiarios" |
-| Stat value | `text-sm font-bold text-foreground` | "36.121.200 cCOP" |
+| Stat value | `text-sm font-bold text-foreground` | "36.121.200 COPm" |
 | Info label | `text-sm text-muted-foreground` + `font-medium` span | "Última reclamación:" |
 
 > **Note:** `text-base`, `text-xl`, and `text-2xl` are not used in landing page components. Keep the type scale tight to maintain visual consistency.

@@ -1,12 +1,12 @@
 # Subsidios RefiColombia
 
-A subsidy distribution platform on the Celo blockchain that enables eligible beneficiaries to claim periodic subsidies in cCOP (Colombian Peso stablecoin).
+A subsidy distribution platform on the Celo blockchain that enables eligible beneficiaries to claim periodic subsidies in COPm (Colombian Peso stablecoin).
 
 Live at [subsidios.reficolombia.org](https://subsidios.reficolombia.org)
 
 ## What is this?
 
-This program allows registered beneficiaries to claim a fixed amount of cCOP at regular intervals. An admin manages beneficiaries, funds, and program parameters. The V2 smart contract supports multi-token donations with automatic Uniswap V3 swaps to cCOP at claim time.
+This program allows registered beneficiaries to claim a fixed amount of COPm at regular intervals. An admin manages beneficiaries, funds, and program parameters. The V2 smart contract supports multi-token donations with automatic Uniswap V3 swaps to COPm at claim time.
 
 ## Repository Structure
 
@@ -117,7 +117,7 @@ Each package has its own README with setup instructions and detailed documentati
 | `0xAbE493F082f41B432696F715f84D5471F48cdA2B` | Celo Mainnet | V2 SubsidyProgram (UUPS Proxy) | Deployed, not yet active |
 | `0x35108fAa4511BAfe42ABD85F0BAB71f67Cc4AC1d` | Celo Mainnet | V2 Implementation | Behind proxy |
 | `0x1A6FBc7b51E55C6D4F15c8D5CE7e97daEA699ecf` | Celo Alfajores | Test deployment | Testnet only |
-| `0x8A567e2aE79CA692Bd748aB832081C45de4041eA` | Celo Mainnet | cCOP Token (ERC-20) | Active |
+| `0x8A567e2aE79CA692Bd748aB832081C45de4041eA` | Celo Mainnet | COPm Token (ERC-20) | Active |
 
 See [smart-contracts/README.md](smart-contracts/README.md) for full V1 vs V2 comparison and function reference.
 
