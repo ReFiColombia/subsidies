@@ -1,7 +1,7 @@
 {
   "name": "Subsidios ReFi Colombia",
   "short_name": "Subsidios",
-  "description": "Claim and donate cCOP subsidies on Celo",
+  "description": "Claim and donate COPm subsidies on Celo",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a0f2e",
