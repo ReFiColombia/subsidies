@@ -1,27 +1,14 @@
-import { useAppKitAccount } from '@reown/appkit/react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
-import { useReadContract } from 'wagmi'
 
-import { SUBSIDY_CONTRACT_ABI, SUBSIDY_CONTRACT_ADDRESS } from '@/constants'
+import { useIsAdmin } from '@/hooks/useIsAdmin'
 
 import { Button } from '../ui/button'
 import { LanguageToggle } from './LanguageToggle'
 
 export function NavBar() {
   const { t } = useTranslation('common')
-  const { isConnected, address } = useAppKitAccount()
-  const { data } = useReadContract({
-    address: SUBSIDY_CONTRACT_ADDRESS,
-    abi: SUBSIDY_CONTRACT_ABI,
-    functionName: 'owner',
-  })
-
-  const isAdmin =
-    isConnected &&
-    !!data &&
-    !!address &&
-    (data as string).toLowerCase() === address.toLowerCase()
+  const { isAdmin } = useIsAdmin()
 
   const location = useLocation()
 
