@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import { isAddress } from 'viem';
 import { DuneClient } from '@duneanalytics/client-sdk';
-import { allowedOrigins, requireAdmin } from './auth.js';
+import { allowedOrigins, isAdmin, requireAdmin } from './auth.js';
 
 dotenv.config();
 
@@ -31,6 +31,17 @@ app.use(express.json());
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+// Tells the frontend whether a wallet may open the admin panel. It only
+// answers yes or no for an address that is already public, and grants nothing:
+// the records themselves still need a signature.
+app.get('/api/admin/check/:address', async (req, res) => {
+  const { address } = req.params;
+  if (!isAddress(address)) {
+    return res.status(400).json({ error: 'Invalid Ethereum address' });
+  }
+  res.json({ isAdmin: await isAdmin(address) });
 });
 
 // Beneficiary records hold personal data. Every route below this line needs

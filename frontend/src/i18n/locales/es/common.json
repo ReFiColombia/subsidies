@@ -17,5 +17,9 @@
   "approvalErrorDescription": "La transaccion de aprobacion fallo.",
   "donationErrorTitle": "Error al donar",
   "donationErrorDescription": "La transaccion de donacion fallo.",
-  "donationFundsErrorTitle": "Error al donar fondos"
+  "donationFundsErrorTitle": "Error al donar fondos",
+  "adminOnlyTitle": "Panel solo para administradores",
+  "adminConnect": "Conecta la wallet de administración de ReFi Colombia para entrar.",
+  "adminDenied": "Esta wallet no tiene acceso al panel de administración.",
+  "adminChecking": "Verificando acceso..."
 }
