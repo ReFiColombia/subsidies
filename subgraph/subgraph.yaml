@@ -3,12 +3,50 @@ indexerHints:
   prune: auto
 schema:
   file: ./schema.graphql
+# History is copied from the previous deployment instead of being re-read from
+# the chain. A full re-index in Studio came back with more than half of the
+# Celo events missing (checked against the block explorer on 2026-10-07), while
+# the previous deployment has every event. New blocks are indexed normally.
 features:
   - grafting
 graft:
-  base: Qmb6TtJ3e8btLVkwcBYQFktAXJWgRjcYwjHszQ865YvHcv # Deployment ID of the base subgraph
-  block: 51667562 # End block
+  base: Qmb6TtJ3e8btLVkwcBYQFktAXJWgRjcYwjHszQ865YvHcv
+  block: 79499496
 dataSources:
+  # V1 (non-upgradeable). Still the contract the frontend uses and the one
+  # holding the funds, so it is indexed from its deployment block.
+  - kind: ethereum
+    name: SubsidyProgramV1
+    network: celo
+    source:
+      address: "0x947C6dB1569edc9fd37B017B791cA0F008AB4946"
+      abi: SubsidyProgramV1
+      startBlock: 29277553
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Beneficiary
+        - Funds
+        - DailyClaim
+      abis:
+        - name: SubsidyProgramV1
+          file: ./abis/SubsidyProgramV1.json
+      eventHandlers:
+        - event: BeneficiaryAdded(indexed address)
+          handler: handleBeneficiaryAdded
+        - event: BeneficiaryRemoved(indexed address)
+          handler: handleBeneficiaryRemoved
+        - event: SubsidyClaimed(indexed address,uint256,uint256)
+          handler: handleSubsidyClaimed
+        - event: FundsAdded(uint256,uint256)
+          handler: handleFundsAdded
+        - event: FundsWithdrawed(uint256)
+          handler: handleFundsWithdrawed
+      file: ./src/subsidy-program-v1.ts
+  # V2 (UUPS proxy). Deployed but not active yet. Indexed already so the
+  # switch to V2 needs no new subgraph deployment.
   - kind: ethereum
     name: SubsidyProgram
     network: celo
@@ -21,18 +59,10 @@ dataSources:
       apiVersion: 0.0.9
       language: wasm/assemblyscript
       entities:
-        - BeneficiaryAdded
-        - BeneficiaryRemoved
-        - ClaimIntervalSet
-        - ClaimableAmountSet
-        - FundsAdded
-        - FundsWithdrawn
-        - OwnershipTransferred
-        - SubsidyClaimed
-        - TokenAdded
-        - TokenRemoved
-        - TokenPriorityChanged
-        - TokenSwapped
+        - Beneficiary
+        - Funds
+        - TokenBalance
+        - DailyClaim
       abis:
         - name: SubsidyProgram
           file: ./abis/SubsidyProgram.json
