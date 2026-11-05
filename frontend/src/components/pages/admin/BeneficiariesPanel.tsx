@@ -3,13 +3,22 @@ import { useQuery } from '@tanstack/react-query'
 import {
   AlertTriangle,
   Check,
+  CheckCircle2,
   Edit,
   Save,
   Search,
   Settings2,
   X,
+  XCircle,
 } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  cloneElement,
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { formatUnits, isAddress } from 'viem'
 import { useReadContracts } from 'wagmi'
 
@@ -136,7 +145,7 @@ export function BeneficiariesPanel() {
     direccion: 140,
     telefono: 150,
     responsable: 190,
-    activo: 80,
+    activo: 44,
     ultimoReclamo: 130,
     fechaAnadido: 120,
     fechaEliminado: 120,
@@ -160,6 +169,69 @@ export function BeneficiariesPanel() {
     setVisibleColumns((prev) => ({ ...prev, [column]: !prev[column] }))
     setContextMenu(null)
   }
+
+  // Column order: drag a header onto another to move it. Saved per browser.
+  const [columnOrder, setColumnOrder] = useState<ColumnKey[]>(loadColumnOrder)
+  const [dragColumn, setDragColumn] = useState<ColumnKey | null>(null)
+  const [dropTarget, setDropTarget] = useState<ColumnKey | null>(null)
+  const orderedColumns = columnOrder.filter((key) => visibleColumns[key])
+
+  const moveColumn = (from: ColumnKey, to: ColumnKey) => {
+    if (from === to) return
+    setColumnOrder((prev) => {
+      const next = prev.filter((k) => k !== from)
+      next.splice(next.indexOf(to), 0, from)
+      try {
+        localStorage.setItem(COLUMN_ORDER_KEY, JSON.stringify(next))
+      } catch {
+        // Storage can be blocked; the order still applies for this session
+      }
+      return next
+    })
+  }
+
+  const resetColumnOrder = () => {
+    setColumnOrder(DEFAULT_COLUMN_ORDER)
+    try {
+      localStorage.removeItem(COLUMN_ORDER_KEY)
+    } catch {
+      // ignore
+    }
+  }
+
+  const columnDragProps = (key: ColumnKey) => ({
+    draggable: true,
+    onDragStart: (e: React.DragEvent) => {
+      // Let the resize handle keep working
+      if ((e.target as HTMLElement).dataset.resize) {
+        e.preventDefault()
+        return
+      }
+      setDragColumn(key)
+      e.dataTransfer.effectAllowed = 'move'
+      e.dataTransfer.setData('text/plain', key)
+    },
+    onDragOver: (e: React.DragEvent) => {
+      if (!dragColumn) return
+      e.preventDefault()
+      e.dataTransfer.dropEffect = 'move'
+      if (dropTarget !== key) setDropTarget(key)
+    },
+    onDragLeave: () => setDropTarget((t) => (t === key ? null : t)),
+    onDrop: (e: React.DragEvent) => {
+      e.preventDefault()
+      if (dragColumn) moveColumn(dragColumn, key)
+      setDragColumn(null)
+      setDropTarget(null)
+    },
+    onDragEnd: () => {
+      setDragColumn(null)
+      setDropTarget(null)
+    },
+    'data-dragging': dragColumn === key ? '' : undefined,
+    'data-drop-target':
+      dropTarget === key && dragColumn !== key ? '' : undefined,
+  })
 
   const handleContextMenu = (
     e: React.MouseEvent,
@@ -809,7 +881,7 @@ export function BeneficiariesPanel() {
                           { key: 'direccion' as const, label: 'Dirección' },
                           { key: 'telefono' as const, label: 'Teléfono' },
                           { key: 'responsable' as const, label: 'Responsable' },
-                          { key: 'activo' as const, label: 'Activo' },
+                          { key: 'activo' as const, label: 'Estado' },
                           {
                             key: 'ultimoReclamo' as const,
                             label: 'Último reclamo',
@@ -819,12 +891,12 @@ export function BeneficiariesPanel() {
                             label: 'Fecha añadido',
                           },
                           {
-                            key: 'fechaEliminado' as const,
-                            label: 'Fecha eliminado',
-                          },
-                          {
                             key: 'totalReclamado' as const,
                             label: 'Total reclamado',
+                          },
+                          {
+                            key: 'fechaEliminado' as const,
+                            label: 'Fecha eliminado',
                           },
                           { key: 'acciones' as const, label: 'Acciones' },
                         ].map((col) => (
@@ -849,6 +921,16 @@ export function BeneficiariesPanel() {
                             </span>
                           </div>
                         ))}
+                        <p className="px-2 pt-2 text-xs text-muted-foreground">
+                          Arrastra los encabezados para cambiar el orden.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={resetColumnOrder}
+                          className="mt-1 w-full rounded-md px-2 py-1.5 text-left text-sm text-brand-400 hover:bg-muted"
+                        >
+                          Restablecer orden
+                        </button>
                       </div>
                     </SelectContent>
                   </Select>
@@ -1074,186 +1156,206 @@ export function BeneficiariesPanel() {
                 <div className="relative hidden max-h-[65vh] w-full flex-1 overflow-x-auto overflow-y-auto md:block">
                   <Table className="w-full min-w-[1220px]">
                     <TableHeader className="sticky top-0 z-10 rounded-t-xl bg-card shadow-sm">
-                      <TableRow className="border-b-2 border-border">
-                        {visibleColumns.acciones && (
-                          <TableHead
-                            className="relative"
-                            style={{ width: `${columnWidths.acciones}px` }}
-                          >
-                            <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
-                              onMouseDown={(e) =>
-                                handleResizeStart(e, 'acciones')
-                              }
-                            />
-                          </TableHead>
-                        )}
-                        {visibleColumns.nombre && (
-                          <TableHead
-                            onClick={() => requestSort('name')}
-                            onContextMenu={(e) =>
-                              handleContextMenu(e, 'nombre')
-                            }
-                            className="relative cursor-pointer whitespace-nowrap font-bold"
-                            style={{ width: `${columnWidths.nombre}px` }}
-                          >
-                            Nombre
-                            <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
-                              onMouseDown={(e) =>
-                                handleResizeStart(e, 'nombre')
-                              }
-                            />
-                          </TableHead>
-                        )}
-                        {visibleColumns.direccion && (
-                          <TableHead
-                            onClick={() => requestSort('id')}
-                            onContextMenu={(e) =>
-                              handleContextMenu(e, 'direccion')
-                            }
-                            className="relative cursor-pointer whitespace-nowrap font-bold"
-                            style={{ width: `${columnWidths.direccion}px` }}
-                          >
-                            Dirección
-                            <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
-                              onMouseDown={(e) =>
-                                handleResizeStart(e, 'direccion')
-                              }
-                            />
-                          </TableHead>
-                        )}
-                        {visibleColumns.telefono && (
-                          <TableHead
-                            onClick={() => requestSort('phoneNumber')}
-                            onContextMenu={(e) =>
-                              handleContextMenu(e, 'telefono')
-                            }
-                            className="relative cursor-pointer whitespace-nowrap font-bold"
-                            style={{ width: `${columnWidths.telefono}px` }}
-                          >
-                            Teléfono
-                            <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
-                              onMouseDown={(e) =>
-                                handleResizeStart(e, 'telefono')
-                              }
-                            />
-                          </TableHead>
-                        )}
-                        {visibleColumns.responsable && (
-                          <TableHead
-                            onClick={() => requestSort('responsable')}
-                            onContextMenu={(e) =>
-                              handleContextMenu(e, 'responsable')
-                            }
-                            className="relative cursor-pointer whitespace-nowrap font-bold"
-                            style={{ width: `${columnWidths.responsable}px` }}
-                          >
-                            Responsable
-                            <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
-                              onMouseDown={(e) =>
-                                handleResizeStart(e, 'responsable')
-                              }
-                            />
-                          </TableHead>
-                        )}
-                        {visibleColumns.activo && (
-                          <TableHead
-                            onClick={() => requestSort('isActive')}
-                            onContextMenu={(e) =>
-                              handleContextMenu(e, 'activo')
-                            }
-                            className="relative cursor-pointer whitespace-nowrap font-bold"
-                            style={{ width: `${columnWidths.activo}px` }}
-                          >
-                            Activo
-                            <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
-                              onMouseDown={(e) =>
-                                handleResizeStart(e, 'activo')
-                              }
-                            />
-                          </TableHead>
-                        )}
-                        {visibleColumns.ultimoReclamo && (
-                          <TableHead
-                            onClick={() => requestSort('lastClaimed')}
-                            onContextMenu={(e) =>
-                              handleContextMenu(e, 'ultimoReclamo')
-                            }
-                            className="relative cursor-pointer whitespace-nowrap font-bold"
-                            style={{ width: `${columnWidths.ultimoReclamo}px` }}
-                          >
-                            Último reclamo
-                            <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
-                              onMouseDown={(e) =>
-                                handleResizeStart(e, 'ultimoReclamo')
-                              }
-                            />
-                          </TableHead>
-                        )}
-                        {visibleColumns.fechaAnadido && (
-                          <TableHead
-                            onClick={() => requestSort('dateAdded')}
-                            onContextMenu={(e) =>
-                              handleContextMenu(e, 'fechaAnadido')
-                            }
-                            className="relative cursor-pointer whitespace-nowrap font-bold"
-                            style={{ width: `${columnWidths.fechaAnadido}px` }}
-                          >
-                            Añadido
-                            <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
-                              onMouseDown={(e) =>
-                                handleResizeStart(e, 'fechaAnadido')
-                              }
-                            />
-                          </TableHead>
-                        )}
-                        {visibleColumns.fechaEliminado && (
-                          <TableHead
-                            onClick={() => requestSort('dateRemoved')}
-                            onContextMenu={(e) =>
-                              handleContextMenu(e, 'fechaEliminado')
-                            }
-                            className="relative cursor-pointer whitespace-nowrap font-bold"
-                            style={{
-                              width: `${columnWidths.fechaEliminado}px`,
-                            }}
-                          >
-                            Eliminado
-                            <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
-                              onMouseDown={(e) =>
-                                handleResizeStart(e, 'fechaEliminado')
-                              }
-                            />
-                          </TableHead>
-                        )}
-                        {visibleColumns.totalReclamado && (
-                          <TableHead
-                            onClick={() => requestSort('totalClaimed')}
-                            onContextMenu={(e) =>
-                              handleContextMenu(e, 'totalReclamado')
-                            }
-                            className="relative cursor-pointer whitespace-nowrap text-right font-bold"
-                            style={{
-                              width: `${columnWidths.totalReclamado}px`,
-                            }}
-                          >
-                            Total Reclamado
-                            <div
-                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
-                              onMouseDown={(e) =>
-                                handleResizeStart(e, 'totalReclamado')
-                              }
-                            />
-                          </TableHead>
-                        )}
+                      <TableRow className="border-b-2 border-border [&>th:active]:cursor-grabbing [&>th[data-dragging]]:opacity-40 [&>th[data-drop-target]]:shadow-[inset_2px_0_0_0_hsl(var(--primary))] [&>th]:cursor-grab [&>th]:select-none">
+                        {(() => {
+                          const heads: Record<ColumnKey, React.ReactElement> = {
+                            acciones: (
+                              <TableHead
+                                className="relative"
+                                style={{ width: `${columnWidths.acciones}px` }}
+                              >
+                                <div
+                                  data-resize="1"
+                                  className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
+                                  onMouseDown={(e) =>
+                                    handleResizeStart(e, 'acciones')
+                                  }
+                                />
+                              </TableHead>
+                            ),
+                            nombre: (
+                              <TableHead
+                                onClick={() => requestSort('name')}
+                                onContextMenu={(e) =>
+                                  handleContextMenu(e, 'nombre')
+                                }
+                                className="relative cursor-pointer whitespace-nowrap font-bold"
+                                style={{ width: `${columnWidths.nombre}px` }}
+                              >
+                                Nombre
+                                <div
+                                  data-resize="1"
+                                  className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
+                                  onMouseDown={(e) =>
+                                    handleResizeStart(e, 'nombre')
+                                  }
+                                />
+                              </TableHead>
+                            ),
+                            direccion: (
+                              <TableHead
+                                onClick={() => requestSort('id')}
+                                onContextMenu={(e) =>
+                                  handleContextMenu(e, 'direccion')
+                                }
+                                className="relative cursor-pointer whitespace-nowrap font-bold"
+                                style={{ width: `${columnWidths.direccion}px` }}
+                              >
+                                Dirección
+                                <div
+                                  data-resize="1"
+                                  className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
+                                  onMouseDown={(e) =>
+                                    handleResizeStart(e, 'direccion')
+                                  }
+                                />
+                              </TableHead>
+                            ),
+                            telefono: (
+                              <TableHead
+                                onClick={() => requestSort('phoneNumber')}
+                                onContextMenu={(e) =>
+                                  handleContextMenu(e, 'telefono')
+                                }
+                                className="relative cursor-pointer whitespace-nowrap font-bold"
+                                style={{ width: `${columnWidths.telefono}px` }}
+                              >
+                                Teléfono
+                                <div
+                                  data-resize="1"
+                                  className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
+                                  onMouseDown={(e) =>
+                                    handleResizeStart(e, 'telefono')
+                                  }
+                                />
+                              </TableHead>
+                            ),
+                            responsable: (
+                              <TableHead
+                                onClick={() => requestSort('responsable')}
+                                onContextMenu={(e) =>
+                                  handleContextMenu(e, 'responsable')
+                                }
+                                className="relative cursor-pointer whitespace-nowrap font-bold"
+                                style={{
+                                  width: `${columnWidths.responsable}px`,
+                                }}
+                              >
+                                Responsable
+                                <div
+                                  data-resize="1"
+                                  className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
+                                  onMouseDown={(e) =>
+                                    handleResizeStart(e, 'responsable')
+                                  }
+                                />
+                              </TableHead>
+                            ),
+                            activo: (
+                              <TableHead
+                                onClick={() => requestSort('isActive')}
+                                onContextMenu={(e) =>
+                                  handleContextMenu(e, 'activo')
+                                }
+                                className="relative cursor-pointer px-2 text-center"
+                                style={{ width: `${columnWidths.activo}px` }}
+                                title="Estado (activo o inactivo)"
+                              >
+                                <span className="sr-only">Estado</span>
+                              </TableHead>
+                            ),
+                            ultimoReclamo: (
+                              <TableHead
+                                onClick={() => requestSort('lastClaimed')}
+                                onContextMenu={(e) =>
+                                  handleContextMenu(e, 'ultimoReclamo')
+                                }
+                                className="relative cursor-pointer whitespace-nowrap font-bold"
+                                style={{
+                                  width: `${columnWidths.ultimoReclamo}px`,
+                                }}
+                              >
+                                Último reclamo
+                                <div
+                                  data-resize="1"
+                                  className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
+                                  onMouseDown={(e) =>
+                                    handleResizeStart(e, 'ultimoReclamo')
+                                  }
+                                />
+                              </TableHead>
+                            ),
+                            fechaAnadido: (
+                              <TableHead
+                                onClick={() => requestSort('dateAdded')}
+                                onContextMenu={(e) =>
+                                  handleContextMenu(e, 'fechaAnadido')
+                                }
+                                className="relative cursor-pointer whitespace-nowrap font-bold"
+                                style={{
+                                  width: `${columnWidths.fechaAnadido}px`,
+                                }}
+                              >
+                                Añadido
+                                <div
+                                  data-resize="1"
+                                  className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
+                                  onMouseDown={(e) =>
+                                    handleResizeStart(e, 'fechaAnadido')
+                                  }
+                                />
+                              </TableHead>
+                            ),
+                            totalReclamado: (
+                              <TableHead
+                                onClick={() => requestSort('totalClaimed')}
+                                onContextMenu={(e) =>
+                                  handleContextMenu(e, 'totalReclamado')
+                                }
+                                className="relative cursor-pointer whitespace-nowrap text-right font-bold"
+                                style={{
+                                  width: `${columnWidths.totalReclamado}px`,
+                                }}
+                              >
+                                Total Reclamado
+                                <div
+                                  data-resize="1"
+                                  className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
+                                  onMouseDown={(e) =>
+                                    handleResizeStart(e, 'totalReclamado')
+                                  }
+                                />
+                              </TableHead>
+                            ),
+                            fechaEliminado: (
+                              <TableHead
+                                onClick={() => requestSort('dateRemoved')}
+                                onContextMenu={(e) =>
+                                  handleContextMenu(e, 'fechaEliminado')
+                                }
+                                className="relative cursor-pointer whitespace-nowrap font-bold"
+                                style={{
+                                  width: `${columnWidths.fechaEliminado}px`,
+                                }}
+                              >
+                                Eliminado
+                                <div
+                                  data-resize="1"
+                                  className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
+                                  onMouseDown={(e) =>
+                                    handleResizeStart(e, 'fechaEliminado')
+                                  }
+                                />
+                              </TableHead>
+                            ),
+                          }
+                          return orderedColumns.map((key) =>
+                            cloneElement(heads[key], {
+                              key,
+                              ...columnDragProps(key),
+                            })
+                          )
+                        })()}
                       </TableRow>
                     </TableHeader>
                     <TableBody className="text-left">
@@ -1266,149 +1368,182 @@ export function BeneficiariesPanel() {
                             key={beneficiary.id}
                             className="transition-colors hover:bg-muted"
                           >
-                            {visibleColumns.acciones && (
-                              <TableCell
-                                className="whitespace-nowrap p-1"
-                                style={{ width: `${columnWidths.acciones}px` }}
-                              >
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleRowClick(beneficiary.id)}
-                                  className="h-6 w-6 p-0 transition-colors hover:bg-muted"
-                                >
-                                  <Edit className="h-3 w-3 text-muted-foreground" />
-                                </Button>
-                              </TableCell>
-                            )}
-                            {visibleColumns.nombre && (
-                              <TableCell
-                                className="cursor-pointer font-medium transition-colors hover:text-brand-400"
-                                onClick={() => handleRowClick(beneficiary.id)}
-                                style={{ minWidth: `${columnWidths.nombre}px` }}
-                                title={beneficiaryData?.name || '-'}
-                              >
-                                <div className="whitespace-normal break-words">
-                                  {beneficiaryData?.name || '-'}
-                                </div>
-                              </TableCell>
-                            )}
-                            {visibleColumns.direccion && (
-                              <TableCell
-                                className="cursor-pointer overflow-hidden transition-colors hover:text-brand-400"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(beneficiary.id)
-                                  toast({
-                                    title: 'Dirección copiada al portapapeles',
-                                  })
-                                }}
-                                style={{
-                                  width: `${columnWidths.direccion}px`,
-                                  maxWidth: `${columnWidths.direccion}px`,
-                                }}
-                                title={beneficiary.id}
-                              >
-                                <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                                  {columnWidths.direccion < 100
-                                    ? `${String(beneficiary.id).slice(0, 6)}...${String(beneficiary.id).slice(-4)}`
-                                    : columnWidths.direccion < 150
-                                      ? `${String(beneficiary.id).slice(0, 10)}...${String(beneficiary.id).slice(-8)}`
-                                      : columnWidths.direccion < 200
-                                        ? `${String(beneficiary.id).slice(0, 15)}...${String(beneficiary.id).slice(-10)}`
-                                        : beneficiary.id}
-                                </div>
-                              </TableCell>
-                            )}
-                            {visibleColumns.telefono && (
-                              <TableCell
-                                style={{
-                                  minWidth: `${columnWidths.telefono}px`,
-                                }}
-                                title={beneficiaryData?.phoneNumber || '-'}
-                              >
-                                <div className="whitespace-nowrap">
-                                  {beneficiaryData?.phoneNumber || '-'}
-                                </div>
-                              </TableCell>
-                            )}
-                            {visibleColumns.responsable && (
-                              <TableCell
-                                style={{
-                                  minWidth: `${columnWidths.responsable}px`,
-                                }}
-                                title={beneficiaryData?.responsable || '-'}
-                              >
-                                <div className="whitespace-normal break-words">
-                                  {beneficiaryData?.responsable || '-'}
-                                </div>
-                              </TableCell>
-                            )}
-                            {visibleColumns.activo && (
-                              <TableCell
-                                className="whitespace-nowrap"
-                                style={{ width: `${columnWidths.activo}px` }}
-                              >
-                                {beneficiary.isActive ? 'Sí' : 'No'}
-                              </TableCell>
-                            )}
-                            {visibleColumns.ultimoReclamo && (
-                              <TableCell
-                                className="whitespace-nowrap"
-                                style={{
-                                  width: `${columnWidths.ultimoReclamo}px`,
-                                }}
-                              >
-                                <LastClaim
-                                  seconds={lastClaimLookup.get(
-                                    beneficiary.id.toLowerCase()
-                                  )}
-                                />
-                              </TableCell>
-                            )}
-                            {visibleColumns.fechaAnadido && (
-                              <TableCell
-                                className="whitespace-nowrap"
-                                style={{
-                                  width: `${columnWidths.fechaAnadido}px`,
-                                }}
-                              >
-                                {new Date(
-                                  beneficiary.dateAdded * 1000
-                                ).toLocaleDateString('es-CO')}
-                              </TableCell>
-                            )}
-                            {visibleColumns.fechaEliminado && (
-                              <TableCell
-                                className="whitespace-nowrap"
-                                style={{
-                                  width: `${columnWidths.fechaEliminado}px`,
-                                }}
-                              >
-                                {beneficiary.dateRemoved
-                                  ? new Date(
-                                      beneficiary.dateRemoved * 1000
-                                    ).toLocaleDateString('es-CO')
-                                  : '-'}
-                              </TableCell>
-                            )}
-                            {visibleColumns.totalReclamado && (
-                              <TableCell
-                                className="whitespace-nowrap text-right"
-                                style={{
-                                  width: `${columnWidths.totalReclamado}px`,
-                                }}
-                              >
-                                {new Intl.NumberFormat('es-CO', {
-                                  minimumFractionDigits: 0,
-                                  maximumFractionDigits: 0,
-                                }).format(
-                                  Number(
-                                    formatUnits(beneficiary.totalClaimed, 18)
-                                  )
-                                )}{' '}
-                                COPm
-                              </TableCell>
-                            )}
+                            {(() => {
+                              const cells: Record<
+                                ColumnKey,
+                                React.ReactElement
+                              > = {
+                                acciones: (
+                                  <TableCell
+                                    className="whitespace-nowrap p-1"
+                                    style={{
+                                      width: `${columnWidths.acciones}px`,
+                                    }}
+                                  >
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() =>
+                                        handleRowClick(beneficiary.id)
+                                      }
+                                      className="h-6 w-6 p-0 transition-colors hover:bg-muted"
+                                    >
+                                      <Edit className="h-3 w-3 text-muted-foreground" />
+                                    </Button>
+                                  </TableCell>
+                                ),
+                                nombre: (
+                                  <TableCell
+                                    className="cursor-pointer font-medium transition-colors hover:text-brand-400"
+                                    onClick={() =>
+                                      handleRowClick(beneficiary.id)
+                                    }
+                                    style={{
+                                      minWidth: `${columnWidths.nombre}px`,
+                                    }}
+                                    title={beneficiaryData?.name || '-'}
+                                  >
+                                    <div className="whitespace-normal break-words">
+                                      {beneficiaryData?.name || '-'}
+                                    </div>
+                                  </TableCell>
+                                ),
+                                direccion: (
+                                  <TableCell
+                                    className="cursor-pointer overflow-hidden transition-colors hover:text-brand-400"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(
+                                        beneficiary.id
+                                      )
+                                      toast({
+                                        title:
+                                          'Dirección copiada al portapapeles',
+                                      })
+                                    }}
+                                    style={{
+                                      width: `${columnWidths.direccion}px`,
+                                      maxWidth: `${columnWidths.direccion}px`,
+                                    }}
+                                    title={beneficiary.id}
+                                  >
+                                    <MiddleTruncate value={beneficiary.id} />
+                                  </TableCell>
+                                ),
+                                telefono: (
+                                  <TableCell
+                                    style={{
+                                      minWidth: `${columnWidths.telefono}px`,
+                                    }}
+                                    title={beneficiaryData?.phoneNumber || '-'}
+                                  >
+                                    <div className="whitespace-nowrap">
+                                      {beneficiaryData?.phoneNumber || '-'}
+                                    </div>
+                                  </TableCell>
+                                ),
+                                responsable: (
+                                  <TableCell
+                                    style={{
+                                      minWidth: `${columnWidths.responsable}px`,
+                                    }}
+                                    title={beneficiaryData?.responsable || '-'}
+                                  >
+                                    <div className="whitespace-normal break-words">
+                                      {beneficiaryData?.responsable || '-'}
+                                    </div>
+                                  </TableCell>
+                                ),
+                                activo: (
+                                  <TableCell
+                                    className="px-2 text-center"
+                                    style={{
+                                      width: `${columnWidths.activo}px`,
+                                    }}
+                                    title={
+                                      beneficiary.isActive
+                                        ? 'Activo'
+                                        : 'Inactivo'
+                                    }
+                                  >
+                                    {beneficiary.isActive ? (
+                                      <CheckCircle2
+                                        className="mx-auto h-5 w-5 text-emerald-400"
+                                        aria-label="Activo"
+                                      />
+                                    ) : (
+                                      <XCircle
+                                        className="mx-auto h-5 w-5 text-red-400"
+                                        aria-label="Inactivo"
+                                      />
+                                    )}
+                                  </TableCell>
+                                ),
+                                ultimoReclamo: (
+                                  <TableCell
+                                    className="whitespace-nowrap"
+                                    style={{
+                                      width: `${columnWidths.ultimoReclamo}px`,
+                                    }}
+                                  >
+                                    <LastClaim
+                                      seconds={lastClaimLookup.get(
+                                        beneficiary.id.toLowerCase()
+                                      )}
+                                    />
+                                  </TableCell>
+                                ),
+                                fechaAnadido: (
+                                  <TableCell
+                                    className="whitespace-nowrap"
+                                    style={{
+                                      width: `${columnWidths.fechaAnadido}px`,
+                                    }}
+                                  >
+                                    {new Date(
+                                      beneficiary.dateAdded * 1000
+                                    ).toLocaleDateString('es-CO')}
+                                  </TableCell>
+                                ),
+                                totalReclamado: (
+                                  <TableCell
+                                    className="whitespace-nowrap text-right"
+                                    style={{
+                                      width: `${columnWidths.totalReclamado}px`,
+                                    }}
+                                  >
+                                    {new Intl.NumberFormat('es-CO', {
+                                      minimumFractionDigits: 0,
+                                      maximumFractionDigits: 0,
+                                    }).format(
+                                      Number(
+                                        formatUnits(
+                                          beneficiary.totalClaimed,
+                                          18
+                                        )
+                                      )
+                                    )}{' '}
+                                    COPm
+                                  </TableCell>
+                                ),
+                                fechaEliminado: (
+                                  <TableCell
+                                    className="whitespace-nowrap"
+                                    style={{
+                                      width: `${columnWidths.fechaEliminado}px`,
+                                    }}
+                                  >
+                                    {beneficiary.dateRemoved
+                                      ? new Date(
+                                          beneficiary.dateRemoved * 1000
+                                        ).toLocaleDateString('es-CO')
+                                      : '-'}
+                                  </TableCell>
+                                ),
+                              }
+                              return orderedColumns.map((key) => (
+                                <Fragment key={key}>{cells[key]}</Fragment>
+                              ))
+                            })()}
                           </TableRow>
                         )
                       })}
@@ -1716,6 +1851,92 @@ function matchesBucket(
       return days >= Math.min(from, to) && days <= Math.max(from, to)
     }
   }
+}
+
+type ColumnKey =
+  | 'activo'
+  | 'acciones'
+  | 'nombre'
+  | 'direccion'
+  | 'telefono'
+  | 'responsable'
+  | 'ultimoReclamo'
+  | 'fechaAnadido'
+  | 'totalReclamado'
+  | 'fechaEliminado'
+
+const DEFAULT_COLUMN_ORDER: ColumnKey[] = [
+  'activo',
+  'acciones',
+  'nombre',
+  'direccion',
+  'telefono',
+  'responsable',
+  'ultimoReclamo',
+  'fechaAnadido',
+  'totalReclamado',
+  'fechaEliminado',
+]
+
+const COLUMN_ORDER_KEY = 'subsidies.admin.beneficiaries.columnOrder'
+
+// Saved order, keeping only known columns and adding any new ones at the end
+function loadColumnOrder(): ColumnKey[] {
+  try {
+    const saved = JSON.parse(
+      localStorage.getItem(COLUMN_ORDER_KEY) ?? 'null'
+    ) as unknown
+    if (!Array.isArray(saved)) return DEFAULT_COLUMN_ORDER
+    const known = saved.filter((k): k is ColumnKey =>
+      DEFAULT_COLUMN_ORDER.includes(k as ColumnKey)
+    )
+    return [...known, ...DEFAULT_COLUMN_ORDER.filter((k) => !known.includes(k))]
+  } catch {
+    return DEFAULT_COLUMN_ORDER
+  }
+}
+
+// Address cut in the middle with the same number of characters on each side
+// (0x3f…45f), sized to whatever width the column has. Monospace makes every
+// character the same width, so one measurement is enough.
+function MiddleTruncate({ value }: { value: string }) {
+  const [box, setBox] = useState<HTMLSpanElement | null>(null)
+  const [side, setSide] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!box) return
+    const probe = document.createElement('span')
+    probe.textContent = '0'.repeat(10)
+    probe.style.cssText = 'position:absolute;visibility:hidden;white-space:pre'
+    box.appendChild(probe)
+    const charWidth = probe.getBoundingClientRect().width / 10
+    box.removeChild(probe)
+
+    const update = () => {
+      const width = box.clientWidth
+      if (!charWidth || width >= charWidth * value.length) {
+        setSide(null)
+        return
+      }
+      // One character's worth of room for the ellipsis
+      const n = Math.floor((width / charWidth - 1) / 2)
+      setSide(Math.max(1, n))
+    }
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(box)
+    return () => observer.disconnect()
+  }, [box, value])
+
+  return (
+    <span
+      ref={setBox}
+      className="block w-full overflow-hidden whitespace-nowrap font-mono text-sm"
+      aria-label={value}
+    >
+      {side === null ? value : `${value.slice(0, side)}…${value.slice(-side)}`}
+    </span>
+  )
 }
 
 // Calendar days between a unix timestamp and today, in local time.
