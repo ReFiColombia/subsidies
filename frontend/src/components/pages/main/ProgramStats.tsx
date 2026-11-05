@@ -52,14 +52,11 @@ export function ProgramStats() {
     staleTime: 5 * 60 * 1000,
   })
 
-  const { data: monthly, isLoading: monthlyLoading } = useQuery<MonthlyData[]>(
-    {
-      queryKey: ['dune-monthly'],
-      queryFn: () =>
-        fetch(`${API_URL}/api/dune/monthly`).then((r) => r.json()),
-      staleTime: 5 * 60 * 1000,
-    }
-  )
+  const { data: monthly, isLoading: monthlyLoading } = useQuery<MonthlyData[]>({
+    queryKey: ['dune-monthly'],
+    queryFn: () => fetch(`${API_URL}/api/dune/monthly`).then((r) => r.json()),
+    staleTime: 5 * 60 * 1000,
+  })
 
   if (statsLoading || monthlyLoading) {
     return (
@@ -105,7 +102,7 @@ export function ProgramStats() {
       </h3>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
         {statCards.map(({ icon: Icon, label, value, color }) => (
           <div
             key={label}
@@ -114,7 +111,7 @@ export function ProgramStats() {
             <Icon className={`h-5 w-5 ${color} shrink-0`} />
             <div className="min-w-0">
               <p className="text-xs text-muted-foreground">{label}</p>
-              <p className="truncate text-sm font-bold text-foreground">
+              <p className="break-words text-sm font-bold text-foreground">
                 {value}
               </p>
             </div>

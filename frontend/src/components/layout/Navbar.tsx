@@ -13,23 +13,23 @@ export function NavBar() {
   const location = useLocation()
 
   return (
-    <div className="m-0 h-16 p-0">
-      <nav className="w-full border-b p-4">
-        <div className="container mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3 sm:space-x-8">
-            <span className="font-bold">ReFi Colombia</span>
+    <div className="m-0 p-0">
+      <nav className="w-full border-b px-4 py-3">
+        <div className="container mx-auto flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-8">
+            <span className="whitespace-nowrap font-bold">ReFi Colombia</span>
             {isAdmin &&
               (location.pathname == '/admin' ? (
                 <Link to="/">
-                  <Button>{t('userPanel')}</Button>
+                  <Button size="sm">{t('userPanel')}</Button>
                 </Link>
               ) : (
                 <Link to="/admin">
-                  <Button>{t('adminPanel')}</Button>
+                  <Button size="sm">{t('adminPanel')}</Button>
                 </Link>
               ))}
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="ml-auto flex items-center gap-2 sm:gap-3">
             <LanguageToggle />
             <appkit-button />
           </div>

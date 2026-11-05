@@ -29,12 +29,12 @@ export function AdminPanel() {
   if (!isAdmin) return <AdminNotice message={t('adminDenied')} />
 
   return (
-    <div className="my-8 grid min-h-screen grid-cols-1 gap-4 p-4 md:grid-cols-12 md:gap-10 md:p-0">
-      <div className="col-span-12 flex h-full w-full flex-col gap-4 md:col-span-4 md:gap-10">
+    <div className="mx-auto my-6 grid w-full max-w-7xl grid-cols-1 gap-4 px-4 md:my-8 md:px-6 lg:grid-cols-12 lg:gap-8">
+      <div className="col-span-12 flex w-full min-w-0 flex-col gap-4 lg:col-span-4 lg:gap-8">
         <BeneficiariesCard />
         <FundsCard />
       </div>
-      <div className="col-span-12 flex min-h-[75vh] w-full justify-center md:col-span-8">
+      <div className="col-span-12 flex w-full min-w-0 justify-center lg:col-span-8">
         <Dashboard />
       </div>
     </div>

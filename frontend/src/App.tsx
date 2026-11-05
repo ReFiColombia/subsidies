@@ -155,6 +155,11 @@ export function App() {
     <div className="flex h-full w-full flex-1 flex-col items-center justify-center overflow-auto">
       <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
         <div className="flex flex-col items-stretch gap-8">
+          {/* Program transparency, first thing on the page */}
+          <div className="w-full">
+            <ProgramStats />
+          </div>
+
           {/* Header */}
           <div className="w-full">
             <Header
@@ -194,11 +199,6 @@ export function App() {
               </Button>
             </CardFooter>
           </Card>
-
-          {/* Program Stats from Dune */}
-          <div className="w-full">
-            <ProgramStats />
-          </div>
 
           {/* Donate Funds Card */}
           <div className="w-full">
