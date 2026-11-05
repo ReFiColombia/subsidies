@@ -6,6 +6,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router'
 
 import { App } from '@/App'
+import { Footer } from '@/components/layout/Footer'
 import { NavBar } from '@/components/layout/Navbar'
 import { AdminPanel } from '@/pages/Admin'
 
@@ -16,7 +17,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Providers>
       <BrowserRouter>
-        <main className="flex h-full min-h-screen w-full flex-1 flex-col">
+        <main className="mesh-aurora flex h-full min-h-screen w-full flex-1 flex-col">
           <NavBar />
           <div className="flex flex-1 items-center justify-center">
             <Routes>
@@ -24,6 +25,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/admin" element={<AdminPanel />} />
             </Routes>
           </div>
+          <Footer />
         </main>
       </BrowserRouter>
       <Toaster />

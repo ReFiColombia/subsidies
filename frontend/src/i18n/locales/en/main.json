@@ -51,5 +51,7 @@
   "beneficiarySectionTitle": "For beneficiaries",
   "beneficiarySectionSubtitle": "Claim your subsidy when it is available.",
   "connectToClaim": "Connect your wallet to see if you can claim your subsidy.",
-  "connectWallet": "Connect wallet"
+  "connectWallet": "Connect wallet",
+  "heroTitleLead": "Subsidies",
+  "heroTitleAccent": "program"
 }

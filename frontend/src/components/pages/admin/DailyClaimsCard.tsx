@@ -53,7 +53,7 @@ export function DailyClaimsCard() {
   const chartConfig = {
     claims: {
       label: 'Cantidad de Reclamos',
-      color: 'hsl(271, 81%, 56%)',
+      color: 'hsl(232, 88%, 66%)',
     },
     amount: {
       label: 'Monto Reclamado',
@@ -66,7 +66,7 @@ export function DailyClaimsCard() {
       <Card className="w-full rounded-xl border border-border bg-card p-0 shadow-md">
         <CardHeader className="flex flex-col gap-2 border-b p-6 md:flex-row md:items-center md:justify-between">
           <div>
-            <CardTitle className="text-lg font-bold text-card-foreground md:text-xl">
+            <CardTitle className="text-lg text-card-foreground md:text-xl">
               Reclamos Diarios
             </CardTitle>
             <CardDescription className="text-sm text-muted-foreground">
@@ -81,13 +81,13 @@ export function DailyClaimsCard() {
             <TabsList className="rounded-xl bg-muted p-1">
               <TabsTrigger
                 value="claims"
-                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-white data-[state=inactive]:text-muted-foreground"
+                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground"
               >
                 Cantidad
               </TabsTrigger>
               <TabsTrigger
                 value="amount"
-                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-white data-[state=inactive]:text-muted-foreground"
+                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground"
               >
                 Monto
               </TabsTrigger>
@@ -117,7 +117,7 @@ export function DailyClaimsCard() {
                   tickMargin={8}
                   minTickGap={18}
                   fontSize={13}
-                  stroke="hsl(271, 81%, 56%)"
+                  stroke="hsl(232, 88%, 66%)"
                   label={{
                     value: 'Fecha',
                     position: 'bottom',
@@ -133,7 +133,7 @@ export function DailyClaimsCard() {
                   tickLine={false}
                   axisLine={false}
                   fontSize={13}
-                  stroke="hsl(271, 81%, 56%)"
+                  stroke="hsl(232, 88%, 66%)"
                   tickMargin={8}
                   width={60}
                   label={{

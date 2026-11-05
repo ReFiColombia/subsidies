@@ -43,7 +43,7 @@ export function ProgramStats() {
   const chartConfig = {
     distributed: {
       label: t('copmDistributed'),
-      color: 'hsl(271, 81%, 56%)',
+      color: 'hsl(232, 88%, 66%)',
     },
   }
 
@@ -102,7 +102,7 @@ export function ProgramStats() {
         title={t('transparencyTitle')}
         subtitle={t('transparencySubtitle')}
       />
-      <div className="space-y-4 rounded-xl border border-border bg-card p-4 shadow sm:p-6">
+      <div className="space-y-4 rounded-[20px] border border-[var(--line)] bg-card p-4 shadow-sm sm:p-6">
         {/* Summary Cards */}
         <div className="grid grid-cols-2 gap-2 sm:gap-3">
           {statCards.map(({ icon: Icon, label, value, color }) => (
@@ -171,7 +171,7 @@ export function ProgramStats() {
               />
               <Bar
                 dataKey="distributed"
-                fill="hsl(271, 81%, 56%)"
+                fill="hsl(232, 88%, 66%)"
                 radius={[4, 4, 0, 0]}
               />
             </BarChart>

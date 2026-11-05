@@ -7,11 +7,14 @@ export function ProgramIntro() {
 
   return (
     <section className="text-center">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-400">
+      <p className="text-aurora text-xs font-semibold uppercase tracking-[0.22em]">
         {t('heroEyebrow')}
       </p>
-      <h1 className="mt-3 text-balance text-3xl font-bold leading-tight text-foreground sm:text-4xl">
-        {t('heroTitle')}
+      <h1 className="mt-4 text-balance font-display text-4xl font-medium leading-[1.05] text-foreground sm:text-6xl">
+        {t('heroTitleLead')}{' '}
+        <em className="text-aurora pr-1 font-normal italic">
+          {t('heroTitleAccent')}
+        </em>
       </h1>
       <div className="mx-auto mt-5 max-w-2xl space-y-3 text-pretty text-base leading-relaxed text-muted-foreground">
         <p>{t('programDescription1')}</p>
@@ -21,7 +24,7 @@ export function ProgramIntro() {
         {tags.map((tag) => (
           <li
             key={tag}
-            className="rounded-full border border-brand-800 bg-brand-900/40 px-3 py-1 text-xs font-medium text-brand-200"
+            className="rounded-full border border-[var(--line-strong)] px-3 py-1 text-xs text-muted-foreground"
           >
             {tag}
           </li>

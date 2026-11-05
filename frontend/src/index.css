@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: dark;
   color: rgba(255, 255, 255, 0.95);
-  background-color: hsl(270, 30%, 10%);
+  background-color: #0e1220;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -39,53 +39,69 @@ h1 {
 
 @layer base {
   :root {
-    /* Brand Purple Palette */
-    --brand-50: 270 100% 98%;
-    --brand-100: 270 100% 95%;
-    --brand-200: 269 100% 92%;
-    --brand-300: 269 97% 85%;
-    --brand-400: 270 95% 75%;
-    --brand-500: 271 91% 65%;
-    --brand-600: 271 81% 56%;
-    --brand-700: 272 72% 47%;
-    --brand-800: 273 67% 39%;
-    --brand-900: 274 66% 32%;
+    /* ReFi Colombia aurora palette, same as reficolombia.org */
+    --brand-50: 249 80% 97%;
+    --brand-100: 249 70% 94%;
+    --brand-200: 249 64% 87%;
+    --brand-300: 224 90% 82%;
+    --brand-400: 224 89% 70%;
+    --brand-500: 228 85% 66%;
+    --brand-600: 232 88% 62%;
+    --brand-700: 236 60% 45%;
+    --brand-800: 230 45% 28%;
+    --brand-900: 228 45% 18%;
 
-    /* Semantic Tokens */
-    --background: 270 30% 10%;
-    --foreground: 0 0% 100%;
-    --muted: 270 20% 20%;
-    --muted-foreground: 0 0% 70%;
-    --popover: 270 25% 15%;
-    --popover-foreground: 0 0% 100%;
-    --card: 270 25% 12%;
-    --card-foreground: 0 0% 100%;
-    --border: 270 20% 25%;
-    --input: 270 20% 20%;
-    --primary: 271 81% 56%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 270 20% 20%;
-    --secondary-foreground: 0 0% 90%;
-    --accent: 271 91% 65%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 0 0% 100%;
-    --ring: 271 81% 56%;
+    --background: 227 39% 9%;
+    --foreground: 222 42% 95%;
+    --muted: 224 33% 17%;
+    --muted-foreground: 222 24% 68%;
+    --popover: 224 35% 13%;
+    --popover-foreground: 222 42% 95%;
+    --card: 224 35% 13%;
+    --card-foreground: 222 42% 95%;
+    --border: 224 20% 24%;
+    --input: 224 20% 24%;
+    --primary: 224 89% 70%;
+    --primary-foreground: 227 39% 9%;
+    --secondary: 224 33% 17%;
+    --secondary-foreground: 222 42% 95%;
+    --accent: 224 89% 70%;
+    --accent-foreground: 227 39% 9%;
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 210 40% 98%;
+    --ring: 224 89% 70%;
 
-    /* Chart Colors */
-    --chart-1: 271 81% 56%;
-    --chart-2: 269 97% 85%;
-    --chart-3: 274 66% 32%;
-    --chart-4: 250 50% 45%;
-    --chart-5: 270 95% 75%;
+    --chart-1: 232 88% 66%;
+    --chart-2: 214 76% 60%;
+    --chart-3: 258 71% 66%;
+    --chart-4: 186 61% 48%;
+    --chart-5: 333 50% 70%;
 
-    /* Status Colors */
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+
+    --bg: #0e1220;
+    --line: rgba(238, 241, 248, 0.1);
+    --line-strong: rgba(238, 241, 248, 0.18);
+    --gradient-aurora: linear-gradient(
+      100deg,
+      #2fb6c4 0%,
+      #4a8fe6 24%,
+      #5e71f5 44%,
+      #8f6be6 63%,
+      #d98fb0 82%,
+      #e8c98a 100%
+    );
+    --gradient-cta: linear-gradient(
+      100deg,
+      #4a8fe6 0%,
+      #5e71f5 52%,
+      #8f6be6 100%
+    );
   }
 }
 
@@ -95,5 +111,57 @@ h1 {
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: 'Playfair Display', ui-serif, Georgia, serif;
+  }
+  .text-aurora {
+    background: var(--gradient-aurora);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .btn-aurora {
+    background: var(--gradient-cta);
+    color: #fff;
+  }
+  .btn-aurora:hover {
+    filter: brightness(1.08);
+  }
+  .rule-aurora {
+    height: 1px;
+    background: var(--gradient-aurora);
+    opacity: 0.5;
+  }
+}
+
+@layer components {
+  .mesh-aurora {
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(
+        42rem 34rem at 10% 6%,
+        rgba(47, 182, 196, 0.14),
+        transparent 60%
+      ),
+      radial-gradient(
+        40rem 32rem at 88% 10%,
+        rgba(94, 113, 245, 0.18),
+        transparent 60%
+      ),
+      radial-gradient(
+        46rem 40rem at 74% 96%,
+        rgba(143, 107, 230, 0.16),
+        transparent 62%
+      ),
+      radial-gradient(
+        34rem 30rem at 26% 92%,
+        rgba(217, 143, 176, 0.1),
+        transparent 60%
+      );
   }
 }
