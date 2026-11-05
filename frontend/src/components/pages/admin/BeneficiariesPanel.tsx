@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { formatUnits, isAddress } from 'viem'
+import { useReadContracts } from 'wagmi'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -46,6 +47,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { SUBSIDY_CONTRACT_ABI, SUBSIDY_CONTRACT_ADDRESS } from '@/constants'
 import {
   useBeneficiaries,
   useBeneficiary,
@@ -66,6 +68,7 @@ export function BeneficiariesPanel() {
     | 'name'
     | 'phoneNumber'
     | 'responsable'
+    | 'lastClaimed'
   const { toast } = useToast()
   const [sortConfig, setSortConfig] = useState<{
     key: sortable_fields
@@ -112,6 +115,7 @@ export function BeneficiariesPanel() {
     telefono: true,
     responsable: true,
     activo: true,
+    ultimoReclamo: true,
     fechaAnadido: true,
     fechaEliminado: true,
     totalReclamado: true,
@@ -125,6 +129,7 @@ export function BeneficiariesPanel() {
     telefono: 150,
     responsable: 190,
     activo: 80,
+    ultimoReclamo: 130,
     fechaAnadido: 120,
     fechaEliminado: 120,
     totalReclamado: 150,
@@ -228,6 +233,30 @@ export function BeneficiariesPanel() {
     return new Map(beneficiariesData.map((b) => [b.address.toLowerCase(), b]))
   }, [beneficiariesData])
 
+  // Last claim per beneficiary, read from the contract (addressToUser).
+  const beneficiaryIds = useMemo(
+    () => data_beneficiaries?.beneficiaries.map((b) => b.id) ?? [],
+    [data_beneficiaries?.beneficiaries]
+  )
+  const { data: lastClaimResults } = useReadContracts({
+    contracts: beneficiaryIds.map((id) => ({
+      address: SUBSIDY_CONTRACT_ADDRESS as `0x${string}`,
+      abi: SUBSIDY_CONTRACT_ABI,
+      functionName: 'addressToUser' as const,
+      args: [id as `0x${string}`],
+    })),
+    query: { enabled: beneficiaryIds.length > 0, staleTime: 60_000 },
+  })
+  const lastClaimLookup = useMemo(() => {
+    const map = new Map<string, number>()
+    lastClaimResults?.forEach((r, i) => {
+      if (r.status !== 'success') return
+      const [lastClaimed] = r.result as readonly [bigint, bigint]
+      map.set(beneficiaryIds[i].toLowerCase(), Number(lastClaimed))
+    })
+    return map
+  }, [lastClaimResults, beneficiaryIds])
+
   // Fetch all DailyClaims (up to 1000 for safety)
   const result_dailyClaims = useQuery({
     queryKey: ['AllDailyClaims'],
@@ -281,6 +310,9 @@ export function BeneficiariesPanel() {
           const bData = beneficiaryLookup.get(b.id.toLowerCase())
           aVal = aData?.[sortConfig.key] || ''
           bVal = bData?.[sortConfig.key] || ''
+        } else if (sortConfig.key === 'lastClaimed') {
+          aVal = lastClaimLookup.get(a.id.toLowerCase()) ?? -1
+          bVal = lastClaimLookup.get(b.id.toLowerCase()) ?? -1
         } else {
           // Handle blockchain fields
           aVal = a[sortConfig.key as beneficiary_fields]
@@ -307,7 +339,12 @@ export function BeneficiariesPanel() {
       })
     }
     return sorted
-  }, [data_beneficiaries?.beneficiaries, sortConfig, beneficiaryLookup])
+  }, [
+    data_beneficiaries?.beneficiaries,
+    sortConfig,
+    beneficiaryLookup,
+    lastClaimLookup,
+  ])
 
   const filteredBeneficiaries = useMemo(() => {
     if (!sortedBeneficiaries) return []
@@ -712,6 +749,10 @@ export function BeneficiariesPanel() {
                           { key: 'responsable' as const, label: 'Responsable' },
                           { key: 'activo' as const, label: 'Activo' },
                           {
+                            key: 'ultimoReclamo' as const,
+                            label: 'Último reclamo',
+                          },
+                          {
                             key: 'fechaAnadido' as const,
                             label: 'Fecha añadido',
                           },
@@ -815,6 +856,16 @@ export function BeneficiariesPanel() {
                           <dd>
                             {beneficiary.isActive ? 'Activo' : 'Inactivo'}
                           </dd>
+                          <dt className="text-muted-foreground">
+                            Último reclamo
+                          </dt>
+                          <dd>
+                            <LastClaim
+                              seconds={lastClaimLookup.get(
+                                beneficiary.id.toLowerCase()
+                              )}
+                            />
+                          </dd>
                           <dt className="text-muted-foreground">Añadido</dt>
                           <dd>
                             {new Date(
@@ -850,7 +901,7 @@ export function BeneficiariesPanel() {
 
                 {/* Tablets and up: the full table, scrolls sideways inside the card */}
                 <div className="relative hidden max-h-[65vh] w-full flex-1 overflow-x-auto overflow-y-auto md:block">
-                  <Table className="w-full min-w-[1100px]">
+                  <Table className="w-full min-w-[1220px]">
                     <TableHeader className="sticky top-0 z-10 rounded-t-xl bg-card shadow-sm">
                       <TableRow className="border-b-2 border-border">
                         {visibleColumns.acciones && (
@@ -952,6 +1003,24 @@ export function BeneficiariesPanel() {
                               className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
                               onMouseDown={(e) =>
                                 handleResizeStart(e, 'activo')
+                              }
+                            />
+                          </TableHead>
+                        )}
+                        {visibleColumns.ultimoReclamo && (
+                          <TableHead
+                            onClick={() => requestSort('lastClaimed')}
+                            onContextMenu={(e) =>
+                              handleContextMenu(e, 'ultimoReclamo')
+                            }
+                            className="relative cursor-pointer whitespace-nowrap font-bold"
+                            style={{ width: `${columnWidths.ultimoReclamo}px` }}
+                          >
+                            Último reclamo
+                            <div
+                              className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
+                              onMouseDown={(e) =>
+                                handleResizeStart(e, 'ultimoReclamo')
                               }
                             />
                           </TableHead>
@@ -1109,6 +1178,20 @@ export function BeneficiariesPanel() {
                                 style={{ width: `${columnWidths.activo}px` }}
                               >
                                 {beneficiary.isActive ? 'Sí' : 'No'}
+                              </TableCell>
+                            )}
+                            {visibleColumns.ultimoReclamo && (
+                              <TableCell
+                                className="whitespace-nowrap"
+                                style={{
+                                  width: `${columnWidths.ultimoReclamo}px`,
+                                }}
+                              >
+                                <LastClaim
+                                  seconds={lastClaimLookup.get(
+                                    beneficiary.id.toLowerCase()
+                                  )}
+                                />
                               </TableCell>
                             )}
                             {visibleColumns.fechaAnadido && (
@@ -1411,5 +1494,26 @@ export function BeneficiariesPanel() {
         </div>
       )}
     </div>
+  )
+}
+
+// Date of a beneficiary's last claim plus how long ago it was.
+function LastClaim({ seconds }: { seconds: number | undefined }) {
+  if (seconds === undefined)
+    return <span className="text-muted-foreground">...</span>
+  if (seconds === 0) return <span className="text-muted-foreground">Nunca</span>
+  // Calendar days between the claim date and today, in local time.
+  const claimDay = new Date(seconds * 1000)
+  claimDay.setHours(0, 0, 0, 0)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const days = Math.round((today.getTime() - claimDay.getTime()) / 86400000)
+  const ago =
+    days <= 0 ? 'hoy' : days === 1 ? 'hace 1 día' : `hace ${days} días`
+  return (
+    <span title={new Date(seconds * 1000).toLocaleString('es-CO')}>
+      {new Date(seconds * 1000).toLocaleDateString('es-CO')}
+      <span className="block text-xs text-muted-foreground">{ago}</span>
+    </span>
   )
 }
