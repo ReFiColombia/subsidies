@@ -28,10 +28,13 @@ export function NavBar() {
               className="h-8 w-auto sm:h-9"
             />
           </a>
-          <span className="h-5 w-px bg-[var(--line-strong)]" aria-hidden />
+          <span
+            className={`h-5 w-px bg-[var(--line-strong)] ${isAdmin ? 'hidden sm:block' : ''}`}
+            aria-hidden
+          />
           <Link
             to="/"
-            className="whitespace-nowrap font-display text-lg text-foreground"
+            className={`whitespace-nowrap font-display text-lg text-foreground ${isAdmin ? 'hidden sm:inline' : ''}`}
           >
             {t('appName')}
           </Link>
