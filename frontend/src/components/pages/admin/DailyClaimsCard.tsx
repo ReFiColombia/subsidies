@@ -62,7 +62,7 @@ export function DailyClaimsCard() {
   }
 
   return (
-    <div className="flex max-w-[90vw] flex-col items-center justify-center overflow-auto">
+    <div className="flex w-full min-w-0 flex-col items-center justify-center">
       <Card className="w-full rounded-xl border border-border bg-card p-0 shadow-md">
         <CardHeader className="flex flex-col gap-2 border-b p-6 md:flex-row md:items-center md:justify-between">
           <div>
@@ -98,7 +98,7 @@ export function DailyClaimsCard() {
           <div className="overflow-x-auto">
             <ChartContainer
               config={chartConfig}
-              className="h-[260px] w-full min-w-[600px] md:h-[320px]"
+              className="h-[240px] w-full md:h-[320px]"
             >
               <BarChart
                 data={chartData}
@@ -140,7 +140,7 @@ export function DailyClaimsCard() {
                     value:
                       activeChart === 'claims'
                         ? 'Cantidad de Reclamos'
-                        : 'Monto Reclamado (cCop)',
+                        : 'Monto Reclamado (COPm)',
                     angle: -90,
                     position: 'left',
                     style: {

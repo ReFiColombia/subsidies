@@ -1,6 +1,14 @@
 import { getBuiltGraphSDK } from '@graphclient'
 import { useQuery } from '@tanstack/react-query'
-import { Check, Edit, Save, Search, Settings2, X } from 'lucide-react'
+import {
+  AlertTriangle,
+  Check,
+  Edit,
+  Save,
+  Search,
+  Settings2,
+  X,
+} from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { formatUnits, isAddress } from 'viem'
 
@@ -112,10 +120,10 @@ export function BeneficiariesPanel() {
 
   // Column width state
   const [columnWidths, setColumnWidths] = useState({
-    nombre: 150,
-    direccion: 130,
-    telefono: 120,
-    responsable: 120,
+    nombre: 220,
+    direccion: 140,
+    telefono: 150,
+    responsable: 190,
     activo: 80,
     fechaAnadido: 120,
     fechaEliminado: 120,
@@ -207,7 +215,12 @@ export function BeneficiariesPanel() {
   const { data: data_beneficiaries } = result_beneficiaries
 
   // Fetch beneficiary names from API
-  const { data: beneficiariesData } = useBeneficiaries()
+  const {
+    data: beneficiariesData,
+    error: beneficiariesError,
+    refetch: refetchBeneficiaries,
+    isFetching: isFetchingBeneficiaries,
+  } = useBeneficiaries()
 
   // Create a lookup map for beneficiary data by address
   const beneficiaryLookup = useMemo(() => {
@@ -454,9 +467,9 @@ export function BeneficiariesPanel() {
   }
 
   return (
-    <div className="flex max-w-[90vw] flex-col items-center justify-center overflow-auto">
+    <div className="flex w-full min-w-0 flex-col items-center justify-center">
       <Card className="w-full rounded-xl border border-border bg-card p-0 shadow-md">
-        <CardHeader className="mb-4 flex flex-col gap-2 border-b p-6 md:flex-row md:items-center md:justify-between">
+        <CardHeader className="mb-4 flex flex-col gap-3 border-b p-4 sm:p-6 md:flex-row md:items-center md:justify-between">
           <div>
             <CardTitle className="text-lg font-bold text-card-foreground md:text-xl">
               Beneficiarios
@@ -486,8 +499,29 @@ export function BeneficiariesPanel() {
             </TabsList>
           </Tabs>
         </CardHeader>
-        <CardContent className="p-6 pt-0">
-          <div className="w-full md:min-w-[650px]">
+        <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+          <div className="w-full">
+            {beneficiariesError && (
+              <div className="mb-4 flex flex-col gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+                  <p>
+                    No se pudieron cargar los nombres, teléfonos y responsables.
+                    <span className="block text-muted-foreground">
+                      {beneficiariesError.message}
+                    </span>
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={isFetchingBeneficiaries}
+                  onClick={() => refetchBeneficiaries()}
+                >
+                  Reintentar
+                </Button>
+              </div>
+            )}
             {activeTab === 'resumen' && (
               <>
                 <div className="mb-4 grid w-full grid-cols-1 gap-4 p-0 py-6 md:grid-cols-3">
@@ -563,7 +597,7 @@ export function BeneficiariesPanel() {
                               {beneficiaryData?.name ||
                                 `${String(b.id).slice(0, 7)}...${String(b.id).slice(-5)}`}
                             </span>
-                            <span className="text-sm font-bold">
+                            <span className="shrink-0 whitespace-nowrap text-sm font-bold">
                               {new Intl.NumberFormat('es-CO', {
                                 minimumFractionDigits: 0,
                                 maximumFractionDigits: 0,
@@ -632,7 +666,7 @@ export function BeneficiariesPanel() {
                   </Select>
 
                   {/* Filtro de umbral de monto reclamado */}
-                  <div className="flex flex-1 items-center gap-2">
+                  <div className="flex flex-1 flex-wrap items-center gap-2">
                     <span className="whitespace-nowrap text-sm font-medium text-brand-400">
                       Monto:
                     </span>
@@ -656,10 +690,10 @@ export function BeneficiariesPanel() {
                       type="number"
                       min="0"
                       step="10000"
-                      placeholder="Cantidad en COP"
+                      placeholder="Cantidad en COPm"
                       value={amountThreshold}
                       onChange={(e) => setAmountThreshold(e.target.value)}
-                      className="h-10 flex-1 border-2 border-primary bg-card font-medium text-brand-400 placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
+                      className="h-10 min-w-[140px] flex-1 border-2 border-primary bg-card font-medium text-brand-400 placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
                     />
                   </div>
 
@@ -716,8 +750,107 @@ export function BeneficiariesPanel() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="relative max-h-[65vh] w-full flex-1 overflow-x-auto overflow-y-auto">
-                  <Table className="w-full min-w-[1000px]">
+                {/* Phones: one card per beneficiary, nothing cut off */}
+                <ul className="space-y-3 md:hidden">
+                  {filteredBeneficiaries.length === 0 && (
+                    <li className="rounded-lg border border-border p-4 text-center text-sm text-muted-foreground">
+                      No hay beneficiarios con estos filtros.
+                    </li>
+                  )}
+                  {filteredBeneficiaries.map((beneficiary) => {
+                    const info = beneficiaryLookup.get(
+                      beneficiary.id.toLowerCase()
+                    )
+                    return (
+                      <li
+                        key={beneficiary.id}
+                        className="rounded-lg border border-border bg-muted/40 p-4"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="break-words font-semibold">
+                              {info?.name || 'Sin nombre registrado'}
+                            </p>
+                            <button
+                              type="button"
+                              className="mt-1 break-all text-left font-mono text-xs text-muted-foreground"
+                              onClick={() => {
+                                navigator.clipboard.writeText(beneficiary.id)
+                                toast({
+                                  title: 'Dirección copiada al portapapeles',
+                                })
+                              }}
+                            >
+                              {beneficiary.id}
+                            </button>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRowClick(beneficiary.id)}
+                            className="h-8 w-8 shrink-0 p-0"
+                            aria-label="Editar"
+                          >
+                            <Edit className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </div>
+                        <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
+                          <dt className="text-muted-foreground">Teléfono</dt>
+                          <dd className="break-words">
+                            {info?.phoneNumber ? (
+                              <a
+                                href={`tel:${info.phoneNumber.replace(/\s/g, '')}`}
+                              >
+                                {info.phoneNumber}
+                              </a>
+                            ) : (
+                              '-'
+                            )}
+                          </dd>
+                          <dt className="text-muted-foreground">Responsable</dt>
+                          <dd className="break-words">
+                            {info?.responsable || '-'}
+                          </dd>
+                          <dt className="text-muted-foreground">Estado</dt>
+                          <dd>
+                            {beneficiary.isActive ? 'Activo' : 'Inactivo'}
+                          </dd>
+                          <dt className="text-muted-foreground">Añadido</dt>
+                          <dd>
+                            {new Date(
+                              beneficiary.dateAdded * 1000
+                            ).toLocaleDateString('es-CO')}
+                          </dd>
+                          {beneficiary.dateRemoved && (
+                            <>
+                              <dt className="text-muted-foreground">
+                                Eliminado
+                              </dt>
+                              <dd>
+                                {new Date(
+                                  beneficiary.dateRemoved * 1000
+                                ).toLocaleDateString('es-CO')}
+                              </dd>
+                            </>
+                          )}
+                          <dt className="text-muted-foreground">Reclamado</dt>
+                          <dd className="font-semibold">
+                            {new Intl.NumberFormat('es-CO', {
+                              maximumFractionDigits: 0,
+                            }).format(
+                              Number(formatUnits(beneficiary.totalClaimed, 18))
+                            )}{' '}
+                            COPm
+                          </dd>
+                        </dl>
+                      </li>
+                    )
+                  })}
+                </ul>
+
+                {/* Tablets and up: the full table, scrolls sideways inside the card */}
+                <div className="relative hidden max-h-[65vh] w-full flex-1 overflow-x-auto overflow-y-auto md:block">
+                  <Table className="w-full min-w-[1100px]">
                     <TableHeader className="sticky top-0 z-10 rounded-t-xl bg-card shadow-sm">
                       <TableRow className="border-b-2 border-border">
                         {visibleColumns.acciones && (
@@ -739,7 +872,7 @@ export function BeneficiariesPanel() {
                             onContextMenu={(e) =>
                               handleContextMenu(e, 'nombre')
                             }
-                            className="relative cursor-pointer font-bold"
+                            className="relative cursor-pointer whitespace-nowrap font-bold"
                             style={{ width: `${columnWidths.nombre}px` }}
                           >
                             Nombre
@@ -757,10 +890,10 @@ export function BeneficiariesPanel() {
                             onContextMenu={(e) =>
                               handleContextMenu(e, 'direccion')
                             }
-                            className="relative cursor-pointer font-bold"
+                            className="relative cursor-pointer whitespace-nowrap font-bold"
                             style={{ width: `${columnWidths.direccion}px` }}
                           >
-                            Dir
+                            Dirección
                             <div
                               className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
                               onMouseDown={(e) =>
@@ -775,10 +908,10 @@ export function BeneficiariesPanel() {
                             onContextMenu={(e) =>
                               handleContextMenu(e, 'telefono')
                             }
-                            className="relative cursor-pointer font-bold"
+                            className="relative cursor-pointer whitespace-nowrap font-bold"
                             style={{ width: `${columnWidths.telefono}px` }}
                           >
-                            Tel
+                            Teléfono
                             <div
                               className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
                               onMouseDown={(e) =>
@@ -793,10 +926,10 @@ export function BeneficiariesPanel() {
                             onContextMenu={(e) =>
                               handleContextMenu(e, 'responsable')
                             }
-                            className="relative cursor-pointer font-bold"
+                            className="relative cursor-pointer whitespace-nowrap font-bold"
                             style={{ width: `${columnWidths.responsable}px` }}
                           >
-                            Resp
+                            Responsable
                             <div
                               className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
                               onMouseDown={(e) =>
@@ -811,7 +944,7 @@ export function BeneficiariesPanel() {
                             onContextMenu={(e) =>
                               handleContextMenu(e, 'activo')
                             }
-                            className="relative cursor-pointer font-bold"
+                            className="relative cursor-pointer whitespace-nowrap font-bold"
                             style={{ width: `${columnWidths.activo}px` }}
                           >
                             Activo
@@ -829,10 +962,10 @@ export function BeneficiariesPanel() {
                             onContextMenu={(e) =>
                               handleContextMenu(e, 'fechaAnadido')
                             }
-                            className="relative cursor-pointer font-bold"
+                            className="relative cursor-pointer whitespace-nowrap font-bold"
                             style={{ width: `${columnWidths.fechaAnadido}px` }}
                           >
-                            Fec. Añad.
+                            Añadido
                             <div
                               className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
                               onMouseDown={(e) =>
@@ -847,12 +980,12 @@ export function BeneficiariesPanel() {
                             onContextMenu={(e) =>
                               handleContextMenu(e, 'fechaEliminado')
                             }
-                            className="relative cursor-pointer font-bold"
+                            className="relative cursor-pointer whitespace-nowrap font-bold"
                             style={{
                               width: `${columnWidths.fechaEliminado}px`,
                             }}
                           >
-                            Fec. Elim.
+                            Eliminado
                             <div
                               className="absolute bottom-0 right-0 top-0 w-1 cursor-col-resize transition-colors hover:bg-primary"
                               onMouseDown={(e) =>
@@ -867,7 +1000,7 @@ export function BeneficiariesPanel() {
                             onContextMenu={(e) =>
                               handleContextMenu(e, 'totalReclamado')
                             }
-                            className="relative cursor-pointer text-right font-bold"
+                            className="relative cursor-pointer whitespace-nowrap text-right font-bold"
                             style={{
                               width: `${columnWidths.totalReclamado}px`,
                             }}
@@ -910,15 +1043,12 @@ export function BeneficiariesPanel() {
                             )}
                             {visibleColumns.nombre && (
                               <TableCell
-                                className="cursor-pointer overflow-hidden text-ellipsis font-medium transition-colors hover:text-brand-400"
+                                className="cursor-pointer font-medium transition-colors hover:text-brand-400"
                                 onClick={() => handleRowClick(beneficiary.id)}
-                                style={{
-                                  width: `${columnWidths.nombre}px`,
-                                  maxWidth: `${columnWidths.nombre}px`,
-                                }}
+                                style={{ minWidth: `${columnWidths.nombre}px` }}
                                 title={beneficiaryData?.name || '-'}
                               >
-                                <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                                <div className="whitespace-normal break-words">
                                   {beneficiaryData?.name || '-'}
                                 </div>
                               </TableCell>
@@ -951,28 +1081,24 @@ export function BeneficiariesPanel() {
                             )}
                             {visibleColumns.telefono && (
                               <TableCell
-                                className="overflow-hidden text-ellipsis"
                                 style={{
-                                  width: `${columnWidths.telefono}px`,
-                                  maxWidth: `${columnWidths.telefono}px`,
+                                  minWidth: `${columnWidths.telefono}px`,
                                 }}
                                 title={beneficiaryData?.phoneNumber || '-'}
                               >
-                                <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                                <div className="whitespace-nowrap">
                                   {beneficiaryData?.phoneNumber || '-'}
                                 </div>
                               </TableCell>
                             )}
                             {visibleColumns.responsable && (
                               <TableCell
-                                className="overflow-hidden text-ellipsis"
                                 style={{
-                                  width: `${columnWidths.responsable}px`,
-                                  maxWidth: `${columnWidths.responsable}px`,
+                                  minWidth: `${columnWidths.responsable}px`,
                                 }}
                                 title={beneficiaryData?.responsable || '-'}
                               >
-                                <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                                <div className="whitespace-normal break-words">
                                   {beneficiaryData?.responsable || '-'}
                                 </div>
                               </TableCell>
@@ -994,7 +1120,7 @@ export function BeneficiariesPanel() {
                               >
                                 {new Date(
                                   beneficiary.dateAdded * 1000
-                                ).toLocaleDateString()}
+                                ).toLocaleDateString('es-CO')}
                               </TableCell>
                             )}
                             {visibleColumns.fechaEliminado && (
@@ -1007,7 +1133,7 @@ export function BeneficiariesPanel() {
                                 {beneficiary.dateRemoved
                                   ? new Date(
                                       beneficiary.dateRemoved * 1000
-                                    ).toLocaleDateString()
+                                    ).toLocaleDateString('es-CO')
                                   : '-'}
                               </TableCell>
                             )}
