@@ -2,7 +2,7 @@
   "programDescription1": "El Programa de Subsidios ReFi Colombia es una iniciativa que proporciona subsidios periódicos en COPm (Mento Colombian Peso) a beneficiarios elegibles en la red Celo.",
   "programDescription2": "Los beneficiarios pueden reclamar su subsidio cada cierto intervalo de tiempo, contribuyendo así a la inclusión financiera y el acceso a servicios descentralizados.",
   "notBeneficiary": "Lo sentimos, aún no eres beneficiario",
-  "registerHere": "Registrate aquí",
+  "registerHere": "Regístrate aquí",
   "amountAvailable": "Monto disponible para reclamar: {{amount}} COPm",
   "alreadyClaimed": "Ya reclamaste el subsidio de esta semana.",
   "comeBackIn": "Regresa en {{days}} días para reclamar de nuevo.",
@@ -39,5 +39,17 @@
   "shareText": "Acabo de donar {{amount}} COPm al programa de subsidios de ReFi Colombia! {{url}}",
   "swapWidgetError": "No se pudo cargar el widget de intercambio.",
   "getCOPmDirectly": "Puedes obtener COPm directamente en",
-  "or": "o"
+  "or": "o",
+  "heroEyebrow": "ReFi Colombia",
+  "heroTitle": "Programa de Subsidios",
+  "heroTagCOPm": "Pagos en COPm",
+  "heroTagCelo": "Red Celo",
+  "heroTagOnchain": "Todo verificable en la blockchain",
+  "transparencySubtitle": "Cifras en vivo del contrato del programa.",
+  "donateSectionTitle": "Apoya el programa",
+  "donateSectionSubtitle": "Cada aporte en COPm llega directo al contrato y se reparte entre los beneficiarios.",
+  "beneficiarySectionTitle": "Para beneficiarios",
+  "beneficiarySectionSubtitle": "Reclama tu subsidio cuando esté disponible.",
+  "connectToClaim": "Conecta tu wallet para ver si puedes reclamar tu subsidio.",
+  "connectWallet": "Conectar wallet"
 }

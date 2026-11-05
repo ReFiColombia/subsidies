@@ -35,7 +35,10 @@ export function DonationReceipt({
 
   const celoscanUrl = `https://celoscan.io/tx/${txHash}`
 
-  const shareText = t('shareText', { amount: formattedAmount, url: celoscanUrl })
+  const shareText = t('shareText', {
+    amount: formattedAmount,
+    url: celoscanUrl,
+  })
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`
 
   return (
