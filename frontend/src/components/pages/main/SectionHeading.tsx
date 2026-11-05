@@ -6,8 +6,8 @@ type SectionHeadingProps = {
 // Shared heading so every block of the public page reads the same way.
 export function SectionHeading({ title, subtitle }: SectionHeadingProps) {
   return (
-    <div className="mb-4 text-center">
-      <h2 className="text-balance text-xl font-semibold text-foreground">
+    <div className="mb-5 text-center">
+      <h2 className="text-balance font-display text-2xl font-medium text-foreground sm:text-3xl">
         {title}
       </h2>
       {subtitle && (

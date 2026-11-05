@@ -51,5 +51,7 @@
   "beneficiarySectionTitle": "Para beneficiarios",
   "beneficiarySectionSubtitle": "Reclama tu subsidio cuando esté disponible.",
   "connectToClaim": "Conecta tu wallet para ver si puedes reclamar tu subsidio.",
-  "connectWallet": "Conectar wallet"
+  "connectWallet": "Conectar wallet",
+  "heroTitleLead": "Programa de",
+  "heroTitleAccent": "subsidios"
 }
