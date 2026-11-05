@@ -2,21 +2,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs'
 
 import { BeneficiariesPanel } from './BeneficiariesPanel'
 import { DailyClaimsCard } from './DailyClaimsCard'
+import { adminTabsList, adminTabsTrigger } from './tabStyles'
 
 export function Dashboard() {
   return (
     <Tabs defaultValue="claims" className="flex h-full w-full flex-col">
-      <TabsList className="mb-4 grid w-full grid-cols-2 gap-x-2 rounded-xl bg-muted p-1">
-        <TabsTrigger
-          value="claims"
-          className="tab-button rounded-lg transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground"
-        >
+      <TabsList className={adminTabsList}>
+        <TabsTrigger value="claims" className={adminTabsTrigger}>
           Fondos
         </TabsTrigger>
-        <TabsTrigger
-          value="beneficiaries"
-          className="tab-button rounded-lg transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground"
-        >
+        <TabsTrigger value="beneficiaries" className={adminTabsTrigger}>
           Beneficiarios
         </TabsTrigger>
       </TabsList>

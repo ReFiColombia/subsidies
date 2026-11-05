@@ -61,10 +61,22 @@ export function DailyClaimsCard() {
     },
   }
 
+  // Phones drop the rotated axis title so the bars get the full width.
+  const [isNarrow, setIsNarrow] = React.useState(
+    () => typeof window !== 'undefined' && window.innerWidth < 640
+  )
+  React.useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)')
+    const onChange = () => setIsNarrow(mq.matches)
+    onChange()
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+
   return (
     <div className="flex w-full min-w-0 flex-col items-center justify-center">
-      <Card className="w-full rounded-xl border border-border bg-card p-0 shadow-md">
-        <CardHeader className="flex flex-col gap-2 border-b p-6 md:flex-row md:items-center md:justify-between">
+      <Card className="w-full p-0">
+        <CardHeader className="flex flex-col gap-3 border-b border-[var(--line)] p-4 sm:p-6 md:flex-row md:items-center md:justify-between">
           <div>
             <CardTitle className="text-lg text-card-foreground md:text-xl">
               Reclamos Diarios
@@ -78,23 +90,23 @@ export function DailyClaimsCard() {
             value={activeChart}
             onValueChange={(v) => setActiveChart(v as 'claims' | 'amount')}
           >
-            <TabsList className="rounded-xl bg-muted p-1">
+            <TabsList className="inline-flex w-full rounded-full border border-[var(--line)] bg-muted/60 p-1 sm:w-auto">
               <TabsTrigger
                 value="claims"
-                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground"
+                className="flex-1 rounded-full px-4 py-1.5 text-sm font-medium transition-colors data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground sm:flex-none"
               >
                 Cantidad
               </TabsTrigger>
               <TabsTrigger
                 value="amount"
-                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground"
+                className="flex-1 rounded-full px-4 py-1.5 text-sm font-medium transition-colors data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground sm:flex-none"
               >
                 Monto
               </TabsTrigger>
             </TabsList>
           </Tabs>
         </CardHeader>
-        <CardContent className="p-6">
+        <CardContent className="p-4 sm:p-6">
           <div className="overflow-x-auto">
             <ChartContainer
               config={chartConfig}
@@ -135,20 +147,24 @@ export function DailyClaimsCard() {
                   fontSize={13}
                   stroke="hsl(232, 88%, 66%)"
                   tickMargin={8}
-                  width={60}
-                  label={{
-                    value:
-                      activeChart === 'claims'
-                        ? 'Cantidad de Reclamos'
-                        : 'Monto Reclamado (COPm)',
-                    angle: -90,
-                    position: 'left',
-                    style: {
-                      textAnchor: 'middle',
-                      fontSize: 12,
-                      fill: 'rgba(255,255,255,0.7)',
-                    },
-                  }}
+                  width={isNarrow ? 44 : 60}
+                  label={
+                    isNarrow
+                      ? undefined
+                      : {
+                          value:
+                            activeChart === 'claims'
+                              ? 'Cantidad de Reclamos'
+                              : 'Monto Reclamado (COPm)',
+                          angle: -90,
+                          position: 'left',
+                          style: {
+                            textAnchor: 'middle',
+                            fontSize: 12,
+                            fill: 'rgba(255,255,255,0.7)',
+                          },
+                        }
+                  }
                   tickFormatter={(value) =>
                     activeChart === 'amount'
                       ? `$${(value / 1000).toLocaleString('es-CO', { maximumFractionDigits: 0 })} k`
@@ -179,12 +195,12 @@ export function DailyClaimsCard() {
               </BarChart>
             </ChartContainer>
           </div>
-          <div className="mt-6 grid grid-cols-1 gap-4 overflow-x-auto sm:grid-cols-2 lg:grid-cols-4">
-            <Card className="flex min-w-[180px] flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
-              <p className="mb-2 text-sm font-medium text-muted-foreground">
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+            <Card className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--line)] bg-muted/60 px-4 py-3 shadow-none sm:flex-col sm:items-start sm:justify-center sm:gap-1 sm:px-5 sm:py-4">
+              <p className="text-sm font-medium text-muted-foreground sm:mb-1">
                 Total aportado
               </p>
-              <p className="text-lg font-bold text-card-foreground md:text-xl">
+              <p className="whitespace-nowrap text-base font-bold tabular-nums text-card-foreground sm:text-xl">
                 {new Intl.NumberFormat('es-CO', {
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0,
@@ -194,11 +210,11 @@ export function DailyClaimsCard() {
                 COPm
               </p>
             </Card>
-            <Card className="flex min-w-[180px] flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
-              <p className="mb-2 text-sm font-medium text-muted-foreground">
+            <Card className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--line)] bg-muted/60 px-4 py-3 shadow-none sm:flex-col sm:items-start sm:justify-center sm:gap-1 sm:px-5 sm:py-4">
+              <p className="text-sm font-medium text-muted-foreground sm:mb-1">
                 Total retirado
               </p>
-              <p className="text-lg font-bold text-card-foreground md:text-xl">
+              <p className="whitespace-nowrap text-base font-bold tabular-nums text-card-foreground sm:text-xl">
                 {new Intl.NumberFormat('es-CO', {
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0,
@@ -208,11 +224,11 @@ export function DailyClaimsCard() {
                 COPm
               </p>
             </Card>
-            <Card className="flex min-w-[180px] flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
-              <p className="mb-2 text-sm font-medium text-muted-foreground">
+            <Card className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--line)] bg-muted/60 px-4 py-3 shadow-none sm:flex-col sm:items-start sm:justify-center sm:gap-1 sm:px-5 sm:py-4">
+              <p className="text-sm font-medium text-muted-foreground sm:mb-1">
                 Total reclamado
               </p>
-              <p className="text-lg font-bold text-card-foreground md:text-xl">
+              <p className="whitespace-nowrap text-base font-bold tabular-nums text-card-foreground sm:text-xl">
                 {new Intl.NumberFormat('es-CO', {
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0,
@@ -222,11 +238,11 @@ export function DailyClaimsCard() {
                 COPm
               </p>
             </Card>
-            <Card className="flex min-w-[180px] flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
-              <p className="mb-2 text-sm font-medium text-muted-foreground">
+            <Card className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--line)] bg-muted/60 px-4 py-3 shadow-none sm:flex-col sm:items-start sm:justify-center sm:gap-1 sm:px-5 sm:py-4">
+              <p className="text-sm font-medium text-muted-foreground sm:mb-1">
                 Balance actual
               </p>
-              <p className="text-lg font-bold text-card-foreground md:text-xl">
+              <p className="whitespace-nowrap text-base font-bold tabular-nums text-card-foreground sm:text-xl">
                 {new Intl.NumberFormat('es-CO', {
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0,

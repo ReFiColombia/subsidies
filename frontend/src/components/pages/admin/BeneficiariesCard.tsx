@@ -27,6 +27,8 @@ import {
 import { useCreateBeneficiary } from '@/hooks/useBeneficiaries'
 import { useToast } from '@/hooks/useToast'
 
+import { adminTabsList, adminTabsTrigger } from './tabStyles'
+
 export function BeneficiariesCard() {
   const { toast } = useToast()
   const { address: userAddress } = useAccount()
@@ -266,25 +268,19 @@ export function BeneficiariesCard() {
 
   return (
     <Tabs defaultValue="add" className="h-full w-full flex-1">
-      <TabsList className="mb-4 grid w-full grid-cols-2 gap-x-2 rounded-xl bg-muted p-1">
-        <TabsTrigger
-          value="add"
-          className="tab-button rounded-lg transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground"
-        >
+      <TabsList className={adminTabsList}>
+        <TabsTrigger value="add" className={adminTabsTrigger}>
           Añadir
         </TabsTrigger>
-        <TabsTrigger
-          value="delete"
-          className="tab-button rounded-lg transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground"
-        >
+        <TabsTrigger value="delete" className={adminTabsTrigger}>
           Eliminar
         </TabsTrigger>
       </TabsList>
       <TabsContent value="add">
-        <Card className="mx-auto mb-6 w-full max-w-[400px] rounded-xl border border-border bg-card p-6 shadow-md">
+        <Card className="w-full p-5 sm:p-6">
           <form onSubmit={handleAddSubmit}>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-card-foreground">
+            <CardHeader className="p-0 pb-5">
+              <CardTitle className="text-xl text-card-foreground">
                 Añadir beneficiario
               </CardTitle>
             </CardHeader>
@@ -358,7 +354,7 @@ export function BeneficiariesCard() {
             <CardFooter className="p-0">
               <Button
                 type="submit"
-                className="w-full rounded-lg bg-primary text-white hover:bg-brand-700"
+                className="w-full"
                 disabled={isPending || isLoading || createBeneficiary.isPending}
               >
                 {(isPending || isLoading || createBeneficiary.isPending) && (
@@ -375,10 +371,10 @@ export function BeneficiariesCard() {
         </Card>
       </TabsContent>
       <TabsContent value="delete">
-        <Card className="mx-auto mb-6 w-full max-w-[400px] rounded-xl border border-border bg-card p-6 shadow-md">
+        <Card className="w-full p-5 sm:p-6">
           <form onSubmit={handleDeleteSubmit}>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-card-foreground">
+            <CardHeader className="p-0 pb-5">
+              <CardTitle className="text-xl text-card-foreground">
                 Eliminar beneficiario
               </CardTitle>
             </CardHeader>
@@ -394,7 +390,7 @@ export function BeneficiariesCard() {
             <CardFooter className="p-0">
               <Button
                 type="submit"
-                className="w-full rounded-lg bg-primary text-white hover:bg-brand-700"
+                className="w-full"
                 disabled={isPending || isLoading}
               >
                 {(isPending || isLoading) && (
