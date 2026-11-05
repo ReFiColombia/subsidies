@@ -91,11 +91,14 @@ export function BeneficiariesPanel() {
   // Nuevo filtro de umbral
   const [amountThreshold, setAmountThreshold] = useState<string>('')
   const [amountComparison, setAmountComparison] = useState<'gt' | 'lt'>('gt')
-  // Last claim filter: within X days, more than X days ago (or never), never
-  const [lastClaimMode, setLastClaimMode] = useState<
-    'any' | 'within' | 'over' | 'never'
-  >('any')
-  const [lastClaimDays, setLastClaimDays] = useState<string>('')
+  // Last claim filter: chips that can be combined (OR), plus a custom range
+  const [lastClaimBuckets, setLastClaimBuckets] = useState<LastClaimBucket[]>(
+    []
+  )
+  const [customRange, setCustomRange] = useState<{ from: string; to: string }>({
+    from: '',
+    to: '',
+  })
 
   // Beneficiary management states
   const [searchAddress, setSearchAddress] = useState('')
@@ -354,7 +357,8 @@ export function BeneficiariesPanel() {
     lastClaimLookup,
   ])
 
-  const filteredBeneficiaries = useMemo(() => {
+  // Every filter except last claim; the chip counts are computed from this.
+  const baseFilteredBeneficiaries = useMemo(() => {
     if (!sortedBeneficiaries) return []
 
     return sortedBeneficiaries.filter((beneficiary) => {
@@ -392,20 +396,6 @@ export function BeneficiariesPanel() {
         if (amountComparison === 'lt' && !(claimed < threshold)) return false
       }
 
-      // Last claim filter (skipped until the contract data has loaded)
-      if (lastClaimMode !== 'any' && lastClaimLookup.size > 0) {
-        const last = lastClaimLookup.get(beneficiary.id.toLowerCase())
-        if (last === undefined) return false
-        if (lastClaimMode === 'never') {
-          if (last !== 0) return false
-        } else if (lastClaimDays !== '') {
-          const limit = Number(lastClaimDays)
-          const days = last === 0 ? Infinity : daysSince(last)
-          if (lastClaimMode === 'within' && !(days <= limit)) return false
-          if (lastClaimMode === 'over' && !(days > limit)) return false
-        }
-      }
-
       return true
     })
   }, [
@@ -415,11 +405,58 @@ export function BeneficiariesPanel() {
     dateRange,
     amountThreshold,
     amountComparison,
-    lastClaimMode,
-    lastClaimDays,
-    lastClaimLookup,
     beneficiaryLookup,
   ])
+
+  // Days since each beneficiary's last claim: null = never, undefined = loading
+  const claimDaysOf = useCallback(
+    (id: string): number | null | undefined => {
+      const last = lastClaimLookup.get(id.toLowerCase())
+      if (last === undefined) return undefined
+      return last === 0 ? null : daysSince(last)
+    },
+    [lastClaimLookup]
+  )
+
+  const lastClaimCounts = useMemo(() => {
+    const counts: Record<LastClaimBucket, number> = {
+      week: 0,
+      month: 0,
+      twoMonths: 0,
+      older: 0,
+      never: 0,
+      custom: 0,
+    }
+    for (const b of baseFilteredBeneficiaries) {
+      const days = claimDaysOf(b.id)
+      if (days === undefined) continue
+      for (const bucket of LAST_CLAIM_BUCKETS) {
+        if (matchesBucket(bucket.id, days, customRange)) counts[bucket.id]++
+      }
+    }
+    return counts
+  }, [baseFilteredBeneficiaries, claimDaysOf, customRange])
+
+  const filteredBeneficiaries = useMemo(() => {
+    if (lastClaimBuckets.length === 0 || lastClaimLookup.size === 0)
+      return baseFilteredBeneficiaries
+    return baseFilteredBeneficiaries.filter((b) => {
+      const days = claimDaysOf(b.id)
+      if (days === undefined) return false
+      return lastClaimBuckets.some((id) => matchesBucket(id, days, customRange))
+    })
+  }, [
+    baseFilteredBeneficiaries,
+    lastClaimBuckets,
+    lastClaimLookup,
+    claimDaysOf,
+    customRange,
+  ])
+
+  const toggleLastClaimBucket = (id: LastClaimBucket) =>
+    setLastClaimBuckets((prev) =>
+      prev.includes(id) ? prev.filter((b) => b !== id) : [...prev, id]
+    )
 
   const requestSort = (key: sortable_fields) => {
     let direction: 'asc' | 'desc' = 'desc'
@@ -816,64 +853,113 @@ export function BeneficiariesPanel() {
                     </SelectContent>
                   </Select>
                 </div>
-                {/* Last claim filter */}
-                <div className="mb-4 flex w-full flex-wrap items-center gap-2">
-                  <span className="whitespace-nowrap text-sm font-medium text-brand-400">
-                    Último reclamo:
-                  </span>
-                  <Select
-                    value={lastClaimMode}
-                    onValueChange={(v) =>
-                      setLastClaimMode(v as 'any' | 'within' | 'over' | 'never')
-                    }
-                  >
-                    <SelectTrigger className="h-10 w-full border-2 border-primary bg-card font-medium text-brand-400 hover:bg-muted focus:ring-primary sm:w-[230px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="any">Cualquier fecha</SelectItem>
-                      <SelectItem value="within">
-                        En los últimos X días
-                      </SelectItem>
-                      <SelectItem value="over">
-                        Hace más de X días o nunca
-                      </SelectItem>
-                      <SelectItem value="never">Nunca ha reclamado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {(lastClaimMode === 'within' || lastClaimMode === 'over') && (
-                    <div className="flex flex-1 items-center gap-2">
+                {/* Last claim filter: combinable chips with live counts */}
+                <div className="mb-4 w-full rounded-2xl border border-[var(--line)] bg-muted/30 p-3 sm:p-4">
+                  <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                    <span className="text-sm font-medium text-foreground">
+                      Último reclamo
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      Puedes combinar opciones, por ejemplo «Más de 60 días» +
+                      «Nunca»
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setLastClaimBuckets([])}
+                      aria-pressed={lastClaimBuckets.length === 0}
+                      className={(() => {
+                        const active = lastClaimBuckets.length === 0
+                        return `inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                          active
+                            ? 'border-primary bg-primary text-primary-foreground'
+                            : 'border-[var(--line-strong)] text-muted-foreground hover:border-primary/60 hover:text-foreground'
+                        }`
+                      })()}
+                    >
+                      Todos
+                      <span className="tabular-nums opacity-70">
+                        {baseFilteredBeneficiaries.length}
+                      </span>
+                    </button>
+                    {LAST_CLAIM_BUCKETS.map((bucket) => {
+                      const active = lastClaimBuckets.includes(bucket.id)
+                      return (
+                        <button
+                          key={bucket.id}
+                          type="button"
+                          onClick={() => toggleLastClaimBucket(bucket.id)}
+                          aria-pressed={active}
+                          title={bucket.hint}
+                          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                            active
+                              ? 'border-primary bg-primary text-primary-foreground'
+                              : 'border-[var(--line-strong)] text-muted-foreground hover:border-primary/60 hover:text-foreground'
+                          }`}
+                        >
+                          {bucket.label}
+                          {bucket.id !== 'custom' && (
+                            <span className="tabular-nums opacity-70">
+                              {lastClaimLookup.size > 0
+                                ? lastClaimCounts[bucket.id]
+                                : '…'}
+                            </span>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  {lastClaimBuckets.includes('custom') && (
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                      <span>
+                        <span className="hidden sm:inline">Reclamó hace </span>
+                        <span className="sm:hidden">Hace </span>
+                        entre
+                      </span>
                       <Input
                         type="number"
                         min="0"
                         step="1"
-                        placeholder="Días"
-                        value={lastClaimDays}
-                        onChange={(e) => setLastClaimDays(e.target.value)}
-                        className="h-10 w-28 border-2 border-primary bg-card font-medium text-brand-400 placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
+                        inputMode="numeric"
+                        placeholder="0"
+                        aria-label="Desde días"
+                        value={customRange.from}
+                        onChange={(e) =>
+                          setCustomRange((r) => ({
+                            ...r,
+                            from: e.target.value,
+                          }))
+                        }
+                        className="h-9 w-16 bg-card text-center text-foreground [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                       />
-                      <div className="flex flex-wrap gap-1">
-                        {[7, 15, 30, 60].map((d) => (
-                          <button
-                            key={d}
-                            type="button"
-                            onClick={() => setLastClaimDays(String(d))}
-                            className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                              lastClaimDays === String(d)
-                                ? 'border-primary bg-primary text-primary-foreground'
-                                : 'border-[var(--line-strong)] text-muted-foreground hover:text-foreground'
-                            }`}
-                          >
-                            {d} d
-                          </button>
-                        ))}
-                      </div>
+                      <span>y</span>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="1"
+                        inputMode="numeric"
+                        placeholder="∞"
+                        aria-label="Hasta días"
+                        value={customRange.to}
+                        onChange={(e) =>
+                          setCustomRange((r) => ({ ...r, to: e.target.value }))
+                        }
+                        className="h-9 w-16 bg-card text-center text-foreground [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                      />
+                      <span>días</span>
+                      <span className="tabular-nums text-foreground">
+                        ({lastClaimCounts.custom})
+                      </span>
                     </div>
                   )}
-                  <span className="ml-auto text-xs text-muted-foreground">
-                    {filteredBeneficiaries.length} de{' '}
-                    {sortedBeneficiaries.length}
-                  </span>
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Mostrando{' '}
+                    <span className="font-medium text-foreground">
+                      {filteredBeneficiaries.length}
+                    </span>{' '}
+                    de {sortedBeneficiaries.length} beneficiarios
+                  </p>
                 </div>
 
                 {/* Phones: one card per beneficiary, nothing cut off */}
@@ -1580,6 +1666,56 @@ export function BeneficiariesPanel() {
       )}
     </div>
   )
+}
+
+type LastClaimBucket =
+  | 'week'
+  | 'month'
+  | 'twoMonths'
+  | 'older'
+  | 'never'
+  | 'custom'
+
+const LAST_CLAIM_BUCKETS: {
+  id: LastClaimBucket
+  label: string
+  hint: string
+}[] = [
+  { id: 'week', label: 'Últimos 7 días', hint: 'Reclamó hace 0 a 7 días' },
+  { id: 'month', label: '8 a 30 días', hint: 'Reclamó hace 8 a 30 días' },
+  { id: 'twoMonths', label: '31 a 60 días', hint: 'Reclamó hace 31 a 60 días' },
+  { id: 'older', label: 'Más de 60 días', hint: 'Reclamó hace más de 60 días' },
+  { id: 'never', label: 'Nunca', hint: 'Nunca ha reclamado' },
+  {
+    id: 'custom',
+    label: 'Rango personalizado',
+    hint: 'Elige entre X y Y días',
+  },
+]
+
+// days: days since the last claim, or null when the beneficiary never claimed
+function matchesBucket(
+  bucket: LastClaimBucket,
+  days: number | null,
+  custom: { from: string; to: string }
+): boolean {
+  if (bucket === 'never') return days === null
+  if (days === null) return false
+  switch (bucket) {
+    case 'week':
+      return days <= 7
+    case 'month':
+      return days >= 8 && days <= 30
+    case 'twoMonths':
+      return days >= 31 && days <= 60
+    case 'older':
+      return days > 60
+    case 'custom': {
+      const from = custom.from === '' ? 0 : Number(custom.from)
+      const to = custom.to === '' ? Infinity : Number(custom.to)
+      return days >= Math.min(from, to) && days <= Math.max(from, to)
+    }
+  }
 }
 
 // Calendar days between a unix timestamp and today, in local time.
