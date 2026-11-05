@@ -471,7 +471,7 @@ export function BeneficiariesPanel() {
       <Card className="w-full rounded-xl border border-border bg-card p-0 shadow-md">
         <CardHeader className="mb-4 flex flex-col gap-3 border-b p-4 sm:p-6 md:flex-row md:items-center md:justify-between">
           <div>
-            <CardTitle className="text-lg font-bold text-card-foreground md:text-xl">
+            <CardTitle className="text-lg text-card-foreground md:text-xl">
               Beneficiarios
             </CardTitle>
             <CardDescription className="text-sm text-muted-foreground">
@@ -486,13 +486,13 @@ export function BeneficiariesPanel() {
             <TabsList className="rounded-xl bg-muted p-1">
               <TabsTrigger
                 value="resumen"
-                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-white data-[state=inactive]:text-muted-foreground"
+                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground"
               >
                 Resumen
               </TabsTrigger>
               <TabsTrigger
                 value="tabla"
-                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-white data-[state=inactive]:text-muted-foreground"
+                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground"
               >
                 Tabla
               </TabsTrigger>
@@ -1171,7 +1171,7 @@ export function BeneficiariesPanel() {
       <div className="mt-6 w-full space-y-4">
         <Card className="w-full rounded-xl border border-border bg-card shadow-md">
           <CardHeader className="border-b p-6">
-            <CardTitle className="text-lg font-bold text-card-foreground md:text-xl">
+            <CardTitle className="text-lg text-card-foreground md:text-xl">
               Buscar Beneficiario
             </CardTitle>
             <CardDescription className="text-sm text-muted-foreground">
@@ -1215,7 +1215,7 @@ export function BeneficiariesPanel() {
         {selectedAddress && selectedBeneficiary && (
           <Card className="w-full rounded-xl border border-border bg-card shadow-md">
             <CardHeader className="border-b p-6">
-              <CardTitle className="text-lg font-bold text-card-foreground md:text-xl">
+              <CardTitle className="text-lg text-card-foreground md:text-xl">
                 Editar Beneficiario
               </CardTitle>
               <CardDescription className="text-sm text-muted-foreground">

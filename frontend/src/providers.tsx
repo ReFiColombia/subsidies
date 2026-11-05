@@ -18,6 +18,14 @@ export const appKit = createAppKit({
   features: {
     analytics: true,
   },
+  themeMode: 'dark',
+  themeVariables: {
+    '--w3m-accent': '#5e71f5',
+    '--w3m-color-mix': '#0e1220',
+    '--w3m-color-mix-strength': 20,
+    '--w3m-font-family': 'Outfit, ui-sans-serif, system-ui, sans-serif',
+    '--w3m-border-radius-master': '2px',
+  },
   ...generalConfig,
 })
 

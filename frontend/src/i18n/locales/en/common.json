@@ -21,5 +21,7 @@
   "adminOnlyTitle": "Admins only",
   "adminConnect": "Connect the ReFi Colombia admin wallet to continue.",
   "adminDenied": "This wallet does not have access to the admin panel.",
-  "adminChecking": "Checking access..."
+  "adminChecking": "Checking access...",
+  "appName": "Subsidies",
+  "footerTagline": "Finance that regenerates Colombia."
 }

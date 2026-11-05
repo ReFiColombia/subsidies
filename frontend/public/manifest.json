@@ -4,8 +4,8 @@
   "description": "Claim and donate COPm subsidies on Celo",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1a0f2e",
-  "theme_color": "#7c3aed",
+  "background_color": "#0e1220",
+  "theme_color": "#0e1220",
   "icons": [
     {
       "src": "/icons/icon-192.png",
