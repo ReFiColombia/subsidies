@@ -3,8 +3,10 @@ import { formatUnits } from 'viem'
 
 import { Button } from '@/components/ui/button'
 import { secondsToDays } from '@/lib/utils'
+import { appKit } from '@/providers'
 
 type HeaderProps = {
+  isConnected: boolean
   isWhiteListed: boolean
   isAbleToClaim: boolean
   lastClaimed: bigint
@@ -13,6 +15,7 @@ type HeaderProps = {
 }
 
 export function Header({
+  isConnected,
   isWhiteListed,
   isAbleToClaim,
   lastClaimed,
@@ -23,13 +26,19 @@ export function Header({
   const locale = i18n.language === 'es' ? 'es-CO' : 'en-US'
 
   const getHeaderMessage = () => {
+    if (!isConnected) {
+      return (
+        <div className="space-y-4 text-center">
+          <p className="text-sm text-muted-foreground">{t('connectToClaim')}</p>
+          <Button className="w-full text-sm" onClick={() => appKit.open()}>
+            {t('connectWallet')}
+          </Button>
+        </div>
+      )
+    }
     if (!isWhiteListed) {
       return (
-        <div className="space-y-6 text-center">
-          <div className="text-sm leading-relaxed text-muted-foreground">
-            <p className="mb-3">{t('programDescription1')}</p>
-            <p>{t('programDescription2')}</p>
-          </div>
+        <div className="space-y-4 text-center">
           <div className="rounded-lg border border-border bg-muted p-3 text-sm font-medium text-muted-foreground">
             {t('notBeneficiary')}
           </div>

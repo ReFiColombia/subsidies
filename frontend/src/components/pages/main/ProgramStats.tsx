@@ -9,6 +9,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 
+import { SectionHeading } from '@/components/pages/main/SectionHeading'
 import {
   ChartContainer,
   ChartTooltip,
@@ -96,82 +97,87 @@ export function ProgramStats() {
   ]
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-center text-lg font-semibold text-foreground">
-        {t('transparencyTitle')}
-      </h3>
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
-        {statCards.map(({ icon: Icon, label, value, color }) => (
-          <div
-            key={label}
-            className="flex items-center gap-3 rounded-lg border border-border bg-muted p-3"
-          >
-            <Icon className={`h-5 w-5 ${color} shrink-0`} />
-            <div className="min-w-0">
-              <p className="text-xs text-muted-foreground">{label}</p>
-              <p className="break-words text-sm font-bold text-foreground">
-                {value}
-              </p>
+    <section>
+      <SectionHeading
+        title={t('transparencyTitle')}
+        subtitle={t('transparencySubtitle')}
+      />
+      <div className="space-y-4 rounded-xl border border-border bg-card p-4 shadow sm:p-6">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-2 gap-2 sm:gap-3">
+          {statCards.map(({ icon: Icon, label, value, color }) => (
+            <div
+              key={label}
+              className="flex items-start gap-2 rounded-lg border border-border bg-muted p-3 sm:items-center sm:gap-3"
+            >
+              <Icon
+                className={`mt-0.5 h-4 w-4 sm:mt-0 sm:h-5 sm:w-5 ${color} shrink-0`}
+              />
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground">{label}</p>
+                <p className="break-words text-sm font-bold text-foreground">
+                  {value}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      {/* Monthly Chart */}
-      <div className="rounded-lg border border-border bg-muted p-4">
-        <p className="mb-3 text-center text-xs text-muted-foreground">
-          {t('subsidiesByMonth')}
-        </p>
-        <ChartContainer config={chartConfig} className="h-[200px] w-full">
-          <BarChart
-            data={monthly}
-            margin={{ left: 0, right: 0, top: 8, bottom: 0 }}
-            barSize={20}
-          >
-            <CartesianGrid
-              vertical={false}
-              strokeDasharray="3 3"
-              stroke="rgba(255,255,255,0.1)"
-            />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              fontSize={10}
-              stroke="rgba(255,255,255,0.4)"
-              interval={2}
-            />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              fontSize={10}
-              stroke="rgba(255,255,255,0.4)"
-              tickMargin={4}
-              width={50}
-              tickFormatter={(v) => `${(v / 1_000_000).toFixed(1)}M`}
-            />
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  className="w-[160px]"
-                  nameKey="distributed"
-                  formatter={(value: unknown) =>
-                    `${formatCOP(Number(value))} COPm`
-                  }
-                />
-              }
-            />
-            <Bar
-              dataKey="distributed"
-              fill="hsl(271, 81%, 56%)"
-              radius={[4, 4, 0, 0]}
-            />
-          </BarChart>
-        </ChartContainer>
+        {/* Monthly Chart */}
+        <div className="rounded-lg border border-border bg-muted p-4">
+          <p className="mb-3 text-center text-xs text-muted-foreground">
+            {t('subsidiesByMonth')}
+          </p>
+          <ChartContainer config={chartConfig} className="h-[200px] w-full">
+            <BarChart
+              data={monthly}
+              margin={{ left: 0, right: 0, top: 8, bottom: 0 }}
+              barSize={20}
+            >
+              <CartesianGrid
+                vertical={false}
+                strokeDasharray="3 3"
+                stroke="rgba(255,255,255,0.1)"
+              />
+              <XAxis
+                dataKey="month"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                fontSize={10}
+                stroke="rgba(255,255,255,0.4)"
+                interval="preserveStartEnd"
+                minTickGap={24}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                fontSize={10}
+                stroke="rgba(255,255,255,0.4)"
+                tickMargin={4}
+                width={50}
+                tickFormatter={(v) => `${(v / 1_000_000).toFixed(1)}M`}
+              />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    className="w-[160px]"
+                    nameKey="distributed"
+                    formatter={(value: unknown) =>
+                      `${formatCOP(Number(value))} COPm`
+                    }
+                  />
+                }
+              />
+              <Bar
+                dataKey="distributed"
+                fill="hsl(271, 81%, 56%)"
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ChartContainer>
+        </div>
       </div>
-    </div>
+    </section>
   )
 }

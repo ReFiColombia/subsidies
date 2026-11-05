@@ -47,9 +47,7 @@ export function DonationStats() {
       <div className="flex items-center gap-3 rounded-lg border border-border bg-muted p-3">
         <Users className="h-5 w-5 shrink-0 text-brand-400" />
         <div>
-          <p className="text-xs text-muted-foreground">
-            {t('beneficiaries')}
-          </p>
+          <p className="text-xs text-muted-foreground">{t('beneficiaries')}</p>
           <p className="text-sm font-bold text-foreground">
             {activeBeneficiaries}
           </p>

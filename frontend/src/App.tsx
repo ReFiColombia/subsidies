@@ -14,7 +14,9 @@ import { Card, CardFooter } from '@/components/ui/card'
 
 import { Description } from './components/pages/main/Description'
 import { Info } from './components/pages/main/Info'
+import { ProgramIntro } from './components/pages/main/ProgramIntro'
 import { ProgramStats } from './components/pages/main/ProgramStats'
+import { SectionHeading } from './components/pages/main/SectionHeading'
 import { UserFundsCard } from './components/pages/main/UserFundsCard'
 import {
   DIVVI_CONSUMER_ADDRESS,
@@ -28,7 +30,7 @@ export function App() {
   const { t } = useTranslation('common')
   const { t: tMain } = useTranslation('main')
   const { toast } = useToast()
-  const { address } = useAppKitAccount()
+  const { address, isConnected } = useAppKitAccount()
 
   const getCeloscanUrl = (hash: string) => {
     return `https://celoscan.io/tx/${hash}`
@@ -152,61 +154,73 @@ export function App() {
   }, [isConfirmed, hash])
 
   return (
-    <div className="flex h-full w-full flex-1 flex-col items-center justify-center overflow-auto">
-      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-        <div className="flex flex-col items-stretch gap-8">
-          {/* Program transparency, first thing on the page */}
-          <div className="w-full">
-            <ProgramStats />
-          </div>
+    <div className="flex h-full w-full flex-1 flex-col items-center overflow-auto">
+      <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+        <div className="flex flex-col items-stretch gap-12 sm:gap-14">
+          {/* 1. What the program is */}
+          <ProgramIntro />
 
-          {/* Header */}
-          <div className="w-full">
-            <Header
-              isWhiteListed={isWhiteListed}
-              isAbleToClaim={isAbleToClaim}
-              lastClaimed={lastClaimed}
-              claimInterval={claimInterval}
-              valueToClaim={valueToClaim}
-            />
-          </div>
+          {/* 2. Live program figures */}
+          <ProgramStats />
 
-          {/* Claim Card */}
-          <Card className="w-full">
-            <Description
-              isWhiteListed={isWhiteListed}
-              isAbleToClaim={isAbleToClaim}
-              lastClaimed={lastClaimed}
-              claimInterval={claimInterval}
+          {/* 3. Donations */}
+          <section>
+            <SectionHeading
+              title={tMain('donateSectionTitle')}
+              subtitle={tMain('donateSectionSubtitle')}
             />
-            <Info
-              isWhiteListed={isWhiteListed}
-              lastClaimed={lastClaimed}
-              totalClaimed={totalClaimed}
-            />
-            <CardFooter className="px-6 pb-6 pt-2">
-              <Button
-                disabled={
-                  !isWhiteListed || !isAbleToClaim || isPending || isConfirming
-                }
-                className="w-full"
-                onClick={handleClaim}
-              >
-                {(isPending || isConfirming) && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                {tMain('claimButton')}
-              </Button>
-            </CardFooter>
-          </Card>
-
-          {/* Donate Funds Card */}
-          <div className="w-full">
             <UserFundsCard />
-            <p className="mt-6 text-center text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">
               {tMain('donationDisclaimer')}
             </p>
-          </div>
+          </section>
+
+          {/* 4. Beneficiaries: status and claim */}
+          <section>
+            <SectionHeading
+              title={tMain('beneficiarySectionTitle')}
+              subtitle={tMain('beneficiarySectionSubtitle')}
+            />
+            <Card className="w-full">
+              <div className="p-4 sm:p-6">
+                <Header
+                  isConnected={isConnected}
+                  isWhiteListed={isWhiteListed}
+                  isAbleToClaim={isAbleToClaim}
+                  lastClaimed={lastClaimed}
+                  claimInterval={claimInterval}
+                  valueToClaim={valueToClaim}
+                />
+              </div>
+              {isWhiteListed && (
+                <>
+                  <Description
+                    isWhiteListed={isWhiteListed}
+                    isAbleToClaim={isAbleToClaim}
+                    lastClaimed={lastClaimed}
+                    claimInterval={claimInterval}
+                  />
+                  <Info
+                    isWhiteListed={isWhiteListed}
+                    lastClaimed={lastClaimed}
+                    totalClaimed={totalClaimed}
+                  />
+                  <CardFooter className="px-6 pb-6 pt-2">
+                    <Button
+                      disabled={!isAbleToClaim || isPending || isConfirming}
+                      className="w-full"
+                      onClick={handleClaim}
+                    >
+                      {(isPending || isConfirming) && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
+                      {tMain('claimButton')}
+                    </Button>
+                  </CardFooter>
+                </>
+              )}
+            </Card>
+          </section>
         </div>
       </div>
     </div>
