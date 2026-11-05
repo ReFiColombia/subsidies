@@ -196,7 +196,7 @@ export function FundsCard() {
               <Label className="mb-2 text-muted-foreground">Cantidad</Label>
               <Input
                 name="amount"
-                placeholder="$cCop"
+                placeholder="COPm"
                 className="mt-1 text-foreground"
               />
             </CardContent>
