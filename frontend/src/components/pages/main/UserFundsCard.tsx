@@ -11,7 +11,7 @@ import {
 } from 'wagmi'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
   CCOP_CONTRACT_ADDRESS,
@@ -24,7 +24,6 @@ import { appKit } from '@/providers'
 
 import { DonationProgress, type DonationStep } from './DonationProgress'
 import { DonationReceipt } from './DonationReceipt'
-import { DonationStats } from './DonationStats'
 import { QuickAmountPicker } from './QuickAmountPicker'
 
 const SwapWidget = lazy(() =>
@@ -231,16 +230,7 @@ export function UserFundsCard() {
 
   return (
     <Card className="w-full">
-      <CardHeader className="pb-2 text-center">
-        <CardTitle className="text-lg font-semibold text-card-foreground">
-          {t('donateFunds')}
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="space-y-4 px-6 pb-6 pt-0">
-        {/* Donation Stats */}
-        <DonationStats />
-
+      <CardContent className="space-y-4 p-4 sm:p-6">
         {/* Balance Display */}
         {isConnected && balance !== undefined && (
           <div className="rounded-lg border border-border bg-muted p-3 text-center">

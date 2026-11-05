@@ -39,5 +39,17 @@
   "shareText": "I just donated {{amount}} COPm to the ReFi Colombia subsidies program! {{url}}",
   "swapWidgetError": "Could not load the swap widget.",
   "getCOPmDirectly": "You can get COPm directly on",
-  "or": "or"
+  "or": "or",
+  "heroEyebrow": "ReFi Colombia",
+  "heroTitle": "Subsidies Program",
+  "heroTagCOPm": "Paid in COPm",
+  "heroTagCelo": "Celo network",
+  "heroTagOnchain": "Fully verifiable onchain",
+  "transparencySubtitle": "Live figures from the program contract.",
+  "donateSectionTitle": "Support the program",
+  "donateSectionSubtitle": "Every COPm donation goes straight to the contract and is shared among beneficiaries.",
+  "beneficiarySectionTitle": "For beneficiaries",
+  "beneficiarySectionSubtitle": "Claim your subsidy when it is available.",
+  "connectToClaim": "Connect your wallet to see if you can claim your subsidy.",
+  "connectWallet": "Connect wallet"
 }
