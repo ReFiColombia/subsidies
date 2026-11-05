@@ -91,6 +91,11 @@ export function BeneficiariesPanel() {
   // Nuevo filtro de umbral
   const [amountThreshold, setAmountThreshold] = useState<string>('')
   const [amountComparison, setAmountComparison] = useState<'gt' | 'lt'>('gt')
+  // Last claim filter: within X days, more than X days ago (or never), never
+  const [lastClaimMode, setLastClaimMode] = useState<
+    'any' | 'within' | 'over' | 'never'
+  >('any')
+  const [lastClaimDays, setLastClaimDays] = useState<string>('')
 
   // Beneficiary management states
   const [searchAddress, setSearchAddress] = useState('')
@@ -297,7 +302,10 @@ export function BeneficiariesPanel() {
     const sorted = [...data_beneficiaries.beneficiaries]
     if (sortConfig !== null) {
       sorted.sort((a, b) => {
+        // Mixed string, number and bigint values compared below
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let aVal: any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let bVal: any
 
         // Handle database fields (name, phoneNumber, responsable)
@@ -384,6 +392,20 @@ export function BeneficiariesPanel() {
         if (amountComparison === 'lt' && !(claimed < threshold)) return false
       }
 
+      // Last claim filter (skipped until the contract data has loaded)
+      if (lastClaimMode !== 'any' && lastClaimLookup.size > 0) {
+        const last = lastClaimLookup.get(beneficiary.id.toLowerCase())
+        if (last === undefined) return false
+        if (lastClaimMode === 'never') {
+          if (last !== 0) return false
+        } else if (lastClaimDays !== '') {
+          const limit = Number(lastClaimDays)
+          const days = last === 0 ? Infinity : daysSince(last)
+          if (lastClaimMode === 'within' && !(days <= limit)) return false
+          if (lastClaimMode === 'over' && !(days > limit)) return false
+        }
+      }
+
       return true
     })
   }, [
@@ -393,6 +415,9 @@ export function BeneficiariesPanel() {
     dateRange,
     amountThreshold,
     amountComparison,
+    lastClaimMode,
+    lastClaimDays,
+    lastClaimLookup,
     beneficiaryLookup,
   ])
 
@@ -505,8 +530,8 @@ export function BeneficiariesPanel() {
 
   return (
     <div className="flex w-full min-w-0 flex-col items-center justify-center">
-      <Card className="w-full rounded-xl border border-border bg-card p-0 shadow-md">
-        <CardHeader className="mb-4 flex flex-col gap-3 border-b p-4 sm:p-6 md:flex-row md:items-center md:justify-between">
+      <Card className="w-full p-0">
+        <CardHeader className="mb-4 flex flex-col gap-3 border-b border-[var(--line)] p-4 sm:p-6 md:flex-row md:items-center md:justify-between">
           <div>
             <CardTitle className="text-lg text-card-foreground md:text-xl">
               Beneficiarios
@@ -520,16 +545,16 @@ export function BeneficiariesPanel() {
             value={activeTab}
             onValueChange={(v) => setActiveTab(v as 'resumen' | 'tabla')}
           >
-            <TabsList className="rounded-xl bg-muted p-1">
+            <TabsList className="inline-flex w-full rounded-full border border-[var(--line)] bg-muted/60 p-1 sm:w-auto">
               <TabsTrigger
                 value="resumen"
-                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground"
+                className="flex-1 rounded-full px-4 py-1.5 text-sm font-medium transition-colors data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground sm:flex-none"
               >
                 Resumen
               </TabsTrigger>
               <TabsTrigger
                 value="tabla"
-                className="tab-button rounded-lg px-4 transition-colors data-[state=active]:bg-primary data-[state=inactive]:bg-muted data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground"
+                className="flex-1 rounded-full px-4 py-1.5 text-sm font-medium transition-colors data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground sm:flex-none"
               >
                 Tabla
               </TabsTrigger>
@@ -561,20 +586,20 @@ export function BeneficiariesPanel() {
             )}
             {activeTab === 'resumen' && (
               <>
-                <div className="mb-4 grid w-full grid-cols-1 gap-4 p-0 py-6 md:grid-cols-3">
-                  <div className="flex h-full flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
-                    <p className="mb-2 text-sm font-medium text-muted-foreground">
+                <div className="mb-4 grid w-full grid-cols-1 gap-3 p-0 py-6 sm:grid-cols-3 sm:gap-4">
+                  <div className="flex h-full items-center justify-between gap-3 rounded-2xl border border-[var(--line)] bg-muted/60 px-4 py-3 sm:flex-col sm:items-start sm:justify-center sm:gap-1 sm:px-5 sm:py-4">
+                    <p className="text-sm font-medium text-muted-foreground sm:mb-1">
                       Beneficiarios activos
                     </p>
-                    <p className="text-xl font-bold text-card-foreground">
+                    <p className="whitespace-nowrap text-base font-bold tabular-nums text-card-foreground sm:text-xl">
                       {sortedBeneficiaries.filter((b) => b.isActive).length}
                     </p>
                   </div>
-                  <div className="flex h-full flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
-                    <p className="mb-2 text-sm font-medium text-muted-foreground">
+                  <div className="flex h-full items-center justify-between gap-3 rounded-2xl border border-[var(--line)] bg-muted/60 px-4 py-3 sm:flex-col sm:items-start sm:justify-center sm:gap-1 sm:px-5 sm:py-4">
+                    <p className="text-sm font-medium text-muted-foreground sm:mb-1">
                       Promedio reclamado por beneficiario
                     </p>
-                    <p className="text-xl font-bold text-card-foreground">
+                    <p className="whitespace-nowrap text-base font-bold tabular-nums text-card-foreground sm:text-xl">
                       {new Intl.NumberFormat('es-CO', {
                         minimumFractionDigits: 0,
                         maximumFractionDigits: 0,
@@ -590,11 +615,11 @@ export function BeneficiariesPanel() {
                       COPm
                     </p>
                   </div>
-                  <div className="flex h-full flex-col items-center justify-center rounded-lg border border-border bg-muted p-6 text-center shadow-sm">
-                    <p className="mb-2 text-sm font-medium text-muted-foreground">
+                  <div className="flex h-full items-center justify-between gap-3 rounded-2xl border border-[var(--line)] bg-muted/60 px-4 py-3 sm:flex-col sm:items-start sm:justify-center sm:gap-1 sm:px-5 sm:py-4">
+                    <p className="text-sm font-medium text-muted-foreground sm:mb-1">
                       Intervalo de reclamo más común
                     </p>
-                    <p className="text-xl font-bold text-card-foreground">
+                    <p className="whitespace-nowrap text-base font-bold tabular-nums text-card-foreground sm:text-xl">
                       {mostCommonInterval !== null
                         ? `${mostCommonInterval} días`
                         : 'Cargando...'}
@@ -602,7 +627,7 @@ export function BeneficiariesPanel() {
                   </div>
                 </div>
                 {/* Leaderboard */}
-                <div className="w-full rounded-lg border border-border bg-muted p-4 shadow-sm">
+                <div className="w-full rounded-2xl border border-[var(--line)] bg-muted/60 p-4 sm:p-5">
                   <p className="mb-2 font-medium text-muted-foreground">
                     Top 5 beneficiarios por monto reclamado
                   </p>
@@ -791,6 +816,66 @@ export function BeneficiariesPanel() {
                     </SelectContent>
                   </Select>
                 </div>
+                {/* Last claim filter */}
+                <div className="mb-4 flex w-full flex-wrap items-center gap-2">
+                  <span className="whitespace-nowrap text-sm font-medium text-brand-400">
+                    Último reclamo:
+                  </span>
+                  <Select
+                    value={lastClaimMode}
+                    onValueChange={(v) =>
+                      setLastClaimMode(v as 'any' | 'within' | 'over' | 'never')
+                    }
+                  >
+                    <SelectTrigger className="h-10 w-full border-2 border-primary bg-card font-medium text-brand-400 hover:bg-muted focus:ring-primary sm:w-[230px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="any">Cualquier fecha</SelectItem>
+                      <SelectItem value="within">
+                        En los últimos X días
+                      </SelectItem>
+                      <SelectItem value="over">
+                        Hace más de X días o nunca
+                      </SelectItem>
+                      <SelectItem value="never">Nunca ha reclamado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {(lastClaimMode === 'within' || lastClaimMode === 'over') && (
+                    <div className="flex flex-1 items-center gap-2">
+                      <Input
+                        type="number"
+                        min="0"
+                        step="1"
+                        placeholder="Días"
+                        value={lastClaimDays}
+                        onChange={(e) => setLastClaimDays(e.target.value)}
+                        className="h-10 w-28 border-2 border-primary bg-card font-medium text-brand-400 placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
+                      />
+                      <div className="flex flex-wrap gap-1">
+                        {[7, 15, 30, 60].map((d) => (
+                          <button
+                            key={d}
+                            type="button"
+                            onClick={() => setLastClaimDays(String(d))}
+                            className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                              lastClaimDays === String(d)
+                                ? 'border-primary bg-primary text-primary-foreground'
+                                : 'border-[var(--line-strong)] text-muted-foreground hover:text-foreground'
+                            }`}
+                          >
+                            {d} d
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <span className="ml-auto text-xs text-muted-foreground">
+                    {filteredBeneficiaries.length} de{' '}
+                    {sortedBeneficiaries.length}
+                  </span>
+                </div>
+
                 {/* Phones: one card per beneficiary, nothing cut off */}
                 <ul className="space-y-3 md:hidden">
                   {filteredBeneficiaries.length === 0 && (
@@ -1253,7 +1338,7 @@ export function BeneficiariesPanel() {
       {/* Beneficiary Management Section */}
       <div className="mt-6 w-full space-y-4">
         <Card className="w-full rounded-xl border border-border bg-card shadow-md">
-          <CardHeader className="border-b p-6">
+          <CardHeader className="border-b border-[var(--line)] p-4 sm:p-6">
             <CardTitle className="text-lg text-card-foreground md:text-xl">
               Buscar Beneficiario
             </CardTitle>
@@ -1262,7 +1347,7 @@ export function BeneficiariesPanel() {
               información
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex gap-2">
               <div className="flex-1">
                 <Input
@@ -1297,7 +1382,7 @@ export function BeneficiariesPanel() {
 
         {selectedAddress && selectedBeneficiary && (
           <Card className="w-full rounded-xl border border-border bg-card shadow-md">
-            <CardHeader className="border-b p-6">
+            <CardHeader className="border-b border-[var(--line)] p-4 sm:p-6">
               <CardTitle className="text-lg text-card-foreground md:text-xl">
                 Editar Beneficiario
               </CardTitle>
@@ -1305,7 +1390,7 @@ export function BeneficiariesPanel() {
                 Dirección: {selectedAddress}
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="space-y-4">
                 <div>
                   <Label
@@ -1497,17 +1582,21 @@ export function BeneficiariesPanel() {
   )
 }
 
+// Calendar days between a unix timestamp and today, in local time.
+function daysSince(seconds: number): number {
+  const day = new Date(seconds * 1000)
+  day.setHours(0, 0, 0, 0)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return Math.round((today.getTime() - day.getTime()) / 86400000)
+}
+
 // Date of a beneficiary's last claim plus how long ago it was.
 function LastClaim({ seconds }: { seconds: number | undefined }) {
   if (seconds === undefined)
     return <span className="text-muted-foreground">...</span>
   if (seconds === 0) return <span className="text-muted-foreground">Nunca</span>
-  // Calendar days between the claim date and today, in local time.
-  const claimDay = new Date(seconds * 1000)
-  claimDay.setHours(0, 0, 0, 0)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const days = Math.round((today.getTime() - claimDay.getTime()) / 86400000)
+  const days = daysSince(seconds)
   const ago =
     days <= 0 ? 'hoy' : days === 1 ? 'hace 1 día' : `hace ${days} días`
   return (

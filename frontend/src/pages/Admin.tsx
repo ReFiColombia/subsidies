@@ -10,8 +10,8 @@ function AdminNotice({ message }: { message: string }) {
   const { t } = useTranslation('common')
   return (
     <div className="flex min-h-[60vh] items-center justify-center p-4">
-      <div className="max-w-md rounded-lg border p-8 text-center">
-        <h1 className="text-xl font-bold">{t('adminOnlyTitle')}</h1>
+      <div className="w-full max-w-md rounded-[20px] border border-[var(--line)] bg-card p-8 text-center">
+        <h1 className="font-display text-2xl">{t('adminOnlyTitle')}</h1>
         <p className="mt-3 text-muted-foreground">{message}</p>
       </div>
     </div>
@@ -29,13 +29,26 @@ export function AdminPanel() {
   if (!isAdmin) return <AdminNotice message={t('adminDenied')} />
 
   return (
-    <div className="mx-auto my-6 grid w-full max-w-7xl grid-cols-1 gap-4 px-4 md:my-8 md:px-6 lg:grid-cols-12 lg:gap-8">
-      <div className="col-span-12 flex w-full min-w-0 flex-col gap-4 lg:col-span-4 lg:gap-8">
-        <BeneficiariesCard />
-        <FundsCard />
+    <div className="mx-auto w-full max-w-7xl px-4 py-6 md:px-6 md:py-8">
+      <div className="mb-6 md:mb-8">
+        <h1 className="font-display text-2xl text-foreground md:text-3xl">
+          {t('adminPanel')}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {t('adminSubtitle')}
+        </p>
       </div>
-      <div className="col-span-12 flex w-full min-w-0 justify-center lg:col-span-8">
-        <Dashboard />
+      {/* Phones and tablets: data first, actions after. Desktop: the two
+          action cards side by side on top, the dashboard full width below so
+          the beneficiaries table has room for every column. */}
+      <div className="flex flex-col gap-6 lg:gap-8">
+        <div className="order-2 grid min-w-0 grid-cols-1 items-start gap-6 md:grid-cols-2 lg:order-1 lg:gap-8">
+          <BeneficiariesCard />
+          <FundsCard />
+        </div>
+        <div className="order-1 flex min-w-0 lg:order-2">
+          <Dashboard />
+        </div>
       </div>
     </div>
   )
